@@ -19,7 +19,7 @@
 
     <!-- Encabezado de Impresión / PDF -->
     <div class="col-12 d-none d-print-block text-center mb-4 pb-3 border-bottom">
-        <h1 class="fw-bold text-tekfix-main mb-1"><i class="fa-solid fa-chart-line me-2"></i> Tekfix Oficial</h1>
+        <h1 class="fw-bold text-tekfix-main mb-1"><i class="fa-solid fa-chart-line me-2"></i> Bendito Encanto</h1>
         <h4 class="text-tekfix-sec fw-semibold">REPORTE CONSOLIDADO DE VENTAS</h4>
         <p class="mb-0 text-secondary">
             Período Analizado: <strong>{{ fecha_inicio if fecha_inicio else 'Inicios' }}</strong> hasta <strong>{{ fecha_fin if fecha_fin else 'Hoy' }}</strong>
@@ -136,7 +136,7 @@
             <tbody>
                 {% for venta in ventas %}
                 <tr>
-                    <td class="fw-bold text-tekfix-main align-middle">Ticket #{{ "%05d"|format(venta.id) }}</td>
+                    <td class="fw-bold text-tekfix-main align-middle">Ticket #{{ "%05d"|format(venta.consecutivo or venta.id) }}</td>
                     <td class="align-middle text-tekfix-sec"><i class="fa-regular fa-calendar text-tekfix-primary me-1"></i> {{ venta.fecha_venta.strftime('%Y-%m-%d a las %H:%M') }}</td>
                     <td class="align-middle fw-semibold text-tekfix-main">
                         <i class="fa-solid fa-user-circle text-tekfix-sec me-1"></i> {{ venta.vendedor.nombre }}

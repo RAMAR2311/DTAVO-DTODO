@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="fw-bold text-tekfix-main"><i class="fa-solid fa-ship text-info me-2"></i> Gestión de Importaciones</h2>
+        <p class="text-tekfix-sec">Control de costos de contenedores, fletes e incidencias.</p>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <button class="btn btn-tekfix shadow-sm px-4 py-2" data-bs-toggle="modal" data-bs-target="#modalNuevaImportacion">
+            <i class="fa-solid fa-plus me-2"></i> Nueva Importación
+        </button>
+    </div>
+</div>
+
+<!-- Tabla de Importaciones -->
+<div class="card card-custom shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-custom table-hover m-0">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Contenedor</th>
+                        <th>Proveedor</th>
+                        <th>Valor Mercancía</th>
+                        <th>Valor Flete</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for imp in importaciones %}
+                    <tr>
+                        <td>{{ imp.fecha_registro.strftime('%d/%m/%Y') }}</td>
+                        <td class="fw-bold">#{{ imp.numero_contenedor }}</td>
+                        <td>{{ imp.proveedor.nombre }}</td>
+                        <td>${{ imp.valor_contenedor | cop }}</td>
+                        <td>${{ imp.valor_flete | cop }}</td>
+                        <td class="text-tekfix-primary fw-bold">${{ imp.pago_total | cop }}</td>
+                        <td>
+                            {% if imp.pedido_completo %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">Completo</span>
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">Incompleto</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-info rounded-pill px-3" onclick="verDetalle('{{ imp.id }}')">
+                                    <i class="fa-solid fa-eye"></i> Detalle
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning rounded-pill px-3" onclick="abrirModalEditar('{{ imp.id }}')">
+                                    <i class="fa-solid fa-pen"></i> Editar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-tekfix-sec">
+                            <i class="fa-solid fa-circle-info fs-1 mb-3 d-block opacity-25"></i>
+                            No hay importaciones registradas.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Registro/Edición Importación -->
+<div class="modal fade" id="modalNuevaImportacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ url_for('importaciones_bp.crear') }}" method="POST" id="formImportacion">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="modalTitle"><i class="fa-solid fa-file-circle-plus me-2"></i> Registro de Contenedor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Alerta Dinámica -->
+                    <div id="alertaIncompleto" class="alert alert-danger border-0 shadow-sm mb-4 d-none">
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-triangle-exclamation fs-3 me-3"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">⚠️ ATENCIÓN: Contenedor Incompleto</h6>
+                                <p class="mb-0 small">El contenedor <strong id="alertContainerNum">#---</strong> se está registrando con productos faltantes. Por favor detalle la novedad en las observaciones.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Proveedor</label>
+                            <select name="proveedor_id" id="selectProveedor" class="form-select" required>
+                                <option value="" selected disabled>Seleccione un proveedor...</option>
+                                {% for prov in proveedores %}
+                                <option value="{{ prov.id }}">{{ prov.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Número de Contenedor</label>
+                            <input type="text" name="numero_contenedor" id="inputContenedor" class="form-control" placeholder="Ej: ABCU1234567" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Valor Mercancía (Contenedor)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" step="0.01" name="valor_contenedor" id="inputValorContenedor" class="form-control" placeholder="0.00" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Valor Flete</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" step="0.01" name="valor_flete" id="inputValorFlete" class="form-control" placeholder="0.00" required>
+                            </div>
+                            <small class="text-tekfix-sec opacity-75">Este valor no se recalculará en caso de faltantes.</small>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="form-check form-switch p-3 bg-tekfix-secondary rounded-3 border transition-all" id="switchWrapper">
+                                <input class="form-check-input ms-0 me-3" type="checkbox" name="pedido_completo" id="switchCompleto" checked>
+                                <label class="form-check-label fw-bold text-tekfix-main" for="switchCompleto">¿La caja llegó con la mercancía completa?</label>
+                            </div>
+                        </div>
+
+                        <div class="col-12" id="wrapperObservaciones">
+                            <label class="form-label fw-semibold">Observaciones / Novedades</label>
+                            <textarea name="observaciones" id="textareaObservaciones" class="form-control" rows="3" placeholder="Detalle cualquier novedad aquí..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-tekfix px-4 py-2" id="btnSubmit">Guardar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detalle -->
+<div class="modal fade" id="modalDetalleImportacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Detalle de Importación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-0" id="detalleContent">
+                <!-- Se llena con JS -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modalElement = document.getElementById('modalNuevaImportacion');
+    const bootstrapModal = new bootstrap.Modal(modalElement);
+    const formImportacion = document.getElementById('formImportacion');
+    const modalTitle = document.getElementById('modalTitle');
+    const btnSubmit = document.getElementById('btnSubmit');
+
+    const switchCompleto = document.getElementById('switchCompleto');
+    const alertaIncompleto = document.getElementById('alertaIncompleto');
+    const textareaObservaciones = document.getElementById('textareaObservaciones');
+    const inputContenedor = document.getElementById('inputContenedor');
+    const alertContainerNum = document.getElementById('alertContainerNum');
+    const wrapperObservaciones = document.getElementById('wrapperObservaciones');
+
+    const selectProveedor = document.getElementById('selectProveedor');
+    const inputValorContenedor = document.getElementById('inputValorContenedor');
+    const inputValorFlete = document.getElementById('inputValorFlete');
+
+    const switchWrapper = document.getElementById('switchWrapper');
+
+    function toggleAlert() {
+        const isComplete = switchCompleto.checked;
+        if (!isComplete) {
+            alertaIncompleto.classList.remove('d-none');
+            textareaObservaciones.setAttribute('required', 'true');
+            textareaObservaciones.classList.add('is-invalid'); 
+            wrapperObservaciones.querySelector('label').innerHTML = 'Observaciones / Novedades <span class="text-danger">*</span>';
+            alertContainerNum.textContent = '#' + (inputContenedor.value || '---');
+            
+            // Cambio de color visual para advertencia
+            switchWrapper.classList.remove('bg-tekfix-secondary');
+            switchWrapper.classList.add('bg-danger-subtle', 'border-danger');
+        } else {
+            alertaIncompleto.classList.add('d-none');
+            textareaObservaciones.removeAttribute('required');
+            textareaObservaciones.classList.remove('is-invalid');
+            wrapperObservaciones.querySelector('label').innerHTML = 'Observaciones / Novedades';
+
+            // Restaurar color original
+            switchWrapper.classList.add('bg-tekfix-secondary');
+            switchWrapper.classList.remove('bg-danger-subtle', 'border-danger');
+        }
+    }
+
+    switchCompleto.addEventListener('change', toggleAlert);
+    inputContenedor.addEventListener('input', function() {
+        if (!switchCompleto.checked) {
+            alertContainerNum.textContent = '#' + (this.value || '---');
+        }
+    });
+
+    // Resetear modal al cerrarse para que vuelva a modo "Crear"
+    modalElement.addEventListener('hidden.bs.modal', function () {
+        formImportacion.reset();
+        formImportacion.action = "{{ url_for('importaciones_bp.crear') }}";
+        modalTitle.innerHTML = '<i class="fa-solid fa-file-circle-plus me-2"></i> Registro de Contenedor';
+        btnSubmit.textContent = 'Guardar Registro';
+        toggleAlert();
+    });
+
+    window.abrirModalEditar = function(id) {
+        fetch(`/importaciones/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                modalTitle.innerHTML = '<i class="fa-solid fa-pen-to-square me-2"></i> Editar Contenedor #' + data.numero_contenedor;
+                btnSubmit.textContent = 'Actualizar Datos';
+                formImportacion.action = `/importaciones/editar/${id}`;
+                
+                selectProveedor.value = data.proveedor_id;
+                inputContenedor.value = data.numero_contenedor;
+                inputValorContenedor.value = data.valor_contenedor;
+                inputValorFlete.value = data.valor_flete;
+                switchCompleto.checked = data.pedido_completo;
+                textareaObservaciones.value = data.observaciones || '';
+                
+                toggleAlert();
+                bootstrapModal.show();
+            });
+    };
+
+    // Función para ver detalle (AJAX)
+    window.verDetalle = function(id) {
+        fetch(`/importaciones/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                const content = `
+                    <div class="p-3 bg-tekfix-secondary rounded-3 border mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-tekfix-sec">Contenedor:</span>
+                            <span class="fw-bold">#${data.numero_contenedor}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-tekfix-sec">Proveedor:</span>
+                            <span>${data.proveedor_nombre}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-tekfix-sec">Fecha:</span>
+                            <span>${data.fecha}</span>
+                        </div>
+                        <hr class="my-2 border-tekfix-border" style="opacity: 0.1;">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-tekfix-sec">Mercancía:</span>
+                            <span class="fw-bold">$${new Intl.NumberFormat('es-CO').format(data.valor_contenedor)}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-tekfix-sec">Flete:</span>
+                            <span class="fw-bold">$${new Intl.NumberFormat('es-CO').format(data.valor_flete)}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mt-3 pt-2 border-top border-tekfix-border">
+                            <span class="fw-bold">PAGO TOTAL:</span>
+                            <span class="fw-bold text-tekfix-primary fs-5">$${new Intl.NumberFormat('es-CO').format(data.pago_total)}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-2">Estado: ${data.pedido_completo ? '<span class="text-success">COMPLETO</span>' : '<span class="text-danger">INCOMPLETO</span>'}</h6>
+                        <div class="p-2 rounded bg-light text-dark small" style="white-space: pre-line;">
+                            <strong>Observaciones:</strong><br>
+                            ${data.observaciones || 'Sin observaciones.'}
+                        </div>
+                    </div>
+                `;
+                document.getElementById('detalleContent').innerHTML = content;
+                new bootstrap.Modal(document.getElementById('modalDetalleImportacion')).show();
+            });
+    };
+});
+</script>
+
+<style>
+/* Estilos extra para badges y contrastes */
+.badge.bg-success-subtle {
+    background-color: rgba(25, 135, 84, 0.1) !important;
+}
+.badge.bg-danger-subtle {
+    background-color: rgba(220, 53, 69, 0.1) !important;
+}
+.form-switch .form-check-input {
+    width: 3em;
+    height: 1.5em;
+    cursor: pointer;
+    margin-left: -2.5em;
+}
+.form-switch .form-check-input:checked {
+    background-color: var(--tekfix-accent);
+    border-color: var(--tekfix-accent);
+}
+.form-switch {
+    padding-left: 3.5em !important;
+}
+</style>
+{% endblock %}

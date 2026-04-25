@@ -1,28 +1,15 @@
 from flask import Blueprint, request, jsonify, flash, redirect, render_template, abort, url_for
 from flask_login import login_required, current_user
-from models import db, Product, ProductVariant, Sale, SaleDetail, SalePayment, Expense, DynamicKey, obtener_hora_bogota
+from models import db, Product, ProductVariant, Sale, SaleDetail, SalePayment, Expense, DynamicKey, ProductExchange, obtener_hora_bogota
 from decorators import admin_required
 from decimal import Decimal
 from datetime import datetime, timedelta
-from sqlalchemy import or_
+from sqlalchemy import or_, cast, String, func
 from sqlalchemy.orm import joinedload
 
 sales_bp = Blueprint('sales_bp', __name__)
 
-@sales_bp.route('/api/validar-clave', methods=['POST'])
-@login_required
-def validar_clave():
-    data = request.get_json()
-    codigo = data.get('codigo', '').strip().upper()
-    
-    clave = DynamicKey.query.filter_by(key_code=codigo).first()
-    
-    if clave and clave.is_valid():
-        clave.is_used = True
-        db.session.commit()
-        return jsonify({'success': True})
-    
-    return jsonify({'success': False}), 400
+
 
 @sales_bp.route('/nueva', methods=['GET', 'POST'])
 @login_required # Importante: Te bloqueará el acceso si no hay current_user logeado (Flask-Login)
@@ -36,8 +23,9 @@ def procesar_venta():
     """
     data = request.get_json()
     items = data.get('items', [])
-    pagos_data = data.get('pagos', [])  # Nuevo: array de pagos mixtos
-    metodo_pago_legacy = data.get('metodo_pago', 'efectivo')  # Retrocompatibilidad
+    pagos_data = data.get('pagos', [])
+    cliente_nombre = data.get('cliente', 'Consumidor Final')
+    metodo_pago_legacy = data.get('metodo_pago', 'efectivo')
     
     if not items:
         return jsonify({'error': 'No se enviaron productos para la venta'}), 400
@@ -65,8 +53,14 @@ def procesar_venta():
             except ValueError:
                 pass # Fallback silencioso a la hora actual si el formato falla
 
+        # Calcular el siguiente consecutivo
+        ultimo_consecutivo = db.session.query(func.max(Sale.consecutivo)).scalar() or 0
+        siguiente_consecutivo = ultimo_consecutivo + 1
+
         nueva_venta = Sale(
             vendedor_id=current_user.id,
+            consecutivo=siguiente_consecutivo,
+            cliente_nombre=cliente_nombre,
             monto_total=Decimal('0.00'),
             metodo_pago=metodo_pago_principal,
             fecha_venta=fecha_venta_obj
@@ -135,14 +129,6 @@ def procesar_venta():
                     producto.cantidad_stock -= cantidad_vendida
                     precio_limite_autorizado = producto.precio_costo if current_user.rol == 'admin' else producto.precio_minimo
 
-                if precio_venta_final < precio_limite_autorizado:
-                    auth = item.get('autorizacion')
-                    if auth:
-                        clave = DynamicKey.query.filter_by(key_code=auth).first()
-                        if not clave or not clave.is_used:
-                            raise ValueError(f"Código de autorización inválido para el producto '{producto.nombre}'.")
-                    else:
-                        raise ValueError(f"No autorizado: El precio ({precio_venta_final}) del producto '{producto.nombre}' está por debajo del límite permitido ({precio_limite_autorizado}).")
 
                 detalle = SaleDetail(
                     sale_id=nueva_venta.id,
@@ -361,4 +347,171 @@ def catalogo():
         productos = Product.query.filter_by(tipo_inventario='tienda').limit(50).all()
         
     return render_template('sales/catalogo.html', productos=productos, q=query_str)
+
+
+# ========================================================
+# ====== API ENDPOINTS PARA GESTIÓN DE CAMBIOS ======
+# ========================================================
+
+@sales_bp.route('/api/search-invoices', methods=['GET'])
+@login_required
+def search_invoices():
+    q = request.args.get('q', '').strip()
+    if not q:
+        return jsonify([])
+    
+    # Buscar por Consecutivo (Ticket #) o cliente
+    invoices = Sale.query.filter(
+        or_(
+            cast(Sale.consecutivo, String).ilike(f"%{q}%"),
+            Sale.cliente_nombre.ilike(f"%{q}%")
+        )
+    ).order_by(Sale.fecha_venta.desc()).limit(10).all()
+    
+    return jsonify([{
+        'id': inv.id,
+        'factura': f"{inv.consecutivo:05d}" if inv.consecutivo else f"{inv.id:05d}",
+        'cliente': inv.cliente_nombre or 'Consumidor Final',
+        'fecha': inv.fecha_venta.strftime('%d/%m/%Y'),
+        'total': float(inv.monto_total) 
+    } for inv in invoices])
+
+@sales_bp.route('/api/invoice-details/<int:id>', methods=['GET'])
+@login_required
+def invoice_details(id):
+    sale = Sale.query.get_or_404(id)
+    details = []
+    for d in sale.detalles:
+        # Manejar nombre para productos normales y manuales
+        nombre_item = d.producto.nombre if d.producto else d.nombre_manual
+        
+        details.append({
+            'id': d.id,
+            'product_id': d.product_id,
+            'variant_id': d.variant_id,
+            'nombre': nombre_item or 'Producto sin nombre',
+            'variante': d.variante.nombre_variante if d.variante else 'Base',
+            'cantidad': d.cantidad_vendida,
+            'precio_final': float(d.precio_venta_final)
+        })
+    return jsonify(details)
+
+@sales_bp.route('/api/search-stock', methods=['GET'])
+@login_required
+def search_stock():
+    q = request.args.get('q', '').strip()
+    if not q:
+        return jsonify([])
+    
+    search_term = f"%{q}%"
+    
+    # Buscar productos base que no tienen variantes
+    products_base = Product.query.filter_by(tipo_inventario='tienda').filter(
+        or_(Product.sku.ilike(search_term), Product.nombre.ilike(search_term))
+    ).all()
+    
+    results = []
+    for p in products_base:
+        if not p.variantes:
+            results.append({
+                'id': p.id,
+                'variant_id': None,
+                'sku': p.sku,
+                'nombre': p.nombre,
+                'variante': None,
+                'precio': float(p.precio_sugerido),
+                'stock': p.cantidad_stock
+            })
+        else:
+            for v in p.variantes:
+                # Búsqueda más flexible
+                if q.lower() in v.nombre_variante.lower() or q.lower() in p.nombre.lower() or q.lower() in p.sku.lower():
+                    results.append({
+                        'id': p.id,
+                        'variant_id': v.id,
+                        'sku': p.sku,
+                        'nombre': p.nombre,
+                        'variante': v.nombre_variante,
+                        'precio': float(v.precio_sugerido or p.precio_sugerido),
+                        'stock': v.cantidad_stock
+                    })
+    
+    return jsonify(results[:20])
+
+@sales_bp.route('/api/process-exchange', methods=['POST'])
+@login_required
+def process_exchange():
+    data = request.json
+    try:
+        sale_id = data.get('sale_id')
+        returned = data.get('returned_item')
+        new = data.get('new_item')
+        reason = data.get('reason')
+        perfect_state = data.get('perfect_state')
+        excedente = Decimal(str(data.get('excedente', 0)))
+        metodo_pago = data.get('metodo_pago')
+
+        # 1. Reversar Stock del producto que regresa (si está OK)
+        if perfect_state:
+            if returned.get('variant_id'):
+                var_ret = ProductVariant.query.get(returned['variant_id'])
+                if var_ret: var_ret.cantidad_stock += 1
+            else:
+                prod_ret = Product.query.get(returned['product_id'])
+                if prod_ret: prod_ret.cantidad_stock += 1
+
+        # 2. Disminuir Stock del producto nuevo que sale
+        if new.get('variant_id'):
+            var_new = ProductVariant.query.get(new['variant_id'])
+            if var_new: 
+                if var_new.cantidad_stock < 1:
+                    return jsonify({'error': 'No hay stock suficiente de la prenda nueva.'}), 400
+                var_new.cantidad_stock -= 1
+        else:
+            prod_new = Product.query.get(new['id'])
+            if prod_new:
+                if prod_new.cantidad_stock < 1:
+                    return jsonify({'error': 'No hay stock suficiente de la prenda nueva.'}), 400
+                prod_new.cantidad_stock -= 1
+
+        # 3. Registrar el Cambio en la base de datos
+        exchange = ProductExchange(
+            sale_id=sale_id,
+            admin_id=current_user.id,
+            product_returned_id=returned['product_id'],
+            variant_returned_id=returned['variant_id'],
+            product_new_id=new['id'],
+            variant_new_id=new['variant_id'],
+            reason=reason,
+            excedente_pagado=excedente,
+            metodo_pago_excedente=metodo_pago if excedente > 0 else None
+        )
+        db.session.add(exchange)
+        
+        db.session.commit()
+        return jsonify({'success': True})
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@sales_bp.route('/api/exchanges-history', methods=['GET'])
+@login_required
+def exchanges_history():
+    exchanges = ProductExchange.query.order_by(ProductExchange.created_at.desc()).all()
+    results = []
+    for ex in exchanges:
+        results.append({
+            'fecha': ex.created_at.strftime('%d/%m/%Y %H:%M'),
+            'sale_consecutivo': f"{ex.venta.consecutivo:05d}" if ex.venta.consecutivo else f"{ex.venta.id:05d}",
+            'admin': ex.admin.nombre,
+            'devuelto_nombre': ex.producto_devuelto.nombre if ex.producto_devuelto else 'Producto Externo',
+            'devuelto_variante': ex.variante_devuelta.nombre_variante if ex.variante_devuelta else 'Base',
+            'nuevo_nombre': ex.producto_nuevo.nombre if ex.producto_nuevo else 'Producto Externo',
+            'nuevo_variante': ex.variante_nueva.nombre_variante if ex.variante_nueva else 'Base',
+            'motivo': ex.reason,
+            'excedente': float(ex.excedente_pagado)
+        })
+    return jsonify(results)
+
 

@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, abort, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from models import db, Product, ProductVariant, Sale, User, Maneo, SaleDetail, SalePayment, StockAdjustment, Expense, Loss, Provider, ProviderInvoice, ProviderPayment, Warranty, DynamicKey, obtener_hora_bogota
+from models import db, Product, ProductVariant, Sale, User, Maneo, SaleDetail, SalePayment, StockAdjustment, Expense, Loss, Provider, ProviderInvoice, ProviderPayment, Warranty, DynamicKey, Importacion, ClienteCartera, FacturaCredito, AbonoCredito, obtener_hora_bogota
 from sqlalchemy.sql import func
 from werkzeug.security import generate_password_hash
+from decimal import Decimal
 from decorators import admin_required
 import string, random
 from datetime import timedelta
@@ -82,7 +83,7 @@ def editar_vendedor(id):
         if User.query.filter_by(email=email).first():
             flash('Error: El nuevo correo ya está en uso por otro usuario.', 'danger')
             return redirect(url_for('admin_bp.vendedores'))
-
+ 
     vendedor.nombre = nombre.strip()
     vendedor.email = email.strip()
     vendedor.telefono = telefono.strip() if telefono else None
@@ -126,38 +127,42 @@ def eliminar_vendedor(id):
 @admin_required
 def dashboard():
     # Se obtienen métricas clave para que el administrador tenga un resumen rápido de las operaciones del negocio
-    total_productos = Product.query.count()
+    # Filtramos por 'tienda' para que coincida con lo que el usuario ve al entrar al Inventario desde aquí
+    total_productos = Product.query.filter_by(tipo_inventario='tienda').count()
     
     # Se calcula el stock bajo considerando tanto productos planos como con variantes
-    # Unificamos la regla a 5 unidades según requerimiento del usuario
-    productos = Product.query.all()
-    productos_bajo_stock = sum(1 for p in productos if p.total_stock <= 5)
+    # Unificamos la regla a 3 unidades según el nuevo requerimiento de la boutique (Solo para Tienda)
+    productos_tienda = Product.query.filter_by(tipo_inventario='tienda').all()
+    productos_bajo_stock = sum(1 for p in productos_tienda if p.total_stock <= 3)
     
     maneos_activos = Maneo.query.filter_by(estado='PENDIENTE').count()
     
     # Se delega la suma al motor de base de datos para no saturar la memoria de la aplicación con registros a medida que crecen las ventas
-    total_ventas = db.session.query(func.sum(Sale.monto_total)).scalar() or 0.0
+    total_ventas = db.session.query(func.sum(Sale.monto_total)).scalar() or Decimal('0.0')
     
     # Cálculos para modulo de Pérdidas (Mermas) del mes actual
     hoy = obtener_hora_bogota()
     mes_actual = hoy.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     
-    perdidas_valor = db.session.query(func.sum(Loss.cost_at_loss * Loss.quantity)).filter(Loss.date >= mes_actual).scalar() or 0.0
-    ventas_mes_actual = db.session.query(func.sum(Sale.monto_total)).filter(Sale.fecha_venta >= mes_actual).scalar() or 0.0
+    perdidas_valor = db.session.query(func.sum(Loss.cost_at_loss * Loss.quantity)).filter(Loss.date >= mes_actual).scalar() or Decimal('0.0')
+    ventas_mes_actual = db.session.query(func.sum(Sale.monto_total)).filter(Sale.fecha_venta >= mes_actual).scalar() or Decimal('0.0')
     
     porcentaje_perdidas = 0
     if ventas_mes_actual > 0:
         porcentaje_perdidas = round(float((perdidas_valor / ventas_mes_actual) * 100), 2)
         
-    # Cálculos modulo Proveedores (Cuentas por Pagar)
-    total_deuda_facturas = db.session.query(func.sum(ProviderInvoice.monto_total)).scalar() or 0.0
-    total_deuda_abonos = db.session.query(func.sum(ProviderPayment.monto_abonado)).scalar() or 0.0
-    deuda_proveedores = float(total_deuda_facturas) - float(total_deuda_abonos)
-    total_proveedores = Provider.query.count()
-
     # Cálculos modulo Garantías
     total_garantias_mes = Warranty.query.filter(Warranty.created_at >= mes_actual).count()
     garantias_pendientes = Warranty.query.filter(Warranty.resolution == 'Pendiente').count()
+
+    # Cálculos modulo Importaciones
+    importaciones_mes = Importacion.query.filter(Importacion.fecha_registro >= mes_actual).count()
+    valor_importaciones_mes = db.session.query(func.sum(Importacion.valor_contenedor + Importacion.valor_flete)).filter(Importacion.fecha_registro >= mes_actual).scalar() or 0
+
+    # Cálculos modulo Cartera (Clientes)
+    total_cartera = db.session.query(func.sum(FacturaCredito.saldo_pendiente)).scalar() or 0
+    clientes_cartera = ClienteCartera.query.all()
+    clientes_mora = sum(1 for c in clientes_cartera if c.estado_cartera == 'En mora')
         
     return render_template('admin/dashboard.html', 
                            total_productos=total_productos,
@@ -166,10 +171,12 @@ def dashboard():
                            maneos_activos=maneos_activos,
                            total_perdidas=perdidas_valor,
                            porcentaje_perdidas=porcentaje_perdidas,
-                           deuda_proveedores=deuda_proveedores,
-                           total_proveedores=total_proveedores,
                            total_garantias_mes=total_garantias_mes,
-                           garantias_pendientes=garantias_pendientes)
+                           garantias_pendientes=garantias_pendientes,
+                           importaciones_mes=importaciones_mes,
+                           valor_importaciones_mes=valor_importaciones_mes,
+                           total_cartera=total_cartera,
+                           clientes_mora=clientes_mora)
 
 # --- ENDPOINTS MODULO PERDIDAS ---
 @admin_bp.route('/perdidas')

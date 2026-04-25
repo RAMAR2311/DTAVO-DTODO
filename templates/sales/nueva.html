@@ -69,7 +69,7 @@
             
             <div class="d-flex justify-content-between mb-4">
                 <span class="text-tekfix-sec fw-bold align-self-center">Total a Cobrar:</span>
-                <span class="fw-bolder fs-1 text-tekfix-main" id="total_amount">$0</span>
+                <span class="fw-bolder fs-1" style="color: #C794C7;" id="total_amount">$0</span>
             </div>
 
             {% if current_user.rol == 'admin' %}
@@ -580,13 +580,6 @@
 
         if (campo === 'precio_final') {
             const nuevoPrecio = parseFloat(valor);
-            
-            // Regla de Negocio: Control de precio según Autoridad
-            if (nuevoPrecio < item.precio_limite) {
-                alert(`¡OPERACIÓN BLOQUEADA! El precio pactado ($${nuevoPrecio}) es INFERIOR al Mínimo Autorizado para tu nivel de usuario ($${item.precio_limite}). No se puede vender a este precio para evitar pérdidas.`);
-                renderizarCarrito(); // Re-renderizar ignorando el valor digitado
-                return;
-            }
             item.precio_final = nuevoPrecio;
         }
         
@@ -665,18 +658,12 @@
                         <input type="number" step="1" class="form-control text-end border-start-0 pe-2" value="${Math.round(item.precio_final)}" onchange="actualizarItem(${index}, 'precio_final', this.value)">
                     </div>
                     ` : `
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-tekfix-card border-end-0">$</span>
-                        <input type="number" step="1" class="form-control text-end border-start-0 pe-2" value="${Math.round(item.precio_final)}" onchange="actualizarItem(${index}, 'precio_final', this.value)" ${(userRol === 'vendedor' && !item.precio_unlocked) ? 'readonly style="background-color: #f1f3f5;" data-bs-toggle="tooltip" title="Solo edición autorizada por administrador"' : ''}>
-                        ${(userRol === 'vendedor' && !item.precio_unlocked) ? `
-                        <button class="btn btn-outline-secondary" type="button" onclick="solicitarClaveDescuento(${index})">
-                            <i class="fa-solid fa-lock" style="color: var(--tekfix-primary);"></i>
-                        </button>
-                        ` : `
-                        <button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="visually-hidden">Opciones</span>
-                        </button>
-                        `}
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-tekfix-card border-end-0">$</span>
+                            <input type="number" step="1" class="form-control text-end border-start-0 pe-2" value="${Math.round(item.precio_final)}" onchange="actualizarItem(${index}, 'precio_final', this.value)">
+                            <button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="visually-hidden">Opciones</span>
+                            </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0">
                             <li><h6 class="dropdown-header">Precios Definidos</h6></li>
                             <li><a class="dropdown-item py-2" href="#" onclick="event.preventDefault(); actualizarItem(${index}, 'precio_final', ${item.precio_minimo})">
@@ -723,34 +710,6 @@
         });
     }
 
-    function solicitarClaveDescuento(index) {
-        const codigo = prompt("Ingresa la Clave Dinámica del Administrador:");
-        if (!codigo) return;
-        
-        fetch('/sales/api/validar-clave', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrf_token
-            },
-            body: JSON.stringify({ codigo: codigo.trim() })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                carrito[index].precio_unlocked = true;
-                carrito[index].autorizacion = codigo.trim();
-                renderizarCarrito();
-                alert("¡Edición de precio desbloqueada exitosamente!");
-            } else {
-                alert("Código inválido, expirado o ya utilizado.");
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Error conectando con el servidor de autorización.");
-        });
-    }
 
     // Evento Transaccional JSON de Salida
     async function procesarPago() {
@@ -832,7 +791,7 @@
                 
                 // Si el navegador tiene un bloqueador de ventanas emergentes muy agresivo:
                 if (!reciboWindow) {
-                    alert('⚠️ Chrome bloqueó la pestaña emergente del recibo. Por favor, permite las ventanas emergentes (pop-ups) para Tekfix Oficial en la barra superior.');
+                    alert('⚠️ Chrome bloqueó la pestaña emergente del recibo. Por favor, permite las ventanas emergentes (pop-ups) para Bendito Encanto en la barra superior.');
                 }
                 
                 // Alerta nativa solicitada para feedback directo (Mantiene pausada la pantalla de la Caja)

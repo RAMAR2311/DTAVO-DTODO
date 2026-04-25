@@ -39,68 +39,106 @@
 }
 </style>
 
-<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 print-friendly-row">
+<style>
+    .card-product {
+        transition: all 0.3s ease;
+        border-radius: 16px !important;
+        overflow: hidden;
+    }
+    .card-product:hover {
+        transform: translateY(-8px);
+    }
+    .img-container-1-1 {
+        aspect-ratio: 1 / 1;
+        width: 100%;
+        overflow: hidden;
+        background-color: var(--tekfix-bg);
+    }
+    .img-container-1-1 img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+    .size-badge-mini {
+        font-size: 0.65rem;
+        padding: 2px 6px;
+        background-color: var(--tekfix-border);
+        color: var(--tekfix-primary);
+        border-radius: 4px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .btn-add-minimal {
+        border: 1px solid var(--tekfix-hover);
+        color: var(--tekfix-hover);
+        background: transparent;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+    }
+    .btn-add-minimal:hover {
+        background-color: var(--tekfix-hover);
+        color: white;
+    }
+</style>
+
+<div class="row row-cols-1 row-cols-md-3 row-cols-xl-4 g-4 print-friendly-row">
     {% for p in productos %}
     <div class="col">
-        <div class="card card-custom h-100 border-0 shadow-sm {% if p.total_stock <= 0 %}opacity-50{% endif %}" style="border-radius: 12px; overflow: hidden; background-color: var(--tekfix-card-bg);">
-            {% if p.imagen %}
-                <img src="{{ url_for('static', filename='uploads/' ~ p.imagen) }}" class="card-img-top bg-tekfix-card" alt="{{ p.nombre }}" style="height: 150px; object-fit: contain; padding: 1rem;">
-            {% else %}
-                <div class="card-img-top bg-tekfix-card d-flex align-items-center justify-content-center border-bottom border-light" style="height: 150px;">
-                    <i class="fa-solid fa-image fa-2x text-tekfix-sec opacity-25"></i>
-                </div>
-            {% endif %}
+        <div class="card card-product border-0 shadow-sm h-100 {% if p.total_stock <= 0 %}opacity-50{% endif %}" style="background-color: var(--tekfix-card-bg);">
+            <div class="img-container-1-1">
+                {% if p.imagen %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ p.imagen) }}" alt="{{ p.nombre }}">
+                {% else %}
+                    <div class="w-100 h-100 d-flex align-items-center justify-content-center opacity-25">
+                        <i class="fa-solid fa-image fa-3x"></i>
+                    </div>
+                {% endif %}
+            </div>
             
-            <div class="card-body d-flex flex-column p-4 bg-tekfix-card">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                    <p class="text-tekfix-sec small mb-0 fw-bold"><i class="fa-solid fa-barcode me-1"></i>{{ p.sku }}</p>
+            <div class="card-body p-3 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-tekfix-sec" style="font-size: 0.65rem; letter-spacing: 1px;">{{ p.sku }}</span>
                     {% if p.total_stock <= 0 %}
-                        <span class="badge bg-danger rounded-pill px-2"><i class="fa-solid fa-ban"></i> Agotado</span>
+                        <span class="text-danger fw-bold" style="font-size: 0.65rem;">AGOTADO</span>
                     {% endif %}
                 </div>
-                <h5 class="card-title fw-bolder text-tekfix-main mb-3">{{ p.nombre }}</h5>
                 
+                <h6 class="fw-bold text-tekfix-main mb-1 text-truncate" title="{{ p.nombre }}">{{ p.nombre }}</h6>
+                
+                <div class="mb-2">
+                    <span class="fw-bold" style="color: var(--tekfix-primary); font-size: 1.1rem;">${{ p.precio_sugerido|cop }}</span>
+                </div>
+
                 {% if p.variantes %}
-                    <h6 class="fw-bold text-tekfix-sec mb-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">SUBCATEGORÍAS DISPONIBLES:</h6>
-                    <div class="table-responsive mb-auto">
-                        <table class="table table-sm table-borderless table-custom align-middle mb-0">
-                            <tbody style="font-size: 0.9rem;">
-                                {% set ns = namespace(active_variants=0) %}
-                                {% for v in p.variantes %}
-                                    {% if v.cantidad_stock > 0 %}
-                                        {% set ns.active_variants = ns.active_variants + 1 %}
-                                        <tr class="border-bottom" style="border-color: var(--tekfix-border) !important; background-color: transparent !important;">
-                                            <td class="ps-0 text-tekfix-main" style="background-color: transparent !important;"><i class="fa-solid fa-caret-right text-tekfix-primary me-1" style="font-size: 0.7rem;"></i> {{ v.nombre_variante }}</td>
-                                            <td class="text-end fw-bold text-tekfix-main pe-0">${{ (v.precio_sugerido or p.precio_sugerido)|cop }}</td>
-                                        </tr>
-                                    {% endif %}
-                                {% endfor %}
-                                {% if ns.active_variants == 0 %}
-                                    <tr><td colspan="2" class="text-danger ps-0 small"><i class="fa-solid fa-triangle-exclamation me-1"></i>Todas las opciones están agotadas.</td></tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-end" style="border-color: var(--tekfix-border) !important;">
-                        <span class="fw-bold" style="font-size: 0.8rem; letter-spacing: 0.5px; color: var(--tekfix-text-main);">PRECIO GENERAL</span>
-                        <h4 class="fw-bolder m-0" style="color: var(--tekfix-text-main);">${{ (p.precio_sugerido)|cop }}</h4>
+                    <div class="d-flex flex-wrap gap-1 mb-3">
+                        {% for v in p.variantes|sort(attribute='nombre_variante') %}
+                            {% if v.cantidad_stock > 0 %}
+                                <span class="size-badge-mini" title="Stock: {{ v.cantidad_stock }}">{{ v.nombre_variante.lower().replace('talla', '').replace(' ', '').upper() }}</span>
+                            {% endif %}
+                        {% endfor %}
                     </div>
                 {% endif %}
+
+                <div class="mt-auto">
+                    <button class="btn btn-add-minimal w-100 py-1" type="button" data-bs-toggle="collapse" data-bs-target="#stockDetalle{{ p.id }}" aria-expanded="false">
+                        <i class="fa-solid fa-eye me-1"></i> Ver Cantidades
+                    </button>
+                    
+                    <div class="collapse mt-2" id="stockDetalle{{ p.id }}">
+                        <div class="p-2 rounded-3 border-dashed" style="background-color: var(--tekfix-bg); border: 1px dashed var(--tekfix-border);">
+                            {% for v in p.variantes|sort(attribute='nombre_variante') %}
+                                <div class="d-flex justify-content-between align-items-center mb-1 last-child-mb-0">
+                                    <span class="fw-bold text-tekfix-primary" style="font-size: 0.7rem;">{{ v.nombre_variante.upper() }}</span>
+                                    <span class="badge bg-white text-tekfix-main border shadow-xs" style="font-size: 0.65rem;">{{ v.cantidad_stock }} uds</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <!-- Franja Rango de Precio -->
-            {% if p.variantes and p.rango_precios %}
-            <div class="card-footer bg-tekfix-card border-top pt-2 pb-3 px-4 text-end" style="border-color: var(--tekfix-border) !important;">
-                <span class="fw-bold me-1" style="font-size: 0.75rem; color: var(--tekfix-text-main);">VALORES:</span>
-                {% if p.rango_precios is number %}
-                    <span class="fw-bolder fs-5" style="color: var(--tekfix-text-main);">${{ (p.rango_precios)|cop }}</span>
-                {% else %}
-                    <span class="fw-bold" style="color: var(--tekfix-text-main); font-size: 1.1rem;">Desde ${{ (p.rango_precios[0])|cop }}</span>
-                {% endif %}
-            </div>
-            {% endif %}
-            
         </div>
     </div>
     {% else %}

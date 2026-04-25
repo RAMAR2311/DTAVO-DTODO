@@ -1,3 +1,4 @@
+# Rescan - Modulo Cartera POS v1.0
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from datetime import datetime
@@ -108,7 +109,9 @@ class Sale(db.Model):
     __tablename__ = 'sales'
     
     id = db.Column(db.Integer, primary_key=True)
+    consecutivo = db.Column(db.Integer, nullable=True) # Número lógico de ticket (1, 2, 3...)
     vendedor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    cliente_nombre = db.Column(db.String(150), nullable=True) # Nombre del cliente para facturación POS
     fecha_venta = db.Column(db.DateTime, default=obtener_hora_bogota)
     monto_total = db.Column(db.Numeric(10, 2), nullable=False, default=0.0)
     metodo_pago = db.Column(db.String(50), nullable=False, default='efectivo')
@@ -305,7 +308,7 @@ class ProviderPayment(db.Model):
     monto_abonado = db.Column(db.Numeric(10, 2), nullable=False)
     observacion = db.Column(db.String(255), nullable=True)
     fecha_pago = db.Column(db.DateTime, default=obtener_hora_bogota)
-# ====================================================
+
 # ====== MÓDULO GARANTÍAS ======
 class Warranty(db.Model):
     __tablename__ = 'warranties'
@@ -341,4 +344,163 @@ class Warranty(db.Model):
         if minutos > 0:
             return f"Hace {minutos} min"
         return "Hace un momento"
-# ======================================================
+
+# ====== MÓDULO CAMBIOS ======
+class ProductExchange(db.Model):
+    __tablename__ = 'product_exchanges'
+
+    id = db.Column(db.Integer, primary_key=True)
+    sale_id = db.Column(db.Integer, db.ForeignKey('sales.id'), nullable=False)
+    admin_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+    # Producto devuelto
+    product_returned_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=True)
+    variant_returned_id = db.Column(db.Integer, db.ForeignKey('product_variants.id'), nullable=True)
+    
+    # Producto nuevo (el que sale de la tienda)
+    product_new_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=True)
+    variant_new_id = db.Column(db.Integer, db.ForeignKey('product_variants.id'), nullable=True)
+    
+    reason = db.Column(db.String(500), nullable=False)
+    excedente_pagado = db.Column(db.Numeric(10, 2), default=0.0)
+    metodo_pago_excedente = db.Column(db.String(50), nullable=True) # Nequi, Efectivo, etc.
+    created_at = db.Column(db.DateTime, default=obtener_hora_bogota)
+
+    # Relaciones para facilitar reportes
+    venta = db.relationship('Sale', backref='cambios', lazy=True)
+    admin = db.relationship('User', backref='cambios_procesados', lazy=True)
+    producto_devuelto = db.relationship('Product', foreign_keys=[product_returned_id], lazy=True)
+    variante_devuelta = db.relationship('ProductVariant', foreign_keys=[variant_returned_id], lazy=True)
+    producto_nuevo = db.relationship('Product', foreign_keys=[product_new_id], lazy=True)
+    variante_nueva = db.relationship('ProductVariant', foreign_keys=[variant_new_id], lazy=True)
+
+class Importacion(db.Model):
+    __tablename__ = 'importaciones'
+
+    id = db.Column(db.Integer, primary_key=True)
+    proveedor_id = db.Column(db.Integer, db.ForeignKey('providers.id'), nullable=False)
+    numero_contenedor = db.Column(db.String(100), nullable=False)
+    valor_contenedor = db.Column(db.Numeric(10, 2), nullable=False, default=0.00)
+    valor_flete = db.Column(db.Numeric(10, 2), nullable=False, default=0.00)
+    pedido_completo = db.Column(db.Boolean, default=True)
+    observaciones = db.Column(db.Text, nullable=True)
+    fecha_registro = db.Column(db.DateTime, default=obtener_hora_bogota)
+
+    proveedor = db.relationship('Provider', backref='importaciones_rel', lazy=True)
+
+    @property
+    def pago_total(self):
+        return float(self.valor_contenedor) + float(self.valor_flete)
+
+# ====== MÓDULO CARTERA / CLIENTES CRÉDITO POS ======
+class ClienteCartera(db.Model):
+    __tablename__ = 'cliente_cartera'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    nombre_completo = db.Column(db.String(150), nullable=False)
+    telefono = db.Column(db.String(50), nullable=False)
+    fecha_registro = db.Column(db.DateTime, default=obtener_hora_bogota)
+    
+    facturas = db.relationship('FacturaCredito', backref='cliente', lazy=True, cascade='all, delete-orphan')
+
+    @property
+    def saldo_total(self):
+        return sum(f.saldo_pendiente for f in self.facturas)
+
+    @property
+    def estado_cartera(self):
+        """Calcula el estado: Al día (sin deuda), Pendiente (con deuda reciente), En mora (>15 días sin abonos)."""
+        ahora = obtener_hora_bogota()
+        tiene_deuda = False
+        
+        for factura in self.facturas:
+            if factura.saldo_pendiente > 0:
+                tiene_deuda = True
+                # Buscar último abono
+                ultimo_abono = AbonoCredito.query.filter_by(factura_id=factura.id).order_by(AbonoCredito.fecha_abono.desc()).first()
+                fecha_referencia = ultimo_abono.fecha_abono if ultimo_abono else factura.fecha_emision
+                
+                # Calcular diferencia de días
+                dias_inactivo = (ahora - fecha_referencia).days
+                if dias_inactivo > 15:
+                    return 'En mora'
+        
+        if tiene_deuda:
+            return 'Pendiente'
+            
+        return 'Al día'
+
+    @property
+    def tiene_acuerdos_vencidos(self):
+        """Verifica si el cliente tiene compromisos de pago incumplidos a la fecha."""
+        ahora = obtener_hora_bogota().date()
+        for factura in self.facturas:
+            for acuerdo in factura.acuerdos:
+                if not acuerdo.cumplido and acuerdo.fecha_acordada < ahora:
+                    return True
+        return False
+
+class FacturaCredito(db.Model):
+    __tablename__ = 'factura_credito'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    cliente_id = db.Column(db.Integer, db.ForeignKey('cliente_cartera.id'), nullable=False)
+    total_factura = db.Column(db.Numeric(10, 2), nullable=False)
+    saldo_pendiente = db.Column(db.Numeric(10, 2), nullable=False)
+    fecha_emision = db.Column(db.DateTime, default=obtener_hora_bogota)
+    
+    detalles = db.relationship('DetalleFacturaCredito', backref='factura', lazy=True, cascade='all, delete-orphan')
+    abonos = db.relationship('AbonoCredito', backref='factura', lazy=True, cascade='all, delete-orphan')
+    acuerdos = db.relationship('AcuerdoPago', backref='factura', lazy=True, cascade='all, delete-orphan')
+
+    @property
+    def dias_sin_abono(self):
+        ahora = obtener_hora_bogota()
+        ultimo_abono = AbonoCredito.query.filter_by(factura_id=self.id).order_by(AbonoCredito.fecha_abono.desc()).first()
+        fecha_referencia = ultimo_abono.fecha_abono if ultimo_abono else self.fecha_emision
+        return (ahora - fecha_referencia).days
+
+class DetalleFacturaCredito(db.Model):
+    __tablename__ = 'detalle_factura_credito'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    factura_id = db.Column(db.Integer, db.ForeignKey('factura_credito.id'), nullable=False)
+    producto_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    variant_id = db.Column(db.Integer, db.ForeignKey('product_variants.id'), nullable=True)
+    cantidad = db.Column(db.Integer, nullable=False)
+    precio_unitario = db.Column(db.Numeric(10, 2), nullable=False)
+    subtotal = db.Column(db.Numeric(10, 2), nullable=False)
+
+    producto = db.relationship('Product', backref='detalles_factura_cartera', lazy=True)
+    variante = db.relationship('ProductVariant', backref='detalles_factura_cartera', lazy=True)
+
+class AbonoCredito(db.Model):
+    __tablename__ = 'abono_credito'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    factura_id = db.Column(db.Integer, db.ForeignKey('factura_credito.id'), nullable=False)
+    monto_abono = db.Column(db.Numeric(10, 2), nullable=False)
+    fecha_abono = db.Column(db.DateTime, default=obtener_hora_bogota)
+    
+    # Relación inversa con el movimiento de caja para trazabilidad
+    movimiento_caja = db.relationship('MovimientoCajaCartera', backref='abono', uselist=False, lazy=True, cascade="all, delete-orphan")
+
+class AcuerdoPago(db.Model):
+    __tablename__ = 'acuerdo_pago'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    factura_id = db.Column(db.Integer, db.ForeignKey('factura_credito.id'), nullable=False)
+    fecha_acordada = db.Column(db.Date, nullable=False)
+    monto_esperado = db.Column(db.Numeric(10, 2), nullable=True)
+    cumplido = db.Column(db.Boolean, default=False)
+
+class MovimientoCajaCartera(db.Model):
+    """Integra los abonos de cartera con el flujo de caja diario."""
+    __tablename__ = 'movimiento_caja_cartera'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    tipo = db.Column(db.String(20), default='Ingreso')
+    monto = db.Column(db.Numeric(10, 2), nullable=False)
+    concepto = db.Column(db.String(255), nullable=False)
+    fecha_movimiento = db.Column(db.DateTime, default=obtener_hora_bogota)
+    abono_id = db.Column(db.Integer, db.ForeignKey('abono_credito.id'), nullable=False)

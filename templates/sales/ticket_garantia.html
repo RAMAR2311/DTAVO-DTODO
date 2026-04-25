@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Garantía #{{ garantia.id }} - Tekfix</title>
+    <title>Garantía #{{ garantia.id }} - Bendito Encanto</title>
     <!-- Roboto Mono = estándar impresoras térmicas 80mm -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -151,7 +151,7 @@
 <div class="ticket">
     <!-- Encabezado -->
     <div class="header">
-        <h1 class="logo">TEKFIX</h1>
+        <h1 class="logo">BENDITO ENCANTO</h1>
         <div class="badge-garantia">COMPROBANTE DE GARANTÍA</div>
         <p class="info" style="font-size: 0.75rem; color: #555;">Folio Garantía: <strong>#{{ garantia.id }}</strong></p>
         <p class="info" style="font-size: 0.75rem;">Fecha Recepción: {{ garantia.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
@@ -203,11 +203,11 @@
 
     <!-- Nota legal -->
     <div class="legal-box">
-        <strong>Texto Legal:</strong> Este documento ampara la recepción del artículo descrito para revisión técnica bajo los términos de garantía del establecimiento. El tiempo de diagnóstico y resolución puede variar. Tekfix se reserva el derecho de negar la garantía si el producto presenta daños por mal uso, golpes físicos o humedad no cubiertos bajo esta garantía. Conserve este comprobante para reclamar.
+        <p class="terms"><strong>Texto Legal:</strong> Este documento ampara la recepción del artículo descrito para revisión técnica bajo los términos de garantía del establecimiento. El tiempo de diagnóstico y resolución puede variar. Bendito Encanto se reserva el derecho de negar la garantía si el producto presenta daños por mal uso, golpes físicos o humedad no cubiertos bajo esta garantía. Conserve este comprobante para reclamar.</p>
     </div>
 
     <div class="footer">
-        <p style="font-weight: bold; font-size: 0.9rem;">TEKFIX — Soporte al Cliente</p>
+        <p style="font-weight: bold; font-size: 0.9rem;">BENDITO ENCANTO — Soporte al Cliente</p>
         <p style="font-size: 0.75rem;">Este comprobante es válido como recibo oficial de recepción del equipo.</p>
     </div>
 

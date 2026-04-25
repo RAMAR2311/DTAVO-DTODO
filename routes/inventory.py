@@ -89,14 +89,25 @@ def editar_producto(id):
                 file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
                 producto.imagen = filename
                 
-        # Se actualizan directamente las propiedades del objeto SQLAlchemy trackeado
+        # Se capturan los nuevos precios
+        nuevo_costo = float(request.form.get('precio_costo', 0.0))
+        nuevo_minimo = float(request.form.get('precio_minimo', 0.0))
+        nuevo_sugerido = float(request.form.get('precio_sugerido', 0.0))
+
+        # Actualizar producto principal
         producto.sku = request.form.get('sku').strip()
         producto.nombre = request.form.get('nombre').strip()
         producto.cantidad_stock = cantidad_stock_nueva
-        producto.precio_costo = float(request.form.get('precio_costo', 0.0))
-        producto.precio_minimo = float(request.form.get('precio_minimo', 0.0))
-        producto.precio_sugerido = float(request.form.get('precio_sugerido', 0.0))
+        producto.precio_costo = nuevo_costo
+        producto.precio_minimo = nuevo_minimo
+        producto.precio_sugerido = nuevo_sugerido
         producto.observacion = request.form.get('observacion')
+
+        # PROPAGACIÓN: Actualizar precios en todas las variantes vinculadas
+        for var in producto.variantes:
+            var.precio_costo = nuevo_costo
+            var.precio_minimo = nuevo_minimo
+            var.precio_sugerido = nuevo_sugerido
         
         try:
             if stock_anterior != cantidad_stock_nueva:
@@ -386,10 +397,16 @@ def importar_inventario():
                 # Actualizar información general del producto existente
                 prod.nombre = nombre_val
                 prod.observacion = obs_val
-                if not sub_raw: # Si es producto base, actualizamos precios
+                if not sub_raw: # Si es producto base, actualizamos precios y PROPAGAMOS a variantes
                     prod.precio_costo = costo
                     prod.precio_minimo = minimo
                     prod.precio_sugerido = sugerido
+                    
+                    # Sincronizar variantes existentes con los nuevos precios del Excel
+                    for var in prod.variantes:
+                        var.precio_costo = costo
+                        var.precio_minimo = minimo
+                        var.precio_sugerido = sugerido
                 actualizados += 1
 
             if sub_raw:

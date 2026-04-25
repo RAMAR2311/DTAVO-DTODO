@@ -1,0 +1,673 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4 align-items-end">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a href="{{ url_for('clientes_bp.index') }}">Cartera</a></li>
+                <li class="breadcrumb-item active">Perfil del Cliente</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold text-tekfix-main mb-0">
+            {{ cliente.nombre_completo }}
+            {% if cliente.estado_cartera == 'Al día' %}
+                <span class="badge bg-success-subtle text-success border border-success-subtle ms-2 fs-6 fw-normal"><i class="fa-solid fa-check-circle me-1"></i> Al día</span>
+            {% elif cliente.estado_cartera == 'Pendiente' %}
+                <span class="badge bg-warning-subtle text-warning border border-warning-subtle ms-2 fs-6 fw-normal"><i class="fa-solid fa-clock me-1"></i> Pendiente</span>
+            {% else %}
+                <span class="badge bg-danger ms-2 fs-6 pulse-animation">EN MORA (>15 días)</span>
+            {% endif %}
+        </h2>
+        <p class="text-tekfix-sec mb-0"><i class="fa-solid fa-phone me-2"></i>{{ cliente.telefono }} | Registrado el {{ cliente.fecha_registro.strftime('%d/%m/%Y') }}</p>
+        
+        {% set tiene_vencidos = false %}
+        {% for f in cliente.facturas %}{% for a in f.acuerdos %}{% if not a.cumplido and a.fecha_acordada < today %}{% set tiene_vencidos = true %}{% endif %}{% endfor %}{% endfor %}
+        
+        {% if tiene_vencidos %}
+        <div class="alert alert-danger d-inline-block py-1 px-3 mt-2 mb-0 border-0 shadow-sm animate__animated animate__shakeX">
+            <i class="fa-solid fa-bell me-2"></i><strong>Atención:</strong> Este cliente tiene acuerdos de pago vencidos.
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-md-4 text-md-end gap-2 d-flex justify-content-md-end">
+        <form action="{{ url_for('clientes_bp.eliminar_cliente', id=cliente.id) }}" method="POST" onsubmit="return confirm('¿ELIMINAR CLIENTE? Se borrará todo su historial permanentemente.')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-outline-danger shadow-sm px-3" type="submit">
+                <i class="fa-solid fa-trash-can"></i>
+            </button>
+        </form>
+        <button class="btn btn-outline-secondary shadow-sm px-3" type="button" data-bs-toggle="modal" data-bs-target="#modalEditarCliente">
+            <i class="fa-solid fa-user-pen me-1"></i> Editar Perfil
+        </button>
+        <button class="btn btn-tekfix shadow-sm px-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFacturacion">
+            <i class="fa-solid fa-cash-register me-2"></i> Nueva Factura POS
+        </button>
+    </div>
+</div>
+
+<!-- Resumen de Saldo -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card card-custom p-4 border-0 shadow-sm bg-tekfix-secondary text-white">
+            <h6 class="small fw-bold text-uppercase mb-1 opacity-75">Saldo Total Pendiente</h6>
+            <h2 class="fw-bolder mb-0">${{ cliente.saldo_total | cop }}</h2>
+        </div>
+    </div>
+    {% if cliente.estado_cartera == 'En mora' %}
+    <div class="col-md-8">
+        <div class="alert alert-danger border-0 shadow-sm d-flex align-items-center h-100 mb-0">
+            <i class="fa-solid fa-circle-exclamation fs-2 me-3"></i>
+            <div>
+                <h6 class="fw-bold mb-1">ALERTA: Inactividad Detectada</h6>
+                <p class="mb-0 small">Este cliente no ha realizado abonos en los últimos 15 días. Se recomienda contactar para seguimiento.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="row g-4">
+    <!-- Columna Izquierda: Historial de Facturas -->
+    <div class="col-lg-8">
+        <h5 class="fw-bold mb-3"><i class="fa-solid fa-file-invoice-dollar me-2 text-primary"></i>Historial de Créditos</h5>
+        
+        {% for factura in cliente.facturas | sort(attribute='fecha_emision', reverse=True) %}
+        <div class="card card-custom border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-light text-tekfix-sec border px-3 py-1 rounded-pill mb-2">Factura #{{ factura.id }}</span>
+                        <h6 class="fw-bold text-tekfix-main mb-0">Emitida: {{ factura.fecha_emision.strftime('%d/%m/%Y %H:%M') }}</h6>
+                    </div>
+                    <div class="text-end">
+                        <span class="text-tekfix-sec small d-block">Saldo Pendiente</span>
+                        <h5 class="fw-bold {% if factura.saldo_pendiente > 0 %}text-danger{% else %}text-success{% endif %} mb-0">
+                            ${{ factura.saldo_pendiente | cop }}
+                        </h5>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body px-4 pb-4">
+                <div class="p-3 bg-light rounded-3 mb-3">
+                    <h6 class="small fw-bold text-tekfix-sec mb-2">Productos Facturados</h6>
+                    <ul class="list-unstyled mb-0 small">
+                        {% for d in factura.detalles %}
+                        <li class="d-flex justify-content-between mb-1">
+                            <span>{{ d.cantidad }}x {{ d.producto.nombre }} {{ "(" ~ d.variante.nombre_variante ~ ")" if d.variante }}</span>
+                            <span class="fw-bold">${{ d.subtotal | cop }}</span>
+                        </li>
+                        {% endfor %}
+                        <li class="border-top pt-1 mt-1 d-flex justify-content-between fw-bold">
+                            <span>TOTAL FACTURA:</span>
+                            <span>${{ factura.total_factura | cop }}</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <small class="text-tekfix-sec d-block">Días sin abono</small>
+                        <span class="badge {% if factura.dias_sin_abono > 15 %}bg-danger{% else %}bg-secondary{% endif %}">
+                            {{ factura.dias_sin_abono }} días
+                        </span>
+                    </div>
+                    <div class="col-md-6 text-md-end gap-2 d-flex justify-content-end">
+                        <a href="{{ url_for('clientes_bp.ticket_credito', id=factura.id) }}" target="_blank" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                            <i class="fa-solid fa-print me-1"></i> Ticket
+                        </a>
+                        <a href="{{ url_for('clientes_bp.vista_editar_factura', id=factura.id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                            <i class="fa-solid fa-pen-to-square me-1"></i> Editar
+                        </a>
+                        {% if factura.saldo_pendiente > 0 %}
+                        <button class="btn btn-sm btn-tekfix-secondary rounded-pill px-3" 
+                                data-id="{{ factura.id }}" 
+                                data-saldo="{{ factura.saldo_pendiente }}"
+                                onclick="prepararAbonoFromBtn(this)" data-bs-toggle="modal" data-bs-target="#modalNuevoAbono">
+                            <i class="fa-solid fa-hand-holding-dollar me-1"></i> Abonar
+                        </button>
+                        {% endif %}
+                        <form action="{{ url_for('clientes_bp.eliminar_factura', id=factura.id) }}" method="POST" onsubmit="return confirm('¿Eliminar esta factura permanentemente? El stock será devuelto.')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-2">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                {% if factura.abonos %}
+                <div class="mt-4 p-3 bg-tekfix-secondary bg-opacity-10 rounded-3">
+                    <h6 class="small fw-bold text-tekfix-sec mb-3">Historial de Abonos (Ingresos a Caja)</h6>
+                    <ul class="list-unstyled mb-0">
+                        {% for abono in factura.abonos | sort(attribute='fecha_abono', reverse=True) %}
+                        <li class="d-flex justify-content-between align-items-center border-bottom border-white pb-2 mb-2">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="text-end">
+                                    <small class="d-block text-tekfix-sec">{{ abono.fecha_abono.strftime('%d/%m/%Y') }}</small>
+                                    <span class="fw-bold text-success">+ ${{ abono.monto_abono | cop }}</span>
+                                </div>
+                                <form action="{{ url_for('clientes_bp.eliminar_abono', id=abono.id) }}" method="POST" onsubmit="return confirm('¿Eliminar este abono? El saldo de la factura se reversará.')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger border-0 rounded-circle"><i class="fa-solid fa-trash-can"></i></button>
+                                </form>
+                            </div>
+                            <span class="badge bg-white text-success border border-success-subtle px-2">Caja OK</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <p class="text-tekfix-sec italic">Este cliente no tiene facturas a crédito registradas.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Columna Derecha: Acuerdos de Pago -->
+    <div class="col-lg-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0"><i class="fa-solid fa-calendar-check me-2 text-primary"></i>Acuerdos</h5>
+            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNuevoAcuerdo">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+        </div>
+
+        {% for factura in cliente.facturas if factura.acuerdos %}
+            {% for acuerdo in factura.acuerdos | sort(attribute='fecha_acordada') %}
+            {% set es_vencido = not acuerdo.cumplido and acuerdo.fecha_acordada < today %}
+            <div class="card card-custom border-0 shadow-sm mb-3 {% if acuerdo.cumplido %}opacity-75{% elif es_vencido %}border border-danger{% endif %}">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle {% if acuerdo.cumplido %}bg-success{% elif es_vencido %}bg-danger animate__animated animate__pulse animate__infinite{% else %}bg-warning{% endif %} d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; color: white;">
+                            <i class="fa-solid {% if acuerdo.cumplido %}fa-check{% elif es_vencido %}fa-triangle-exclamation{% else %}fa-clock{% endif %}"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0 fw-bold {% if es_vencido %}text-danger{% endif %}">
+                                {{ acuerdo.fecha_acordada.strftime('%d/%m/%Y') }}
+                                {% if es_vencido %}<span class="badge bg-danger ms-1 small" style="font-size: 0.6rem;">VENCIDO</span>{% endif %}
+                            </h6>
+                            <small class="text-tekfix-sec">Esperado: ${{ acuerdo.monto_esperado | cop if acuerdo.monto_esperado else 'Pendiente' }}</small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-warning rounded-circle" 
+                                    data-id="{{ acuerdo.id }}" 
+                                    data-fecha="{{ acuerdo.fecha_acordada }}" 
+                                    data-monto="{{ acuerdo.monto_esperado or '' }}" 
+                                    data-cumplido="{{ 'true' if acuerdo.cumplido else 'false' }}"
+                                    onclick="abrirEditarAcuerdoFromBtn(this)" title="Editar">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <form action="{{ url_for('clientes_bp.eliminar_acuerdo', id=acuerdo.id) }}" method="POST" onsubmit="return confirm('¿Eliminar este acuerdo?')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle" title="Eliminar">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert bg-tekfix-secondary text-tekfix-sec small border-0">
+                No hay fechas de pago acordadas.
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- OFF CANVAS: POS CRÉDITO -->
+<div class="offcanvas offcanvas-end w-50" tabindex="-1" id="offcanvasFacturacion" aria-labelledby="offcanvasFacturacionLabel">
+    <div class="offcanvas-header bg-tekfix-main text-white">
+        <h5 class="offcanvas-title fw-bold" id="offcanvasFacturacionLabel"><i class="fa-solid fa-cart-shopping me-2"></i> POS a Crédito - {{ cliente.nombre_completo }}</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column">
+        <!-- Buscador -->
+        <div class="mb-4">
+            <label class="form-label fw-bold">Buscar Productos</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="fa-solid fa-search"></i></span>
+                <input type="text" id="inputBusqueda" class="form-control" placeholder="Escribe SKU o nombre...">
+            </div>
+            <div id="resultadosBusqueda" class="list-group mt-1 shadow-sm position-absolute w-100 z-3" style="display: none;">
+                <!-- Resultados vía JS -->
+            </div>
+        </div>
+
+        <!-- Carrito -->
+        <div class="flex-grow-1 overflow-auto mb-3">
+            <h6 class="fw-bold border-bottom pb-2 mb-3">Resumen de Factura</h6>
+            <div id="carritoItems">
+                <!-- Items del carrito -->
+                <div class="text-center text-muted py-4" id="carritoVacio">
+                    <i class="fa-solid fa-box-open fs-1 mb-2 opacity-25 d-block"></i>
+                    Carrito vacío
+                </div>
+            </div>
+        </div>
+
+        <!-- Totales y Abono Inicial -->
+        <div class="border-top pt-3">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="fw-bold h5">TOTAL:</span>
+                <span class="fw-bold h5 text-tekfix-primary" id="totalFactura">$0</span>
+            </div>
+           <!-- Abono Inicial -->
+        <div class="mb-3">
+            <label class="form-label fw-bold text-success">Abono Inicial (Opcional)</label>
+            <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" id="abonoInicial" class="form-control" placeholder="0.00">
+            </div>
+            <small class="text-muted">Este monto entrará directamente a caja.</small>
+        </div>
+
+        <hr>
+
+        <!-- Acuerdos de Pago Dinámicos -->
+        <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label fw-bold mb-0">Programar Pagos (Opcional)</label>
+                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" onclick="agregarFilaAcuerdo()">
+                    <i class="fa-solid fa-calendar-plus me-1"></i> Añadir Fecha
+                </button>
+            </div>
+            <div id="contenedorAcuerdosPOS" class="small">
+                <!-- Filas de acuerdos se añadirán aquí -->
+            </div>
+            <small class="text-muted italic">Estipula fechas para llevar un mejor control.</small>
+        </div>
+
+        <button class="btn btn-tekfix w-100 py-3 fw-bold shadow-sm mb-5" id="btnFinalizarVenta" disabled>
+            <i class="fa-solid fa-check-circle me-2"></i> EMITIR FACTURA A CRÉDITO
+        </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nuevo Abono -->
+<div class="modal fade" id="modalNuevoAbono" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form action="{{ url_for('clientes_bp.registrar_abono') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="factura_id" id="abono_factura_id">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-hand-holding-dollar me-2 text-success"></i> Registrar Abono</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="alert bg-success-subtle text-success small border-0 mb-4">
+                        Saldo máximo a abonar: <strong id="abono_max_saldo">$0</strong>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Monto del Abono</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" name="monto_abono" id="input_monto_abono" class="form-control" placeholder="0.00" step="0.01" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success px-4 py-2">Confirmar Ingreso a Caja</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nuevo Acuerdo -->
+<div class="modal fade" id="modalNuevoAcuerdo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form action="{{ url_for('clientes_bp.crear_acuerdo') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-calendar-plus me-2 text-primary"></i> Programar Acuerdo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Seleccionar Factura</label>
+                        <select name="factura_id" class="form-select" required>
+                            {% for factura in cliente.facturas if factura.saldo_pendiente > 0 %}
+                            <option value="{{ factura.id }}">Factura #{{ factura.id }} - Saldo: ${{ factura.saldo_pendiente | cop }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Fecha de Compromiso</label>
+                        <input type="date" name="fecha_acordada" class="form-control" required>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-semibold">Monto Prometido (Opcional)</label>
+                        <input type="number" name="monto_esperado" class="form-control" placeholder="0.00">
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-tekfix px-4 py-2">Agendar Acuerdo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Cliente -->
+<div class="modal fade" id="modalEditarCliente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form action="{{ url_for('clientes_bp.editar_cliente', id=cliente.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-user-pen me-2 text-primary"></i> Editar Perfil</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nombre Completo</label>
+                        <input type="text" name="nombre_completo" class="form-control" value="{{ cliente.nombre_completo }}" required>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-semibold">Teléfono / WhatsApp</label>
+                        <input type="text" name="telefono" class="form-control" value="{{ cliente.telefono }}" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-tekfix px-4 py-2">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Acuerdo -->
+<div class="modal fade" id="modalEditarAcuerdo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form id="formEditarAcuerdo" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-calendar-check me-2 text-warning"></i> Editar Acuerdo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Fecha de Compromiso</label>
+                        <input type="date" name="fecha_acordada" id="edit_acuerdo_fecha" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Monto Prometido</label>
+                        <input type="number" name="monto_esperado" id="edit_acuerdo_monto" class="form-control" placeholder="0.00">
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="cumplido" id="edit_acuerdo_cumplido">
+                        <label class="form-check-label fw-semibold" for="edit_acuerdo_cumplido">¿Acuerdo cumplido?</label>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning px-4 py-2">Actualizar Acuerdo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let carrito = [];
+const inputBusqueda = document.getElementById('inputBusqueda');
+const resultadosBusqueda = document.getElementById('resultadosBusqueda');
+const carritoItems = document.getElementById('carritoItems');
+const totalFacturaDisplay = document.getElementById('totalFactura');
+const btnFinalizar = document.getElementById('btnFinalizarVenta');
+const contenedorAcuerdosPOS = document.getElementById('contenedorAcuerdosPOS');
+
+// Buscador de productos
+inputBusqueda.addEventListener('input', async (e) => {
+    const q = e.target.value.trim();
+    if (q.length < 2) {
+        resultadosBusqueda.style.display = 'none';
+        return;
+    }
+
+    const resp = await fetch(`/clientes/api/productos/buscar?q=${q}`);
+    const productos = await resp.json();
+    
+    resultadosBusqueda.innerHTML = productos.map(p => `
+        <button type="button" class="list-group-item list-group-item-action p-3" onclick='agregarAlCarrito(${JSON.stringify(p)})'>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong class="d-block">${p.nombre}</strong>
+                    <small class="text-muted">SKU: ${p.sku} | Stock: ${p.stock}</small>
+                </div>
+                <span class="fw-bold text-tekfix-primary">$${new Intl.NumberFormat('es-CO').format(p.precio)}</span>
+            </div>
+        </button>
+    `).join('');
+    resultadosBusqueda.style.display = 'block';
+});
+
+window.agregarAlCarrito = (producto) => {
+    if (producto.stock <= 0) {
+        alert('Este producto no tiene existencias disponibles.');
+        return;
+    }
+    
+    const index = carrito.findIndex(item => item.id === producto.id && item.variant_id === producto.variant_id);
+    if (index > -1) {
+        if (carrito[index].cantidad < producto.stock) {
+            carrito[index].cantidad++;
+        } else {
+            alert('Stock máximo alcanzado en el carrito.');
+        }
+    } else {
+        carrito.push({
+            product_id: producto.id,
+            variant_id: producto.variant_id,
+            nombre: producto.nombre,
+            precio: producto.precio,
+            cantidad: 1,
+            stock_max: producto.stock
+        });
+    }
+    
+    resultadosBusqueda.style.display = 'none';
+    inputBusqueda.value = '';
+    renderCarrito();
+};
+
+function renderCarrito() {
+    if (carrito.length === 0) {
+        carritoItems.innerHTML = `<div class="text-center text-muted py-4" id="carritoVacio"><i class="fa-solid fa-box-open fs-1 mb-2 opacity-25 d-block"></i>Carrito vacío</div>`;
+        totalFacturaDisplay.innerText = '$0';
+        btnFinalizar.disabled = true;
+        return;
+    }
+
+    let total = 0;
+    carritoItems.innerHTML = carrito.map((item, index) => {
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+        return `
+            <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-3 mb-2 shadow-sm border">
+                <div class="flex-grow-1">
+                    <span class="fw-bold d-block small">${item.nombre}</span>
+                    <small class="text-tekfix-sec">$${new Intl.NumberFormat('es-CO').format(item.precio)} x ${item.cantidad}</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="input-group input-group-sm" style="width: 100px;">
+                        <button class="btn btn-outline-secondary" onclick="ajustarCantidad(${index}, -1)"><i class="fa-solid fa-minus"></i></button>
+                        <input type="text" class="form-control text-center bg-white" value="${item.cantidad}" readonly>
+                        <button class="btn btn-outline-secondary" onclick="ajustarCantidad(${index}, 1)"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger" onclick="removerItem(${index})"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    totalFacturaDisplay.innerText = '$' + new Intl.NumberFormat('es-CO').format(total);
+    btnFinalizar.disabled = false;
+}
+
+window.removerItem = (index) => {
+    carrito.splice(index, 1);
+    renderCarrito();
+};
+
+window.ajustarCantidad = (index, delta) => {
+    const item = carrito[index];
+    const nuevaCantidad = item.cantidad + delta;
+    
+    if (nuevaCantidad > 0) {
+        if (nuevaCantidad <= item.stock_max) {
+            item.cantidad = nuevaCantidad;
+        } else {
+            alert('No hay más stock disponible para este producto.');
+        }
+    } else {
+        removerItem(index);
+    }
+    renderCarrito();
+};
+
+window.agregarFilaAcuerdo = () => {
+    const div = document.createElement('div');
+    div.className = 'row g-2 mb-2 align-items-end animate__animated animate__fadeIn';
+    div.innerHTML = `
+        <div class="col-6">
+            <label class="form-label mb-1" style="font-size: 0.7rem;">Fecha</label>
+            <input type="date" class="form-control form-control-sm fecha-acuerdo" required>
+        </div>
+        <div class="col-5">
+            <label class="form-label mb-1" style="font-size: 0.7rem;">Monto</label>
+            <input type="number" class="form-control form-control-sm monto-acuerdo" placeholder="0.00">
+        </div>
+        <div class="col-1">
+            <button type="button" class="btn btn-sm btn-outline-danger border-0 p-1" onclick="this.parentElement.parentElement.remove()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    `;
+    contenedorAcuerdosPOS.appendChild(div);
+};
+
+btnFinalizar.addEventListener('click', async () => {
+    const abonoInic = parseFloat(document.getElementById('abonoInicial').value || 0);
+    const totalActual = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+    
+    if (abonoInic > totalActual) {
+        alert('El abono inicial no puede ser mayor al total de la factura.');
+        return;
+    }
+
+    // Recolectar acuerdos
+    const acuerdos = [];
+    document.querySelectorAll('#contenedorAcuerdosPOS .row').forEach(row => {
+        const fecha = row.querySelector('.fecha-acuerdo').value;
+        const monto = row.querySelector('.monto-acuerdo').value;
+        if (fecha) {
+            acuerdos.push({ fecha, monto: monto || 0 });
+        }
+    });
+
+    btnFinalizar.disabled = true;
+    btnFinalizar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> PROCESANDO...';
+
+    const url = "{{ url_for('clientes_bp.registrar_factura') }}";
+    const csrfToken = "{{ csrf_token() }}";
+    const clienteId = parseInt("{{ cliente.id }}");
+
+    const payload = {
+        cliente_id: clienteId,
+        items: carrito.map(i => {
+            return {
+                product_id: i.product_id,
+                variant_id: i.variant_id,
+                cantidad: i.cantidad,
+                precio: i.precio
+            };
+        }),
+        abono_inicial: abonoInic,
+        acuerdos: acuerdos
+    };
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+    if (result.success) {
+        // Abrir el ticket en una nueva pestaña antes de recargar
+        const ticketUrl = `/clientes/factura/${result.factura_id}/ticket`;
+        window.open(ticketUrl, '_blank');
+        location.reload();
+    } else {
+        alert('Error: ' + result.error);
+        btnFinalizar.disabled = false;
+        btnFinalizar.innerText = 'EMITIR FACTURA A CRÉDITO';
+    }
+});
+
+function prepararAbonoFromBtn(btn) {
+    const id = btn.dataset.id;
+    const saldo = btn.dataset.saldo;
+    prepararAbono(id, saldo);
+}
+
+function prepararAbono(facturaId, saldo) {
+    document.getElementById('abono_factura_id').value = facturaId;
+    document.getElementById('abono_max_saldo').innerText = '$' + new Intl.NumberFormat('es-CO').format(saldo);
+    document.getElementById('input_monto_abono').max = saldo;
+}
+
+function abrirEditarAcuerdoFromBtn(btn) {
+    const id = btn.dataset.id;
+    const fecha = btn.dataset.fecha;
+    const monto = btn.dataset.monto;
+    const cumplido = btn.dataset.cumplido === 'true';
+    abrirEditarAcuerdo(id, fecha, monto, cumplido);
+}
+
+function abrirEditarAcuerdo(id, fecha, monto, cumplido) {
+    const form = document.getElementById('formEditarAcuerdo');
+    form.action = `/clientes/acuerdo/editar/${id}`;
+    document.getElementById('edit_acuerdo_fecha').value = fecha;
+    document.getElementById('edit_acuerdo_monto').value = monto;
+    document.getElementById('edit_acuerdo_cumplido').checked = cumplido;
+    new bootstrap.Modal(document.getElementById('modalEditarAcuerdo')).show();
+}
+
+// Auto-abrir POS si viene de creación
+document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('pos') === 'true') {
+        const offcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasFacturacion'));
+        offcanvas.show();
+    }
+});
+</script>
+
+<style>
+.pulse-animation { animation: pulse-red 2s infinite; }
+@keyframes pulse-red {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+.offcanvas { background-color: var(--tekfix-bg); }
+</style>
+{% endblock %}

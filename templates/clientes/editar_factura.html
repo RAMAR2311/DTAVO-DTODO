@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-2">
+            <li class="breadcrumb-item"><a href="{{ url_for('clientes_bp.index') }}">Cartera</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('clientes_bp.perfil', id=factura.cliente.id) }}">Perfil {{ factura.cliente.nombre_completo }}</a></li>
+            <li class="breadcrumb-item active">Editar Factura #{{ factura.id }}</li>
+        </ol>
+    </nav>
+    <h2 class="fw-bold text-tekfix-main"><i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edición y Devoluciones</h2>
+    <div class="d-flex align-items-center gap-3">
+        <p class="text-tekfix-sec mb-0"><i class="fa-solid fa-user me-1"></i> <strong>Cliente:</strong> {{ factura.cliente.nombre_completo }}</p>
+        <p class="text-tekfix-sec mb-0"><i class="fa-solid fa-phone me-1"></i> <strong>Tel:</strong> {{ factura.cliente.telefono }}</p>
+        <p class="text-tekfix-sec mb-0"><i class="fa-solid fa-calendar me-1"></i> <strong>Factura de:</strong> {{ factura.fecha_emision.strftime('%d/%m/%Y') }}</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Items Actuales -->
+    <div class="col-lg-7">
+        <div class="card card-custom border-0 shadow-sm">
+            <div class="card-header bg-white pt-4 px-4 border-0">
+                <h5 class="fw-bold mb-0">Contenido de la Factura</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle m-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Producto</th>
+                                <th>Cant.</th>
+                                <th>Precio</th>
+                                <th>Subtotal</th>
+                                <th class="text-end pe-4">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in factura.detalles %}
+                            <tr>
+                                <td class="ps-4">
+                                    <span class="fw-bold d-block">{{ d.producto.nombre }}</span>
+                                    <small class="text-muted">{{ d.variante.nombre_variante if d.variante else 'Base' }}</small>
+                                </td>
+                                <td>{{ d.cantidad }}</td>
+                                <td>${{ d.precio_unitario | cop }}</td>
+                                <td class="fw-bold">${{ d.subtotal | cop }}</td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <button class="btn btn-sm btn-outline-warning rounded-pill" 
+                                                onclick="abrirEditarItem('{{ d.id }}', '{{ d.producto.nombre }}', '{{ d.cantidad }}', '{{ d.precio_unitario }}')">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger rounded-pill" 
+                                                data-id="{{ d.id }}" 
+                                                data-nombre="{{ d.producto.nombre }}"
+                                                onclick="confirmarDevolucion(this.dataset.id, this.dataset.nombre)">
+                                            <i class="fa-solid fa-rotate-left"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <!-- Añadir Producto -->
+        <div class="card card-custom border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-3"><i class="fa-solid fa-plus-circle text-success me-2"></i>Añadir Producto</h6>
+                <div class="mb-3 position-relative">
+                    <input type="text" id="inputBusquedaEdit" class="form-control" placeholder="Escribe SKU o nombre...">
+                    <div id="resultadosBusquedaEdit" class="list-group mt-1 shadow-sm position-absolute w-100 z-3" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen Financiero -->
+        <div class="card card-custom border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-3"><i class="fa-solid fa-calculator text-tekfix-primary me-2"></i>Resumen Financiero</h6>
+                <div class="d-flex justify-content-between mb-1">
+                    <span>Total Factura:</span>
+                    <span class="fw-bold">${{ factura.total_factura | cop }}</span>
+                </div>
+                <div class="d-flex justify-content-between text-success mb-1">
+                    <span>Total Abonado:</span>
+                    <span class="fw-bold">-${{ (factura.total_factura - factura.saldo_pendiente) | cop }}</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between text-danger">
+                    <span class="fw-bold">Saldo Pendiente:</span>
+                    <span class="fw-bold h5 mb-0">${{ factura.saldo_pendiente | cop }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial de Abonos -->
+        <div class="card card-custom border-0 shadow-sm mb-4">
+            <div class="card-header bg-white pt-4 px-4 border-0">
+                <h6 class="fw-bold mb-0"><i class="fa-solid fa-history text-tekfix-primary me-2"></i>Historial de Abonos</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive" style="max-height: 200px;">
+                    <table class="table table-sm table-hover m-0">
+                        <thead class="bg-light small">
+                            <tr>
+                                <th class="ps-4">Fecha</th>
+                                <th class="text-end pe-4">Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody class="small">
+                            {% for abono in factura.abonos %}
+                            <tr>
+                                <td class="ps-4">{{ abono.fecha_abono.strftime('%d/%m/%Y') }}</td>
+                                <td class="text-end pe-4 fw-bold text-success">${{ abono.monto_abono | cop }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="2" class="text-center py-3 text-muted">No hay abonos.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<script>
+const inputBusquedaEdit = document.getElementById('inputBusquedaEdit');
+const resultadosBusquedaEdit = document.getElementById('resultadosBusquedaEdit');
+
+inputBusquedaEdit.addEventListener('input', async (e) => {
+    const q = e.target.value.trim();
+    if (q.length < 2) {
+        resultadosBusquedaEdit.style.display = 'none';
+        return;
+    }
+    const resp = await fetch(`/clientes/api/productos/buscar?q=${q}`);
+    const productos = await resp.json();
+    resultadosBusquedaEdit.innerHTML = productos.map(p => `
+        <button type="button" class="list-group-item list-group-item-action" onclick='agregarItemFactura(${JSON.stringify(p)})'>
+            <div class="d-flex justify-content-between">
+                <span>${p.nombre}</span>
+                <span class="fw-bold text-success">$${new Intl.NumberFormat('es-CO').format(p.precio)}</span>
+            </div>
+            <small class="text-muted">Stock: ${p.stock}</small>
+        </button>
+    `).join('');
+    resultadosBusquedaEdit.style.display = 'block';
+});
+
+async function agregarItemFactura(p) {
+    const cant = prompt(`¿Cuántas unidades de "${p.nombre}" deseas añadir?`, "1");
+    if (!cant || isNaN(cant) || parseInt(cant) <= 0) return;
+    
+    if (parseInt(cant) > p.stock) {
+        alert('No hay stock suficiente.');
+        return;
+    }
+
+    const resp = await fetch('{{ url_for("clientes_bp.agregar_item_factura") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token() }}'},
+        body: JSON.stringify({
+            factura_id: Number("{{ factura.id }}"),
+            product_id: p.id,
+            variant_id: p.variant_id,
+            cantidad: cant,
+            precio: p.precio
+        })
+    });
+    
+    if ((await resp.json()).success) location.reload();
+}
+
+async function confirmarDevolucion(detalleId, nombre) {
+    if (!confirm(`¿Estás seguro de devolver "${nombre}"? El stock regresará al inventario y el saldo del cliente disminuirá.`)) return;
+
+    const resp = await fetch('{{ url_for("clientes_bp.eliminar_item_factura") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token() }}'},
+        body: JSON.stringify({ detalle_id: detalleId })
+    });
+    
+    if ((await resp.json()).success) location.reload();
+}
+</script>
+</div>
+
+<!-- Modal Editar Item -->
+<div class="modal fade" id="modalEditarItem" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-pen me-2 text-warning"></i> Editar Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" id="edit_item_id">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Producto</label>
+                    <input type="text" id="edit_item_nombre" class="form-control" readonly disabled>
+                </div>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="form-label fw-semibold">Cantidad</label>
+                        <input type="number" id="edit_item_cantidad" class="form-control" min="1" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-semibold">Precio Unitario</label>
+                        <input type="number" id="edit_item_precio" class="form-control" step="0.01" required>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning px-4 py-2" onclick="guardarCambioItem()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function abrirEditarItem(id, nombre, cantidad, precio) {
+    document.getElementById('edit_item_id').value = id;
+    document.getElementById('edit_item_nombre').value = nombre;
+    document.getElementById('edit_item_cantidad').value = cantidad;
+    document.getElementById('edit_item_precio').value = precio;
+    new bootstrap.Modal(document.getElementById('modalEditarItem')).show();
+}
+
+async function guardarCambioItem() {
+    const id = document.getElementById('edit_item_id').value;
+    const cant = document.getElementById('edit_item_cantidad').value;
+    const prec = document.getElementById('edit_item_precio').value;
+
+    const resp = await fetch('{{ url_for("clientes_bp.editar_item_factura") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token() }}'},
+        body: JSON.stringify({
+            detalle_id: id,
+            cantidad: cant,
+            precio: prec
+        })
+    });
+    
+    const result = await resp.json();
+    if (result.success) {
+        location.reload();
+    } else {
+        alert('Error: ' + result.error);
+    }
+}
+</script>

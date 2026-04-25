@@ -53,18 +53,26 @@
                     <td class="text-tekfix-sec"><small><strong>{{ p.sku }}</strong></small></td>
                     <td class="fw-semibold text-tekfix-main">{{ p.nombre }}</td>
                     <td>
-                        <!-- Regla Estricta: Badge rojo si el stock <= 5 -->
-                        {% if p.total_stock <= 5 %}
+                        <!-- Regla Estricta: Badge rojo si el stock <= 3 -->
+                        {% if p.total_stock <= 3 %}
                             <span class="badge bg-danger rounded-pill px-3 py-2"><i class="fa-solid fa-triangle-exclamation me-1"></i> {{ p.total_stock }} (Stock Bajo)</span>
                         {% else %}
                             <span class="badge border border-tekfix-primary text-tekfix-main rounded-pill px-3 py-2" style="background-color: var(--tekfix-table-header);">{{ p.total_stock }} uds</span>
                         {% endif %}
 
                         {% if p.variantes %}
-                            <div class="mt-2 text-tekfix-sec" style="font-size: 0.85rem;">
-                                {% for v in p.variantes %}
-                                    <span class="badge border text-tekfix-main me-1 mb-1" style="background-color: var(--tekfix-bg); border-color: var(--tekfix-border) !important;">{{ v.nombre_variante }}: {{ v.cantidad_stock }}</span>
-                                {% endfor %}
+                            <div class="mt-2 pt-1 border-top">
+                                <div class="d-flex flex-column gap-1">
+                                    {% set t_order = ["S", "M", "L", "XL", "ÚNICA"] %}
+                                    {% for o_name in t_order %}
+                                        {% for v in p.variantes if v.nombre_variante.lower().replace('talla', '').replace(' ', '') == o_name.lower() %}
+                                            <div class="d-flex align-items-center gap-2 py-0 px-2 rounded-pill shadow-xs border" style="background-color: var(--tekfix-card-bg); border-color: var(--tekfix-border) !important; width: fit-content;">
+                                                <span class="fw-bold" style="font-size: 0.68rem; color: var(--tekfix-primary);">{{ o_name }}</span>
+                                                <span class="badge rounded-pill shadow-sm px-1 py-0" style="background-color: var(--tekfix-hover); color: #FFFFFF; font-size: 0.65rem; min-width: 20px;">{{ v.cantidad_stock }}</span>
+                                            </div>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </div>
                             </div>
                         {% endif %}
                     </td>
@@ -136,8 +144,15 @@
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <div class="row g-2 mb-3">
                                 <div class="col-md-9">
-                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">Nombre o Atributo</label>
-                                    <input type="text" name="nombre_variante" class="form-control form-control-sm" placeholder="Ej: Funda Silicona Negra" required>
+                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">Talla / Medida</label>
+                                    <select name="nombre_variante" class="form-select form-select-sm" required>
+                                        <option value="" disabled selected>Selecciona Talla...</option>
+                                        <option value="S">S</option>
+                                        <option value="M">M</option>
+                                        <option value="L">L</option>
+                                        <option value="XL">XL</option>
+                                        <option value="ÚNICA">ÚNICA</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label small text-tekfix-sec mb-1 fw-bold">Stock Inicial</label>
@@ -146,24 +161,24 @@
                             </div>
                             <div class="row g-2 mb-3">
                                 <div class="col-md-4">
-                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">P. Costo (Opcional)</label>
+                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">P. Costo</label>
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text bg-tekfix-card text-tekfix-sec border-end-0">$</span>
-                                        <input type="number" step="1" name="precio_costo" class="form-control border-start-0 ps-0" placeholder="{{ "%.0f"|format(p.precio_costo) }}">
+                                        <input type="number" step="1" name="precio_costo" class="form-control border-start-0 ps-0" value="{{ "%.0f"|format(p.precio_costo) }}" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">P. Mínimo (Opcional)</label>
+                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">P. Mínimo</label>
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text bg-tekfix-card text-tekfix-sec border-end-0">$</span>
-                                        <input type="number" step="1" name="precio_minimo" class="form-control border-start-0 ps-0" placeholder="{{ "%.0f"|format(p.precio_minimo) }}">
+                                        <input type="number" step="1" name="precio_minimo" class="form-control border-start-0 ps-0" value="{{ "%.0f"|format(p.precio_minimo) }}" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label small fw-bold mb-1" style="color: var(--tekfix-hover);">P. Sugerido (Opcional)</label>
+                                    <label class="form-label small fw-bold mb-1" style="color: var(--tekfix-hover);">P. Sugerido</label>
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text bg-tekfix-card text-tekfix-sec border-end-0">$</span>
-                                        <input type="number" step="1" name="precio_sugerido" class="form-control border-start-0 ps-0 border-pink border-1" placeholder="{{ "%.0f"|format(p.precio_sugerido) }}">
+                                        <input type="number" step="1" name="precio_sugerido" class="form-control border-start-0 ps-0 border-pink border-1" value="{{ "%.0f"|format(p.precio_sugerido) }}" required>
                                     </div>
                                 </div>
                             </div>

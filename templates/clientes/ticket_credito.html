@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Crédito #{{ factura.id }} - {{ factura.cliente.nombre_completo }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --paper-bg: #FFFFFF;
+            --paper-text: #1A1A1A;
+            --desktop-bg: #f0f2f5;
+        }
+        body {
+            background-color: var(--desktop-bg);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            font-family: 'Roboto Mono', monospace;
+        }
+        .ticket {
+            background-color: var(--paper-bg);
+            width: 100%;
+            max-width: 380px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            color: var(--paper-text);
+            box-sizing: border-box;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 1px dashed #000;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .logo { font-size: 1.5rem; font-weight: 700; margin: 0; }
+        .info { font-size: 0.8rem; margin: 2px 0; }
+        
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 15px 0 5px;
+            text-transform: uppercase;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        .table-items {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+        .table-items th { text-align: left; border-bottom: 1px solid #000; padding-bottom: 5px; }
+        .table-items td { padding: 5px 0; }
+        
+        .totals {
+            border-top: 1px dashed #000;
+            padding-top: 10px;
+            font-size: 0.9rem;
+        }
+        .total-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
+        .grand-total { font-weight: 700; font-size: 1.1rem; border-top: 1px solid #000; padding-top: 5px; margin-top: 5px; }
+
+        .acuerdos {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .acuerdo-item { display: flex; justify-content: space-between; padding: 2px 0; }
+
+        .footer { text-align: center; font-size: 0.75rem; margin-top: 20px; border-top: 1px dashed #000; padding-top: 10px; }
+        
+        .btn-print {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            margin-top: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        @media print {
+            body { background: none; padding: 0; }
+            .ticket { box-shadow: none; width: 80mm; margin: 0 auto; }
+            .btn-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="ticket">
+    <div class="header">
+        <h1 class="logo">BENDITO ENCANTO</h1>
+        <p class="info">NIT: 123.456.789-0</p>
+        <p class="info">VENTA A CRÉDITO #{{ factura.id }}</p>
+        <p class="info">{{ factura.fecha_emision.strftime('%d/%m/%Y %H:%M') }}</p>
+    </div>
+
+    <div class="info-cliente">
+        <p class="info"><strong>CLIENTE:</strong> {{ factura.cliente.nombre_completo }}</p>
+        <p class="info"><strong>TEL:</strong> {{ factura.cliente.telefono }}</p>
+    </div>
+
+    <p class="section-title">Detalle de Productos</p>
+    <table class="table-items">
+        <thead>
+            <tr>
+                <th style="width: 15%;">CANT</th>
+                <th style="width: 55%;">PROD</th>
+                <th style="width: 30%; text-align: right;">SUB</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in factura.detalles %}
+            <tr>
+                <td>{{ d.cantidad }}</td>
+                <td>{{ d.producto.nombre[:20] }}</td>
+                <td style="text-align: right;">${{ d.subtotal | cop }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <div class="total-row">
+            <span>Subtotal Factura:</span>
+            <span>${{ factura.total_factura | cop }}</span>
+        </div>
+        <div class="total-row" style="color: green;">
+            <span>Abono Inicial:</span>
+            <span>-${{ (factura.total_factura - factura.saldo_pendiente) | cop }}</span>
+        </div>
+        <div class="total-row grand-total">
+            <span>SALDO PENDIENTE:</span>
+            <span>${{ factura.saldo_pendiente | cop }}</span>
+        </div>
+    </div>
+
+    {% if factura.acuerdos %}
+    <p class="section-title">Compromisos de Pago</p>
+    <div class="acuerdos">
+        {% for a in factura.acuerdos | sort(attribute='fecha_acordada') %}
+        <div class="acuerdo-item">
+            <span>{{ a.fecha_acordada.strftime('%d/%m/%Y') }}:</span>
+            <span class="fw-bold">${{ a.monto_esperado | cop if a.monto_esperado else '---' }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        <p><strong>Políticas:</strong> Cambios máximo en 8 días presentando este ticket.</p>
+        <p>Este documento es un soporte de venta a crédito.</p>
+        <p>Al firmar, el cliente acepta los términos del crédito y se compromete a pagar en las fechas estipuladas.</p>
+        <br><br>
+        <div style="border-top: 1px solid #000; width: 80%; margin: 0 auto; padding-top: 5px;">
+            Firma del Cliente
+        </div>
+        <p style="margin-top: 20px;">¡Gracias por tu confianza!</p>
+    </div>
+
+    <button class="btn-print" onclick="window.print()">IMPRIMIR TICKET</button>
+</div>
+
+<script>
+    window.onload = function() {
+        setTimeout(() => { window.print(); }, 500);
+    };
+</script>
+
+</body>
+</html>

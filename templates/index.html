@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 text-center mb-5">
+        <h1 class="display-4 fw-bold text-tekfix-main animate__animated animate__fadeInDown">¡Hola, {{ current_user.rol | capitalize }}!</h1>
+        <p class="lead text-tekfix-sec animate__animated animate__fadeInUp">Bienvenido al panel central de Bendito Encanto. Selecciona un módulo para comenzar.</p>
+    </div>
+</div>
+
+<div class="row g-4 justify-content-center">
+    {% if current_user.rol == 'admin' %}
+    <div class="col-md-4 col-lg-3">
+        <a href="/admin/dashboard" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
+            <div class="icon-shape bg-tekfix-primary text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-chart-line fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-tekfix-main">Dashboard</h5>
+            <p class="small text-tekfix-sec mb-0">Estadísticas y control general.</p>
+        </a>
+    </div>
+    {% endif %}
+
+    <div class="col-md-4 col-lg-3">
+        <a href="/sales/nueva" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
+            <div class="icon-shape bg-tekfix-hover text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-cash-register fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-tekfix-main">Ventas / POS</h5>
+            <p class="small text-tekfix-sec mb-0">Realizar ventas y facturación.</p>
+        </a>
+    </div>
+
+    <div class="col-md-4 col-lg-3">
+        <a href="/inventory" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
+            <div class="icon-shape bg-tekfix-primary text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-boxes-stacked fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-tekfix-main">Inventario</h5>
+            <p class="small text-tekfix-sec mb-0">Control de stock y productos.</p>
+        </a>
+    </div>
+
+    <div class="col-md-4 col-lg-3">
+        <a href="{{ url_for('clientes_bp.index') }}" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
+            <div class="icon-shape bg-tekfix-secondary text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-users-viewfinder fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-tekfix-main">Clientes</h5>
+            <p class="small text-tekfix-sec mb-0">Gestión de cartera y créditos.</p>
+        </a>
+    </div>
+
+    {% if current_user.rol == 'admin' %}
+    <div class="col-md-4 col-lg-3">
+        <a href="/gastos" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
+            <div class="icon-shape bg-danger text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-money-bill-transfer fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-tekfix-main">Gastos</h5>
+            <p class="small text-tekfix-sec mb-0">Registro de egresos de caja.</p>
+        </a>
+    </div>
+
+    <div class="col-md-4 col-lg-3">
+        <a href="{{ url_for('importaciones_bp.index') }}" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
+            <div class="icon-shape bg-info text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-ship fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-tekfix-main">Importaciones</h5>
+            <p class="small text-tekfix-sec mb-0">Pedidos y logística externa.</p>
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .hover-lift {
+        transition: all 0.3s ease-in-out;
+    }
+    .hover-lift:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important;
+    }
+    .bg-tekfix-hover { background-color: var(--tekfix-hover) !important; }
+    .bg-tekfix-secondary { background-color: #7ED1DB !important; }
+</style>
+{% endblock %}

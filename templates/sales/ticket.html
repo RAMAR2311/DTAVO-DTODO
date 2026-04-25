@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket de Compra #{{ venta.id }} - Tekfix Oficial</title>
+    <title>Ticket de Compra #{{ venta.id }} - Bendito Encanto</title>
     <!-- Incluir solo la fuente base "Roboto Mono" (Letra de ticketera 80mm) -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -146,7 +146,7 @@
 
 <div class="ticket">
     <div class="header">
-        <h1 class="logo">Tekfix Oficial</h1>
+        <h1 class="logo">Bendito Encanto</h1>
         <p class="info">Folio / Ticket: #{{ venta.id }}</p>
         <p class="info">Expedido: {{ venta.fecha_venta.strftime('%d/%m/%Y %H:%M') }}</p>
         <p class="info">Cajero Asignado: {{ venta.vendedor.nombre }}</p>
@@ -209,8 +209,8 @@
 
     <div class="footer">
         <p style="font-size: 1rem; font-weight: bold;">¡Gracias por tu compra!</p>
-        <p>Políticas de Tienda: Devoluciones únicamente presentando ticket impreso o digital.</p>
-        <p>Soporte: ventas@Tekfix Oficial</p>
+        <p>Políticas: Cambios máximo en 8 días presentando este ticket.</p>
+        <p>Soporte: ventas@benditoencanto.com</p>
     </div>
 
     <button class="btn-print" onclick="window.print()">
