@@ -6,10 +6,100 @@
         <h2 class="fw-bold text-tekfix-main"><i class="fa-solid fa-ship text-info me-2"></i> Gestión de Importaciones</h2>
         <p class="text-tekfix-sec">Control de costos de contenedores, fletes e incidencias.</p>
     </div>
-    <div class="col-md-6 text-md-end">
+    <div class="col-md-6 text-md-end d-flex gap-2 justify-content-md-end flex-wrap">
+        <button class="btn btn-outline-secondary shadow-sm px-4 py-2" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor">
+            <i class="fa-solid fa-user-plus me-2"></i> Nuevo Proveedor
+        </button>
         <button class="btn btn-tekfix shadow-sm px-4 py-2" data-bs-toggle="modal" data-bs-target="#modalNuevaImportacion">
             <i class="fa-solid fa-plus me-2"></i> Nueva Importación
         </button>
+    </div>
+</div>
+
+<!-- ====== TARJETA SALDO DE IMPORTACIONES ====== -->
+<div class="row mb-4 g-3">
+    <!-- Saldo Disponible -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card card-custom border-0 shadow-sm h-100 saldo-card {% if saldo_disponible >= 0 %}saldo-positivo{% else %}saldo-negativo{% endif %}">
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="text-tekfix-sec small mb-1 text-uppercase fw-semibold letter-spacing-1">Saldo Disponible</p>
+                        <h3 class="fw-bold mb-0 {% if saldo_disponible >= 0 %}text-success{% else %}text-danger{% endif %}" id="saldoDisplay">
+                            ${{ "{:,.0f}".format(saldo_disponible) }}
+                        </h3>
+                    </div>
+                    <div class="saldo-icon-wrap {% if saldo_disponible >= 0 %}bg-success-subtle{% else %}bg-danger-subtle{% endif %}">
+                        <i class="fa-solid fa-wallet {% if saldo_disponible >= 0 %}text-success{% else %}text-danger{% endif %} fs-4"></i>
+                    </div>
+                </div>
+                <p class="text-tekfix-sec small mb-0 opacity-75">
+                    <i class="fa-solid fa-circle-info me-1"></i>
+                    Capital base ± ganancias − importaciones
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Capital Base -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card card-custom border-0 shadow-sm h-100">
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="text-tekfix-sec small mb-1 text-uppercase fw-semibold">Capital Base</p>
+                        <h4 class="fw-bold mb-0 text-tekfix-primary">${{ "{:,.0f}".format(capital_base) }}</h4>
+                    </div>
+                    <div class="saldo-icon-wrap bg-primary-subtle">
+                        <i class="fa-solid fa-piggy-bank text-primary fs-4"></i>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-outline-primary rounded-pill mt-2 w-100"
+                        data-bs-toggle="modal" data-bs-target="#modalAjustarSaldo">
+                    <i class="fa-solid fa-pen-to-square me-1"></i> Ajustar capital
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Importado -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card card-custom border-0 shadow-sm h-100">
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="text-tekfix-sec small mb-1 text-uppercase fw-semibold">Total Importado</p>
+                        <h4 class="fw-bold mb-0 text-danger">${{ "{:,.0f}".format(total_importado) }}</h4>
+                    </div>
+                    <div class="saldo-icon-wrap bg-danger-subtle">
+                        <i class="fa-solid fa-boxes-stacked text-danger fs-4"></i>
+                    </div>
+                </div>
+                <p class="text-tekfix-sec small mb-0 opacity-75">
+                    Suma acumulada de todos los contenedores registrados
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ganancias de Ventas -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card card-custom border-0 shadow-sm h-100">
+            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="text-tekfix-sec small mb-1 text-uppercase fw-semibold">Ganancias de Ventas</p>
+                        <h4 class="fw-bold mb-0 text-success">${{ "{:,.0f}".format(ganancia_ventas) }}</h4>
+                    </div>
+                    <div class="saldo-icon-wrap bg-success-subtle">
+                        <i class="fa-solid fa-chart-line text-success fs-4"></i>
+                    </div>
+                </div>
+                <p class="text-tekfix-sec small mb-0 opacity-75">
+                    Utilidad neta acumulada desde ventas (precio − costo)
+                </p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -71,7 +161,76 @@
     </div>
 </div>
 
-<!-- Modal Registro/Edición Importación -->
+<!-- ====== MODAL AJUSTAR SALDO ====== -->
+<div class="modal fade" id="modalAjustarSaldo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ url_for('importaciones_bp.ajustar_saldo') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-piggy-bank me-2 text-primary"></i> Ajustar Capital Base</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body px-4 pb-4">
+                    <p class="text-tekfix-sec small mb-3">
+                        Este es el dinero con el que iniciaste para traer tu mercancía. Se descuenta con cada importación y se suma con las ganancias generadas por ventas.
+                    </p>
+                    <label class="form-label fw-semibold">Capital base ($)</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-dollar-sign"></i></span>
+                        <input type="number" step="0.01" min="0" name="nuevo_saldo"
+                               class="form-control form-control-lg"
+                               placeholder="Ej: 5000000"
+                               value="{{ capital_base | int }}" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary px-4">Guardar Capital</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ====== MODAL NUEVO PROVEEDOR ====== -->
+<div class="modal fade" id="modalNuevoProveedor" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="{{ url_for('importaciones_bp.crear_proveedor') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-user-plus me-2 text-info"></i> Registrar Proveedor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body px-4 pb-2">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Nombre del Proveedor <span class="text-danger">*</span></label>
+                            <input type="text" name="nombre_proveedor" class="form-control" placeholder="Ej: Kim Trading" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Empresa / Razón Social</label>
+                            <input type="text" name="empresa_proveedor" class="form-control" placeholder="Opcional">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Teléfono / WhatsApp</label>
+                            <input type="text" name="telefono_proveedor" class="form-control" placeholder="Opcional">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-2">
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-info text-white px-4">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Guardar Proveedor
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ====== MODAL REGISTRO/EDICIÓN IMPORTACIÓN ====== -->
 <div class="modal fade" id="modalNuevaImportacion" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -96,12 +255,19 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Proveedor</label>
-                            <select name="proveedor_id" id="selectProveedor" class="form-select" required>
-                                <option value="" selected disabled>Seleccione un proveedor...</option>
-                                {% for prov in proveedores %}
-                                <option value="{{ prov.id }}">{{ prov.nombre }}</option>
-                                {% endfor %}
-                            </select>
+                            <div class="input-group">
+                                <select name="proveedor_id" id="selectProveedor" class="form-select" required>
+                                    <option value="" selected disabled>Seleccione un proveedor...</option>
+                                    {% for prov in proveedores %}
+                                    <option value="{{ prov.id }}">{{ prov.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="button" class="btn btn-outline-secondary" title="Crear proveedor nuevo"
+                                        data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                            <small class="text-tekfix-sec opacity-75">¿No está el proveedor? Créalo con el botón <i class="fa-solid fa-plus fa-xs"></i></small>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Número de Contenedor</label>
@@ -122,7 +288,7 @@
                             </div>
                             <small class="text-tekfix-sec opacity-75">Este valor no se recalculará en caso de faltantes.</small>
                         </div>
-                        
+
                         <div class="col-12">
                             <div class="form-check form-switch p-3 bg-tekfix-secondary rounded-3 border transition-all" id="switchWrapper">
                                 <input class="form-check-input ms-0 me-3" type="checkbox" name="pedido_completo" id="switchCompleto" checked>
@@ -186,11 +352,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!isComplete) {
             alertaIncompleto.classList.remove('d-none');
             textareaObservaciones.setAttribute('required', 'true');
-            textareaObservaciones.classList.add('is-invalid'); 
+            textareaObservaciones.classList.add('is-invalid');
             wrapperObservaciones.querySelector('label').innerHTML = 'Observaciones / Novedades <span class="text-danger">*</span>';
             alertContainerNum.textContent = '#' + (inputContenedor.value || '---');
-            
-            // Cambio de color visual para advertencia
+
             switchWrapper.classList.remove('bg-tekfix-secondary');
             switchWrapper.classList.add('bg-danger-subtle', 'border-danger');
         } else {
@@ -199,7 +364,6 @@ document.addEventListener('DOMContentLoaded', function() {
             textareaObservaciones.classList.remove('is-invalid');
             wrapperObservaciones.querySelector('label').innerHTML = 'Observaciones / Novedades';
 
-            // Restaurar color original
             switchWrapper.classList.add('bg-tekfix-secondary');
             switchWrapper.classList.remove('bg-danger-subtle', 'border-danger');
         }
@@ -228,14 +392,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 modalTitle.innerHTML = '<i class="fa-solid fa-pen-to-square me-2"></i> Editar Contenedor #' + data.numero_contenedor;
                 btnSubmit.textContent = 'Actualizar Datos';
                 formImportacion.action = `/importaciones/editar/${id}`;
-                
+
                 selectProveedor.value = data.proveedor_id;
                 inputContenedor.value = data.numero_contenedor;
                 inputValorContenedor.value = data.valor_contenedor;
                 inputValorFlete.value = data.valor_flete;
                 switchCompleto.checked = data.pedido_completo;
                 textareaObservaciones.value = data.observaciones || '';
-                
+
                 toggleAlert();
                 bootstrapModal.show();
             });
@@ -290,6 +454,26 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
+/* Tarjetas de saldo */
+.saldo-card {
+    border-left: 4px solid transparent !important;
+}
+.saldo-positivo {
+    border-left-color: #198754 !important;
+}
+.saldo-negativo {
+    border-left-color: #dc3545 !important;
+}
+.saldo-icon-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
 /* Estilos extra para badges y contrastes */
 .badge.bg-success-subtle {
     background-color: rgba(25, 135, 84, 0.1) !important;

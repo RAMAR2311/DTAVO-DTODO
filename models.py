@@ -392,6 +392,27 @@ class Importacion(db.Model):
     def pago_total(self):
         return float(self.valor_contenedor) + float(self.valor_flete)
 
+class SaldoImportacion(db.Model):
+    """Registro único del saldo de capital disponible para importaciones.
+    Se abona manualmente (capital inicial) y automáticamente (ganancias de ventas).
+    Se descuenta al registrar cada importación (valor_contenedor + valor_flete).
+    """
+    __tablename__ = 'saldo_importacion'
+
+    id = db.Column(db.Integer, primary_key=True)
+    saldo_actual = db.Column(db.Numeric(14, 2), nullable=False, default=0.00)
+    ultima_actualizacion = db.Column(db.DateTime, default=obtener_hora_bogota)
+
+    @classmethod
+    def obtener(cls):
+        """Retorna el registro único, creándolo si no existe."""
+        registro = cls.query.first()
+        if not registro:
+            registro = cls(saldo_actual=0.00)
+            db.session.add(registro)
+            db.session.commit()
+        return registro
+
 # ====== MÓDULO CARTERA / CLIENTES CRÉDITO POS ======
 class ClienteCartera(db.Model):
     __tablename__ = 'cliente_cartera'
