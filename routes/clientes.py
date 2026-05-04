@@ -128,7 +128,7 @@ def registrar_factura():
                 nuevo_acuerdo = AcuerdoPago(
                     factura_id=nueva_factura.id,
                     fecha_acordada=datetime.strptime(ac['fecha'], '%Y-%m-%d').date(),
-                    monto_esperado=Decimal(str(ac['monto'])) if ac.get('monto') else None
+                    monto_esperado=Decimal(str(ac['monto']).replace(',', '')) if ac.get('monto') else None
                 )
                 db.session.add(nuevo_acuerdo)
 

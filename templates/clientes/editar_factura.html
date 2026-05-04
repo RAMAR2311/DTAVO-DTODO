@@ -136,8 +136,42 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Editar Item -->
+<div class="modal fade" id="modalEditarItem" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-pen me-2 text-warning"></i> Editar Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" id="edit_item_id">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Producto</label>
+                    <input type="text" id="edit_item_nombre" class="form-control" readonly disabled>
+                </div>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="form-label fw-semibold">Cantidad</label>
+                        <input type="number" id="edit_item_cantidad" class="form-control" min="1" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-semibold">Precio Unitario</label>
+                        <input type="text" id="edit_item_precio" class="form-control money-input" required>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning px-4 py-2" onclick="guardarCambioItem()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
+{% block scripts %}
 <script>
 const inputBusquedaEdit = document.getElementById('inputBusquedaEdit');
 const resultadosBusquedaEdit = document.getElementById('resultadosBusquedaEdit');
@@ -191,7 +225,7 @@ async function agregarItemManualEdit() {
     if (!nombre || nombre.trim() === '') return;
     
     const precioStr = prompt("Ingrese el precio unitario facturado:");
-    const precio = parseFloat(precioStr);
+    const precio = parseFloat(precioStr ? precioStr.replace(/,/g, '') : 0);
     if (isNaN(precio) || precio <= 0) {
         alert("Precio inválido.");
         return;
@@ -237,40 +271,8 @@ async function confirmarDevolucion(detalleId, nombre) {
     if ((await resp.json()).success) location.reload();
 }
 </script>
-</div>
 
-<!-- Modal Editar Item -->
-<div class="modal fade" id="modalEditarItem" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold"><i class="fa-solid fa-pen me-2 text-warning"></i> Editar Item</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <input type="hidden" id="edit_item_id">
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Producto</label>
-                    <input type="text" id="edit_item_nombre" class="form-control" readonly disabled>
-                </div>
-                <div class="row g-2">
-                    <div class="col-6">
-                        <label class="form-label fw-semibold">Cantidad</label>
-                        <input type="number" id="edit_item_cantidad" class="form-control" min="1" required>
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label fw-semibold">Precio Unitario</label>
-                        <input type="text" id="edit_item_precio" class="form-control money-input" required>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-warning px-4 py-2" onclick="guardarCambioItem()">Guardar Cambios</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <script>
 function abrirEditarItem(id, nombre, cantidad, precio) {
@@ -303,9 +305,7 @@ async function guardarCambioItem() {
         alert('Error: ' + result.error);
     }
 }
-</script>
-{% block scripts %}
-<script>
+
 document.addEventListener('DOMContentLoaded', function() {
     function formatMoneyInput(input) {
         let val = input.value.replace(/[^\d]/g, '');

@@ -89,20 +89,28 @@
                 </div>
             </div>
             <div class="card-body px-4 pb-4">
-                <div class="p-3 bg-light rounded-3 mb-3">
-                    <h6 class="small fw-bold text-tekfix-sec mb-2">Productos Facturados</h6>
-                    <ul class="list-unstyled mb-0 small">
-                        {% for d in factura.detalles %}
-                        <li class="d-flex justify-content-between mb-1">
-                            <span>{{ d.cantidad }}x {{ d.producto.nombre if d.producto else d.nombre_manual }} {{ "(" ~ d.variante.nombre_variante ~ ")" if d.variante }}</span>
-                            <span class="fw-bold">${{ d.subtotal | cop }}</span>
-                        </li>
-                        {% endfor %}
-                        <li class="border-top pt-1 mt-1 d-flex justify-content-between fw-bold">
-                            <span>TOTAL FACTURA:</span>
-                            <span>${{ factura.total_factura | cop }}</span>
-                        </li>
-                    </ul>
+                <div class="rounded-4 mb-3 overflow-hidden border border-light-subtle shadow-sm">
+                    <div class="bg-light px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
+                        <h6 class="small fw-bold text-tekfix-sec mb-0"><i class="fa-solid fa-list-check me-2"></i>Detalle de Productos</h6>
+                        <span class="badge bg-white text-tekfix-sec border fw-normal">{{ factura.detalles | length }} items</span>
+                    </div>
+                    <div class="p-3 bg-white">
+                        <ul class="list-unstyled mb-0 small">
+                            {% for d in factura.detalles %}
+                            <li class="d-flex justify-content-between mb-2 pb-1 border-bottom border-light-subtle last-border-0">
+                                <div class="pe-3">
+                                    <span class="d-block fw-semibold text-tekfix-main">{{ d.cantidad }}x {{ d.producto.nombre if d.producto else d.nombre_manual }}</span>
+                                    {% if d.variante %}<small class="text-muted">{{ d.variante.nombre_variante }}</small>{% endif %}
+                                </div>
+                                <span class="fw-bold text-tekfix-primary align-self-center">${{ d.subtotal | cop }}</span>
+                            </li>
+                            {% endfor %}
+                            <li class="pt-2 d-flex justify-content-between align-items-center">
+                                <span class="text-tekfix-sec fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Total de esta Venta:</span>
+                                <span class="h5 fw-bolder mb-0 text-tekfix-main">${{ factura.total_factura | cop }}</span>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="row align-items-center">
@@ -243,22 +251,36 @@
         </div>
 
         <!-- Carrito -->
-        <div class="flex-grow-1 overflow-auto mb-3">
-            <h6 class="fw-bold border-bottom pb-2 mb-3">Resumen de Factura</h6>
-            <div id="carritoItems">
+        <div class="flex-grow-1 overflow-auto mb-3 px-1">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold text-tekfix-main mb-0"><i class="fa-solid fa-cart-flatbed me-2"></i>Items a Facturar</h6>
+                <span class="badge bg-tekfix-primary rounded-pill px-3" id="contadorItems">0 Items</span>
+            </div>
+            
+            <div id="carritoItems" class="pe-1">
                 <!-- Items del carrito -->
-                <div class="text-center text-muted py-4" id="carritoVacio">
-                    <i class="fa-solid fa-box-open fs-1 mb-2 opacity-25 d-block"></i>
-                    Carrito vacío
+                <div class="text-center py-5 border-dashed rounded-4 bg-light bg-opacity-50" id="carritoVacio" style="border: 2px dashed #dee2e6;">
+                    <i class="fa-solid fa-basket-shopping fs-1 mb-3 opacity-25 d-block text-tekfix-primary"></i>
+                    <p class="mb-0 text-tekfix-sec fw-medium">Agregue productos para comenzar</p>
+                    <small class="text-muted">Busque por SKU o Nombre arriba</small>
                 </div>
             </div>
         </div>
 
         <!-- Totales y Abono Inicial -->
-        <div class="border-top pt-3">
-            <div class="d-flex justify-content-between mb-2">
-                <span class="fw-bold h5">TOTAL:</span>
-                <span class="fw-bold h5 text-tekfix-primary" id="totalFactura">$0</span>
+        <div class="border-top pt-4 bg-white mt-auto">
+            <div class="p-3 rounded-4 bg-tekfix-main bg-opacity-10 border border-tekfix-primary border-opacity-10 mb-3 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="text-tekfix-sec fw-bold small text-uppercase">Total de Factura:</div>
+                    <div class="h3 fw-bolder mb-0 text-tekfix-primary" id="totalFactura">$0</div>
+                </div>
+            </div>
+            
+            <div id="resumenFinancieroPOS" class="mb-3 px-2 d-none">
+                <div class="d-flex justify-content-between small mb-1">
+                    <span class="text-tekfix-sec">Saldo Cartera:</span>
+                    <span class="fw-bold" id="resumenSaldoPendiente">$0</span>
+                </div>
             </div>
            <!-- Abono Inicial -->
         <div class="mb-3">
@@ -424,7 +446,16 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
 <script>
+// Función de utilidad global para limpiar formato de moneda
+const unformatMoney = (val) => {
+    if (!val) return 0;
+    return parseFloat(val.toString().replace(/,/g, '')) || 0;
+};
+
 let carrito = [];
 const inputBusqueda = document.getElementById('inputBusqueda');
 const resultadosBusqueda = document.getElementById('resultadosBusqueda');
@@ -432,6 +463,7 @@ const carritoItems = document.getElementById('carritoItems');
 const totalFacturaDisplay = document.getElementById('totalFactura');
 const btnFinalizar = document.getElementById('btnFinalizarVenta');
 const contenedorAcuerdosPOS = document.getElementById('contenedorAcuerdosPOS');
+
 
 // Buscador de productos
 inputBusqueda.addEventListener('input', async (e) => {
@@ -492,7 +524,7 @@ window.agregarItemManual = () => {
     if (!nombre || nombre.trim() === '') return;
     
     const precioStr = prompt("Ingrese el precio unitario facturado:");
-    const precio = parseFloat(precioStr);
+    const precio = parseFloat(precioStr ? precioStr.replace(/,/g, '') : 0);
     if (isNaN(precio) || precio <= 0) {
         alert("Precio inválido.");
         return;
@@ -519,36 +551,51 @@ window.agregarItemManual = () => {
 };
 
 function renderCarrito() {
+    const contadorItems = document.getElementById('contadorItems');
     if (carrito.length === 0) {
-        carritoItems.innerHTML = `<div class="text-center text-muted py-4" id="carritoVacio"><i class="fa-solid fa-box-open fs-1 mb-2 opacity-25 d-block"></i>Carrito vacío</div>`;
+        carritoItems.innerHTML = `
+            <div class="text-center py-5 border-dashed rounded-4 bg-light bg-opacity-50" id="carritoVacio" style="border: 2px dashed #dee2e6;">
+                <i class="fa-solid fa-basket-shopping fs-1 mb-3 opacity-25 d-block text-tekfix-primary"></i>
+                <p class="mb-0 text-tekfix-sec fw-medium">Agregue productos para comenzar</p>
+                <small class="text-muted">Busque por SKU o Nombre arriba</small>
+            </div>`;
         totalFacturaDisplay.innerText = '$0';
+        if (contadorItems) contadorItems.innerText = '0 Items';
         btnFinalizar.disabled = true;
         return;
     }
 
     let total = 0;
+    let totalUnidades = 0;
     carritoItems.innerHTML = carrito.map((item, index) => {
         const subtotal = item.precio * item.cantidad;
         total += subtotal;
+        totalUnidades += item.cantidad;
         return `
-            <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-3 mb-2 shadow-sm border">
-                <div class="flex-grow-1">
-                    <span class="fw-bold d-block small">${item.nombre}</span>
-                    <small class="text-tekfix-sec">$${new Intl.NumberFormat('en-US').format(item.precio)} x ${item.cantidad}</small>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <div class="input-group input-group-sm" style="width: 100px;">
-                        <button class="btn btn-outline-secondary" onclick="ajustarCantidad(${index}, -1)"><i class="fa-solid fa-minus"></i></button>
-                        <input type="text" class="form-control text-center bg-white" value="${item.cantidad}" readonly>
-                        <button class="btn btn-outline-secondary" onclick="ajustarCantidad(${index}, 1)"><i class="fa-solid fa-plus"></i></button>
+            <div class="card border-0 shadow-sm mb-2 rounded-3 overflow-hidden border-start border-4 border-tekfix-primary">
+                <div class="card-body p-2 d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <span class="fw-bold d-block text-tekfix-main" style="font-size: 0.85rem;">${item.nombre}</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-light text-tekfix-sec border fw-normal">$${new Intl.NumberFormat('en-US').format(item.precio)}</span>
+                            <span class="text-tekfix-primary fw-bold small">$${new Intl.NumberFormat('en-US').format(subtotal)}</span>
+                        </div>
                     </div>
-                    <button class="btn btn-sm btn-outline-danger" onclick="removerItem(${index})"><i class="fa-solid fa-trash"></i></button>
+                    <div class="d-flex align-items-center gap-1 ms-2">
+                        <div class="input-group input-group-sm" style="width: 90px;">
+                            <button class="btn btn-outline-secondary border-0 bg-light" onclick="ajustarCantidad(${index}, -1)"><i class="fa-solid fa-minus fa-xs"></i></button>
+                            <input type="text" class="form-control border-0 text-center bg-light fw-bold px-0" value="${item.cantidad}" readonly style="width: 30px; font-size: 0.8rem;">
+                            <button class="btn btn-outline-secondary border-0 bg-light" onclick="ajustarCantidad(${index}, 1)"><i class="fa-solid fa-plus fa-xs"></i></button>
+                        </div>
+                        <button class="btn btn-sm btn-link text-danger p-1" onclick="removerItem(${index})"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
                 </div>
             </div>
         `;
     }).join('');
 
     totalFacturaDisplay.innerText = '$' + new Intl.NumberFormat('en-US').format(total);
+    if (contadorItems) contadorItems.innerText = totalUnidades + (totalUnidades === 1 ? ' Item' : ' Items');
     btnFinalizar.disabled = false;
 }
 
@@ -595,7 +642,7 @@ window.agregarFilaAcuerdo = () => {
 };
 
 btnFinalizar.addEventListener('click', async () => {
-    const abonoInic = parseFloat(document.getElementById('abonoInicial').value || 0);
+    const abonoInic = unformatMoney(document.getElementById('abonoInicial').value);
     const totalActual = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
     
     if (abonoInic > totalActual) {
@@ -607,9 +654,9 @@ btnFinalizar.addEventListener('click', async () => {
     const acuerdos = [];
     document.querySelectorAll('#contenedorAcuerdosPOS .row').forEach(row => {
         const fecha = row.querySelector('.fecha-acuerdo').value;
-        const monto = row.querySelector('.monto-acuerdo').value;
+        const montoRaw = row.querySelector('.monto-acuerdo').value;
         if (fecha) {
-            acuerdos.push({ fecha, monto: monto || 0 });
+            acuerdos.push({ fecha, monto: unformatMoney(montoRaw) });
         }
     });
 
@@ -703,11 +750,11 @@ document.addEventListener('DOMContentLoaded', () => {
     70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
     100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
 }
-.offcanvas { background-color: var(--tekfix-bg); }
+.offcanvas { background-color: #fcfcfc; border-left: 1px solid rgba(0,0,0,0.05) !important; }
+.last-border-0:last-child { border-bottom: 0 !important; }
+.border-dashed { border-style: dashed !important; }
 </style>
-</script>
 
-<script>
 document.addEventListener('DOMContentLoaded', function() {
     function formatMoneyInput(input) {
         let val = input.value.replace(/[^\d]/g, '');
