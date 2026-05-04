@@ -50,7 +50,7 @@ def nuevo():
             file = request.files['imagen']
             if file and file.filename != '':
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+                file.save(os.path.join('/var/www/bendito/static/uploads', filename))
                 imagen_filename = filename
 
         # La instanciación agrupa todos los parámetros del nuevo producto
@@ -108,7 +108,7 @@ def editar_producto(id):
             file = request.files['imagen']
             if file and file.filename != '':
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+                file.save(os.path.join('/var/www/bendito/static/uploads', filename))
                 producto.imagen = filename
                 
         # Se capturan los nuevos precios

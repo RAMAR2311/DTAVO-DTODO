@@ -92,7 +92,7 @@ def nueva_factura():
         if archivo and allowed_file(archivo.filename):
             filename = secure_filename(archivo.filename)
             unique_filename = f"fact_{cliente_id}_{num_factura}_{filename}"
-            upload_path = os.path.join(current_app.config['UPLOAD_FOLDER'], 'facturas')
+            upload_path = os.path.join('/var/www/bendito/static/uploads', 'facturas')
             
             os.makedirs(upload_path, exist_ok=True)
             file_path = os.path.join(upload_path, unique_filename)
