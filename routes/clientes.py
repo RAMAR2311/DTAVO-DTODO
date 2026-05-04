@@ -67,31 +67,36 @@ def registrar_factura():
         db.session.flush()
 
         for item in items:
-            product_id = item['product_id']
+            product_id = item.get('product_id')
             variant_id = item.get('variant_id')
+            nombre_manual = item.get('nombre_manual')
             cantidad = int(item['cantidad'])
             precio = Decimal(str(item['precio']))
             subtotal = precio * cantidad
             
-            # Descuento de Inventario
-            if variant_id:
-                variante = ProductVariant.query.with_for_update().get(variant_id)
-                if not variante or variante.cantidad_stock < cantidad:
-                    raise ValueError(f"Stock insuficiente para variante {variant_id}")
-                variante.cantidad_stock -= cantidad
-            else:
-                producto = Product.query.with_for_update().get(product_id)
-                if not producto or producto.cantidad_stock < cantidad:
-                    raise ValueError(f"Stock insuficiente para producto {product_id}")
-                producto.cantidad_stock -= cantidad
+            # Descuento de Inventario si es un producto del sistema
+            if product_id:
+                if variant_id:
+                    variante = ProductVariant.query.with_for_update().get(variant_id)
+                    if not variante or variante.cantidad_stock < cantidad:
+                        raise ValueError(f"Stock insuficiente para variante {variant_id}")
+                    variante.cantidad_stock -= cantidad
+                else:
+                    producto = Product.query.with_for_update().get(product_id)
+                    if not producto or producto.cantidad_stock < cantidad:
+                        raise ValueError(f"Stock insuficiente para producto {product_id}")
+                    producto.cantidad_stock -= cantidad
+            elif not nombre_manual:
+                raise ValueError("El ítem debe tener un producto o un nombre manual.")
             
             detalle = DetalleFacturaCredito(
                 factura_id=nueva_factura.id,
-                producto_id=product_id,
+                producto_id=product_id if product_id else None,
                 variant_id=variant_id,
                 cantidad=cantidad,
                 precio_unitario=precio,
-                subtotal=subtotal
+                subtotal=subtotal,
+                nombre_manual=nombre_manual
             )
             db.session.add(detalle)
             total_factura += subtotal
@@ -252,15 +257,16 @@ def eliminar_cliente(id):
     
     try:
         # Al eliminar el cliente, el cascade se encarga de facturas, abonos, etc.
-        # Pero debemos devolver el stock de todos los productos en todas sus facturas
+        # Pero debemos devolver el stock de todos los productos en todas sus facturas (solo los de inventario)
         for factura in cliente.facturas:
             for detalle in factura.detalles:
-                if detalle.variant_id:
-                    v = ProductVariant.query.get(detalle.variant_id)
-                    if v: v.cantidad_stock += detalle.cantidad
-                else:
-                    p = Product.query.get(detalle.producto_id)
-                    if p: p.cantidad_stock += detalle.cantidad
+                if detalle.producto_id:
+                    if detalle.variant_id:
+                        v = ProductVariant.query.get(detalle.variant_id)
+                        if v: v.cantidad_stock += detalle.cantidad
+                    else:
+                        p = Product.query.get(detalle.producto_id)
+                        if p: p.cantidad_stock += detalle.cantidad
         
         db.session.delete(cliente)
         db.session.commit()
@@ -281,12 +287,13 @@ def eliminar_factura(id):
     try:
         # Devolver Stock
         for detalle in factura.detalles:
-            if detalle.variant_id:
-                v = ProductVariant.query.get(detalle.variant_id)
-                if v: v.cantidad_stock += detalle.cantidad
-            else:
-                p = Product.query.get(detalle.producto_id)
-                if p: p.cantidad_stock += detalle.cantidad
+            if detalle.producto_id:
+                if detalle.variant_id:
+                    v = ProductVariant.query.get(detalle.variant_id)
+                    if v: v.cantidad_stock += detalle.cantidad
+                else:
+                    p = Product.query.get(detalle.producto_id)
+                    if p: p.cantidad_stock += detalle.cantidad
                 
         db.session.delete(factura)
         db.session.commit()
@@ -343,13 +350,14 @@ def eliminar_item_factura():
     factura = detalle.factura
     
     try:
-        # Devolver Stock
-        if detalle.variant_id:
-            variante = ProductVariant.query.get(detalle.variant_id)
-            if variante: variante.cantidad_stock += detalle.cantidad
-        else:
-            producto = Product.query.get(detalle.producto_id)
-            if producto: producto.cantidad_stock += detalle.cantidad
+        # Devolver Stock solo si es un producto del inventario
+        if detalle.producto_id:
+            if detalle.variant_id:
+                variante = ProductVariant.query.get(detalle.variant_id)
+                if variante: variante.cantidad_stock += detalle.cantidad
+            else:
+                producto = Product.query.get(detalle.producto_id)
+                if producto: producto.cantidad_stock += detalle.cantidad
             
         # Ajustar Totales
         monto_a_restar = detalle.subtotal
@@ -371,32 +379,37 @@ def agregar_item_factura():
     factura_id = data.get('factura_id')
     product_id = data.get('product_id')
     variant_id = data.get('variant_id')
+    nombre_manual = data.get('nombre_manual')
     cantidad = int(data.get('cantidad', 1))
     precio = Decimal(str(data.get('precio')))
     
     factura = FacturaCredito.query.get_or_404(factura_id)
     
     try:
-        # Descontar Stock
-        if variant_id:
-            variante = ProductVariant.query.with_for_update().get(variant_id)
-            if not variante or variante.cantidad_stock < cantidad:
-                return jsonify({'error': 'Stock insuficiente'}), 400
-            variante.cantidad_stock -= cantidad
-        else:
-            producto = Product.query.with_for_update().get(product_id)
-            if not producto or producto.cantidad_stock < cantidad:
-                return jsonify({'error': 'Stock insuficiente'}), 400
-            producto.cantidad_stock -= cantidad
+        # Descontar Stock si es producto del sistema
+        if product_id:
+            if variant_id:
+                variante = ProductVariant.query.with_for_update().get(variant_id)
+                if not variante or variante.cantidad_stock < cantidad:
+                    return jsonify({'error': 'Stock insuficiente'}), 400
+                variante.cantidad_stock -= cantidad
+            else:
+                producto = Product.query.with_for_update().get(product_id)
+                if not producto or producto.cantidad_stock < cantidad:
+                    return jsonify({'error': 'Stock insuficiente'}), 400
+                producto.cantidad_stock -= cantidad
+        elif not nombre_manual:
+            return jsonify({'error': 'Debe especificar un producto o un nombre manual'}), 400
             
         subtotal = precio * cantidad
         nuevo_detalle = DetalleFacturaCredito(
             factura_id=factura_id,
-            producto_id=product_id,
+            producto_id=product_id if product_id else None,
             variant_id=variant_id,
             cantidad=cantidad,
             precio_unitario=precio,
-            subtotal=subtotal
+            subtotal=subtotal,
+            nombre_manual=nombre_manual
         )
         db.session.add(nuevo_detalle)
         
@@ -426,26 +439,27 @@ def editar_item_factura():
         # Calcular diferencia de stock
         diff_stock = nueva_cantidad - detalle.cantidad
         
-        # Validar stock si aumenta
-        if diff_stock > 0:
-            if detalle.variant_id:
-                variante = ProductVariant.query.with_for_update().get(detalle.variant_id)
-                if not variante or variante.cantidad_stock < diff_stock:
-                    return jsonify({'error': 'Stock insuficiente'}), 400
-                variante.cantidad_stock -= diff_stock
-            else:
-                producto = Product.query.with_for_update().get(detalle.producto_id)
-                if not producto or producto.cantidad_stock < diff_stock:
-                    return jsonify({'error': 'Stock insuficiente'}), 400
-                producto.cantidad_stock -= diff_stock
-        elif diff_stock < 0:
-            # Devolver stock
-            if detalle.variant_id:
-                variante = ProductVariant.query.get(detalle.variant_id)
-                if variante: variante.cantidad_stock += abs(diff_stock)
-            else:
-                producto = Product.query.get(detalle.producto_id)
-                if producto: producto.cantidad_stock += abs(diff_stock)
+        # Validar y modificar stock solo si es producto del sistema
+        if detalle.producto_id:
+            if diff_stock > 0:
+                if detalle.variant_id:
+                    variante = ProductVariant.query.with_for_update().get(detalle.variant_id)
+                    if not variante or variante.cantidad_stock < diff_stock:
+                        return jsonify({'error': 'Stock insuficiente'}), 400
+                    variante.cantidad_stock -= diff_stock
+                else:
+                    producto = Product.query.with_for_update().get(detalle.producto_id)
+                    if not producto or producto.cantidad_stock < diff_stock:
+                        return jsonify({'error': 'Stock insuficiente'}), 400
+                    producto.cantidad_stock -= diff_stock
+            elif diff_stock < 0:
+                # Devolver stock
+                if detalle.variant_id:
+                    variante = ProductVariant.query.get(detalle.variant_id)
+                    if variante: variante.cantidad_stock += abs(diff_stock)
+                else:
+                    producto = Product.query.get(detalle.producto_id)
+                    if producto: producto.cantidad_stock += abs(diff_stock)
 
         # Ajustar Totales de la Factura
         diferencia_total = (nuevo_precio * nueva_cantidad) - detalle.subtotal

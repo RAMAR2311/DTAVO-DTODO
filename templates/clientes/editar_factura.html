@@ -40,8 +40,8 @@
                             {% for d in factura.detalles %}
                             <tr>
                                 <td class="ps-4">
-                                    <span class="fw-bold d-block">{{ d.producto.nombre }}</span>
-                                    <small class="text-muted">{{ d.variante.nombre_variante if d.variante else 'Base' }}</small>
+                                    <span class="fw-bold d-block">{{ d.producto.nombre if d.producto else d.nombre_manual }}</span>
+                                    <small class="text-muted">{{ d.variante.nombre_variante if d.variante else ('Manual' if not d.producto else 'Base') }}</small>
                                 </td>
                                 <td>{{ d.cantidad }}</td>
                                 <td>${{ d.precio_unitario | cop }}</td>
@@ -49,12 +49,12 @@
                                 <td class="text-end pe-4">
                                     <div class="d-flex gap-1 justify-content-end">
                                         <button class="btn btn-sm btn-outline-warning rounded-pill" 
-                                                onclick="abrirEditarItem('{{ d.id }}', '{{ d.producto.nombre }}', '{{ d.cantidad }}', '{{ d.precio_unitario }}')">
+                                                onclick="abrirEditarItem('{{ d.id }}', '{{ d.producto.nombre if d.producto else d.nombre_manual }}', '{{ d.cantidad }}', '{{ d.precio_unitario }}')">
                                             <i class="fa-solid fa-pen"></i>
                                         </button>
                                         <button class="btn btn-sm btn-outline-danger rounded-pill" 
                                                 data-id="{{ d.id }}" 
-                                                data-nombre="{{ d.producto.nombre }}"
+                                                data-nombre="{{ d.producto.nombre if d.producto else d.nombre_manual }}"
                                                 onclick="confirmarDevolucion(this.dataset.id, this.dataset.nombre)">
                                             <i class="fa-solid fa-rotate-left"></i>
                                         </button>
@@ -78,6 +78,9 @@
                     <input type="text" id="inputBusquedaEdit" class="form-control" placeholder="Escribe SKU o nombre...">
                     <div id="resultadosBusquedaEdit" class="list-group mt-1 shadow-sm position-absolute w-100 z-3" style="display: none;"></div>
                 </div>
+                <button class="btn btn-sm btn-outline-secondary w-100" type="button" onclick="agregarItemManualEdit()">
+                    <i class="fa-solid fa-plus me-1"></i> Añadir Ítem Manual (Sin Inventario)
+                </button>
             </div>
         </div>
 
@@ -151,7 +154,7 @@ inputBusquedaEdit.addEventListener('input', async (e) => {
         <button type="button" class="list-group-item list-group-item-action" onclick='agregarItemFactura(${JSON.stringify(p)})'>
             <div class="d-flex justify-content-between">
                 <span>${p.nombre}</span>
-                <span class="fw-bold text-success">$${new Intl.NumberFormat('es-CO').format(p.precio)}</span>
+                <span class="fw-bold text-success">$${new Intl.NumberFormat('en-US').format(p.precio)}</span>
             </div>
             <small class="text-muted">Stock: ${p.stock}</small>
         </button>
@@ -181,6 +184,45 @@ async function agregarItemFactura(p) {
     });
     
     if ((await resp.json()).success) location.reload();
+}
+
+async function agregarItemManualEdit() {
+    const nombre = prompt("Ingrese el nombre del artículo histórico:");
+    if (!nombre || nombre.trim() === '') return;
+    
+    const precioStr = prompt("Ingrese el precio unitario facturado:");
+    const precio = parseFloat(precioStr);
+    if (isNaN(precio) || precio <= 0) {
+        alert("Precio inválido.");
+        return;
+    }
+    
+    const cantidadStr = prompt("Ingrese la cantidad:", "1");
+    const cantidad = parseInt(cantidadStr);
+    if (isNaN(cantidad) || cantidad <= 0) {
+        alert("Cantidad inválida.");
+        return;
+    }
+
+    const resp = await fetch('{{ url_for("clientes_bp.agregar_item_factura") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token() }}'},
+        body: JSON.stringify({
+            factura_id: Number("{{ factura.id }}"),
+            product_id: null,
+            variant_id: null,
+            nombre_manual: nombre,
+            cantidad: cantidad,
+            precio: precio
+        })
+    });
+    
+    const result = await resp.json();
+    if (result.success) {
+        location.reload();
+    } else {
+        alert('Error: ' + result.error);
+    }
 }
 
 async function confirmarDevolucion(detalleId, nombre) {

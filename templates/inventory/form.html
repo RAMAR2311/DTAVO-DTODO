@@ -30,21 +30,21 @@
                         <label class="form-label fw-bold text-tekfix-main text-truncate">Costo Compra</label>
                         <div class="input-group">
                             <span class="input-group-text bg-tekfix-card border-0">$</span>
-                            <input type="number" step="1" class="form-control bg-tekfix-card border-0" name="precio_costo" required value="{{ producto.precio_costo if producto else '' }}">
+                            <input type="text" class="form-control bg-tekfix-card border-0 money-input" name="precio_costo" required value="{{ producto.precio_costo if producto else '' }}">
                         </div>
                     </div>
                     <div class="col-md-3 mt-4">
                         <label class="form-label fw-bold text-tekfix-main text-truncate">Precio Mínimo</label>
                         <div class="input-group">
                             <span class="input-group-text bg-tekfix-card border-0">$</span>
-                            <input type="number" step="1" class="form-control bg-tekfix-card border-0" name="precio_minimo" required value="{{ producto.precio_minimo if producto else '' }}">
+                            <input type="text" class="form-control bg-tekfix-card border-0 money-input" name="precio_minimo" required value="{{ producto.precio_minimo if producto else '' }}">
                         </div>
                     </div>
                     <div class="col-md-3 mt-4">
                         <label class="form-label fw-bold text-tekfix-main text-truncate">Precio Sugerido</label>
                         <div class="input-group">
                             <span class="input-group-text bg-tekfix-card border-0">$</span>
-                            <input type="number" step="1" class="form-control bg-tekfix-card border-0" name="precio_sugerido" required value="{{ producto.precio_sugerido if producto else '' }}">
+                            <input type="text" class="form-control bg-tekfix-card border-0 money-input" name="precio_sugerido" required value="{{ producto.precio_sugerido if producto else '' }}">
                         </div>
                     </div>
                     
@@ -74,4 +74,38 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Formatear automáticamente inputs de dinero con comas
+    function formatMoneyInput(input) {
+        let val = input.value.replace(/[^\d]/g, '');
+        if (val) {
+            input.value = new Intl.NumberFormat('en-US').format(val);
+        } else {
+            input.value = '';
+        }
+    }
+
+    document.querySelectorAll('.money-input').forEach(input => {
+        // Formatear valor inicial si existe
+        if (input.value) {
+            formatMoneyInput(input);
+        }
+        
+        input.addEventListener('input', function(e) {
+            // Guardar posición del cursor
+            let cursor = e.target.selectionStart;
+            let oldLen = this.value.length;
+            
+            formatMoneyInput(this);
+            
+            // Ajustar posición del cursor por comas añadidas/quitadas
+            let newLen = this.value.length;
+            cursor = cursor + (newLen - oldLen);
+            this.setSelectionRange(cursor, cursor);
+        });
+    });
+});
+</script>
 {% endblock %}

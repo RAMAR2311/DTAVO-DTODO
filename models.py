@@ -486,11 +486,12 @@ class DetalleFacturaCredito(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     factura_id = db.Column(db.Integer, db.ForeignKey('factura_credito.id'), nullable=False)
-    producto_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    producto_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=True)
     variant_id = db.Column(db.Integer, db.ForeignKey('product_variants.id'), nullable=True)
     cantidad = db.Column(db.Integer, nullable=False)
     precio_unitario = db.Column(db.Numeric(10, 2), nullable=False)
     subtotal = db.Column(db.Numeric(10, 2), nullable=False)
+    nombre_manual = db.Column(db.String(200), nullable=True)
 
     producto = db.relationship('Product', backref='detalles_factura_cartera', lazy=True)
     variante = db.relationship('ProductVariant', backref='detalles_factura_cartera', lazy=True)

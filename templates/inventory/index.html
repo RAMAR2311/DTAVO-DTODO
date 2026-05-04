@@ -164,21 +164,21 @@
                                     <label class="form-label small text-tekfix-sec mb-1 fw-bold">P. Costo</label>
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text bg-tekfix-card text-tekfix-sec border-end-0">$</span>
-                                        <input type="number" step="1" name="precio_costo" class="form-control border-start-0 ps-0" value="{{ "%.0f"|format(p.precio_costo) }}" required>
+                                        <input type="text" name="precio_costo" class="form-control border-start-0 ps-0 money-input" value="{{ "%.0f"|format(p.precio_costo) }}" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label small text-tekfix-sec mb-1 fw-bold">P. Mínimo</label>
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text bg-tekfix-card text-tekfix-sec border-end-0">$</span>
-                                        <input type="number" step="1" name="precio_minimo" class="form-control border-start-0 ps-0" value="{{ "%.0f"|format(p.precio_minimo) }}" required>
+                                        <input type="text" name="precio_minimo" class="form-control border-start-0 ps-0 money-input" value="{{ "%.0f"|format(p.precio_minimo) }}" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label small fw-bold mb-1" style="color: var(--tekfix-hover);">P. Sugerido</label>
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text bg-tekfix-card text-tekfix-sec border-end-0">$</span>
-                                        <input type="number" step="1" name="precio_sugerido" class="form-control border-start-0 ps-0 border-pink border-1" value="{{ "%.0f"|format(p.precio_sugerido) }}" required>
+                                        <input type="text" name="precio_sugerido" class="form-control border-start-0 ps-0 border-pink border-1 money-input" value="{{ "%.0f"|format(p.precio_sugerido) }}" required>
                                     </div>
                                 </div>
                             </div>
@@ -216,21 +216,21 @@
                                         <label class="form-label text-tekfix-sec mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">COSTO REAL</label>
                                         <div class="input-group input-group-sm">
                                             <span class="input-group-text bg-transparent border-end-0 text-tekfix-sec px-2">$</span>
-                                            <input type="number" step="1" name="precio_costo" class="form-control border-start-0 ps-0 text-secondary" value="{{ "%.0f"|format(v.precio_costo|float) if v.precio_costo else "%.0f"|format(p.precio_costo|float) }}">
+                                            <input type="text" name="precio_costo" class="form-control border-start-0 ps-0 text-secondary money-input" value="{{ "%.0f"|format(v.precio_costo|float) if v.precio_costo else "%.0f"|format(p.precio_costo|float) }}">
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <label class="form-label text-tekfix-sec mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">P. MÍNIMO DEV.</label>
                                         <div class="input-group input-group-sm">
                                             <span class="input-group-text bg-transparent border-end-0 text-tekfix-sec px-2">$</span>
-                                            <input type="number" step="1" name="precio_minimo" class="form-control border-start-0 ps-0 text-secondary" value="{{ "%.0f"|format(v.precio_minimo|float) if v.precio_minimo else "%.0f"|format(p.precio_minimo|float) }}">
+                                            <input type="text" name="precio_minimo" class="form-control border-start-0 ps-0 text-secondary money-input" value="{{ "%.0f"|format(v.precio_minimo|float) if v.precio_minimo else "%.0f"|format(p.precio_minimo|float) }}">
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <label class="form-label mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px; color: var(--tekfix-hover);">P. SUGERIDO</label>
                                         <div class="input-group input-group-sm">
                                             <span class="input-group-text bg-transparent border-end-0 fw-bold px-2" style="color: var(--tekfix-hover);">$</span>
-                                            <input type="number" step="1" name="precio_sugerido" class="form-control border-start-0 ps-0 fw-bold" style="color: var(--tekfix-hover);" value="{{ "%.0f"|format(v.precio_sugerido|float) if v.precio_sugerido else "%.0f"|format(p.precio_sugerido|float) }}">
+                                            <input type="text" name="precio_sugerido" class="form-control border-start-0 ps-0 fw-bold money-input" style="color: var(--tekfix-hover);" value="{{ "%.0f"|format(v.precio_sugerido|float) if v.precio_sugerido else "%.0f"|format(p.precio_sugerido|float) }}">
                                         </div>
                                     </div>
                                 </div>
@@ -351,6 +351,36 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.value = '';
         filterTable();
         searchInput.focus();
+    });
+
+    // Formatear automáticamente inputs de dinero con comas
+    function formatMoneyInput(input) {
+        let val = input.value.replace(/[^\d]/g, '');
+        if (val) {
+            input.value = new Intl.NumberFormat('en-US').format(val);
+        } else {
+            input.value = '';
+        }
+    }
+
+    document.querySelectorAll('.money-input').forEach(input => {
+        // Formatear valor inicial si existe
+        if (input.value) {
+            formatMoneyInput(input);
+        }
+        
+        input.addEventListener('input', function(e) {
+            // Guardar posición del cursor
+            let cursor = e.target.selectionStart;
+            let oldLen = this.value.length;
+            
+            formatMoneyInput(this);
+            
+            // Ajustar posición del cursor por comas añadidas/quitadas
+            let newLen = this.value.length;
+            cursor = cursor + (newLen - oldLen);
+            this.setSelectionRange(cursor, cursor);
+        });
     });
 });
 </script>

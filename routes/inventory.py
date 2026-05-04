@@ -38,9 +38,9 @@ def nuevo():
             nombre=request.form.get('nombre').strip(),
             tipo_inventario=tipo,
             cantidad_stock=int(request.form.get('cantidad_stock', 0)),
-            precio_costo=float(request.form.get('precio_costo', 0.0)),
-            precio_minimo=float(request.form.get('precio_minimo', 0.0)),
-            precio_sugerido=float(request.form.get('precio_sugerido', 0.0)),
+            precio_costo=float(request.form.get('precio_costo', '0').replace(',', '')),
+            precio_minimo=float(request.form.get('precio_minimo', '0').replace(',', '')),
+            precio_sugerido=float(request.form.get('precio_sugerido', '0').replace(',', '')),
             imagen=imagen_filename,
             observacion=request.form.get('observacion')
         )
@@ -90,9 +90,9 @@ def editar_producto(id):
                 producto.imagen = filename
                 
         # Se capturan los nuevos precios
-        nuevo_costo = float(request.form.get('precio_costo', 0.0))
-        nuevo_minimo = float(request.form.get('precio_minimo', 0.0))
-        nuevo_sugerido = float(request.form.get('precio_sugerido', 0.0))
+        nuevo_costo = float(request.form.get('precio_costo', '0').replace(',', ''))
+        nuevo_minimo = float(request.form.get('precio_minimo', '0').replace(',', ''))
+        nuevo_sugerido = float(request.form.get('precio_sugerido', '0').replace(',', ''))
 
         # Actualizar producto principal
         producto.sku = request.form.get('sku').strip()
@@ -210,9 +210,9 @@ def agregar_variante(id):
         product_id=producto.id,
         nombre_variante=nombre_variante,
         cantidad_stock=cantidad_stock,
-        precio_costo=float(precio_costo_req) if precio_costo_req else producto.precio_costo,
-        precio_minimo=float(precio_minimo_req) if precio_minimo_req else producto.precio_minimo,
-        precio_sugerido=float(precio_sugerido_req) if precio_sugerido_req else producto.precio_sugerido
+        precio_costo=float(str(precio_costo_req).replace(',', '')) if precio_costo_req else producto.precio_costo,
+        precio_minimo=float(str(precio_minimo_req).replace(',', '')) if precio_minimo_req else producto.precio_minimo,
+        precio_sugerido=float(str(precio_sugerido_req).replace(',', '')) if precio_sugerido_req else producto.precio_sugerido
     )
     try:
         db.session.add(nueva_variante)
@@ -238,9 +238,9 @@ def editar_variante(id):
     precio_minimo_req = request.form.get('precio_minimo')
     precio_sugerido_req = request.form.get('precio_sugerido')
     
-    if precio_costo_req: variante.precio_costo = float(precio_costo_req)
-    if precio_minimo_req: variante.precio_minimo = float(precio_minimo_req)
-    if precio_sugerido_req: variante.precio_sugerido = float(precio_sugerido_req)
+    if precio_costo_req: variante.precio_costo = float(str(precio_costo_req).replace(',', ''))
+    if precio_minimo_req: variante.precio_minimo = float(str(precio_minimo_req).replace(',', ''))
+    if precio_sugerido_req: variante.precio_sugerido = float(str(precio_sugerido_req).replace(',', ''))
     
     try:
         db.session.commit()

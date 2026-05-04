@@ -60,7 +60,7 @@ def create_app():
         if value is None:
             return "0"
         try:
-            return "{:,.0f}".format(float(value)).replace(',', '.')
+            return "{:,.0f}".format(float(value))
         except (ValueError, TypeError):
             return value
 

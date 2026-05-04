@@ -75,7 +75,7 @@
                             <label for="base_inicial" class="form-label fw-semibold">Base Inicial (Efectivo inicio de caja) <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text border-end-0 bg-tekfix-card"><i class="fa-solid fa-sack-dollar text-tekfix-sec"></i></span>
-                                <input type="number" step="1" min="0" id="base_inicial" name="base_inicial" class="form-control border-start-0" value="0" required>
+                                <input type="text" id="base_inicial" name="base_inicial" class="form-control border-start-0 money-input" value="0" required>
                             </div>
                             <div class="form-text">Dinero en caja desde la apertura.</div>
                         </div>
@@ -84,7 +84,7 @@
                             <label for="gastos_del_dia" class="form-label fw-semibold">Gastos del Día</label>
                             <div class="input-group">
                                 <span class="input-group-text border-end-0 bg-tekfix-card"><i class="fa-solid fa-money-bill-transfer text-danger"></i></span>
-                                <input type="number" step="1" min="0" id="gastos_del_dia" name="gastos_del_dia" class="form-control border-start-0 bg-tekfix-card" value="{{ gastos_automaticos|int if gastos_automaticos else 0 }}" readonly>
+                                <input type="text" id="gastos_del_dia" name="gastos_del_dia" class="form-control border-start-0 bg-tekfix-card money-input" value="{{ (gastos_automaticos|int if gastos_automaticos else 0)|cop }}" readonly>
                             </div>
                             <small class="form-text text-tekfix-sec">Valor calculado automáticamente desde el módulo de Gastos Diarios de hoy.</small>
                         </div>
@@ -116,20 +116,41 @@ document.addEventListener("DOMContentLoaded", function() {
     const inputGastos = document.getElementById("gastos_del_dia");
     const spanEsperado = document.getElementById("efectivo_esperado");
 
-    const formatoCOP = (num) => Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    const formatoCOP = (num) => new Intl.NumberFormat('en-US').format(num);
 
     function calcularEsperado() {
         if(!inputBaseInicial || !spanEsperado) return;
-        const base = parseFloat(inputBaseInicial.value) || 0;
-        const gastos = parseFloat(inputGastos.value) || 0;
+        const base = parseFloat(inputBaseInicial.value.replace(/,/g, '')) || 0;
+        const gastos = parseFloat(inputGastos.value.replace(/,/g, '')) || 0;
 
         const formula = (base + totalEfectivo) - gastos;
         spanEsperado.textContent = formatoCOP(formula);
     }
 
     if(inputBaseInicial) {
-        inputBaseInicial.addEventListener("input", calcularEsperado);
-        inputGastos.addEventListener("input", calcularEsperado);
+        // Formatear automáticamente inputs de dinero con comas
+        function formatMoneyInput(input) {
+            let val = input.value.replace(/[^\d]/g, '');
+            if (val) {
+                input.value = new Intl.NumberFormat('en-US').format(val);
+            } else {
+                input.value = '';
+            }
+        }
+
+        document.querySelectorAll('.money-input:not([readonly])').forEach(input => {
+            if (input.value) formatMoneyInput(input);
+            input.addEventListener('input', function(e) {
+                let cursor = e.target.selectionStart;
+                let oldLen = this.value.length;
+                formatMoneyInput(this);
+                let newLen = this.value.length;
+                cursor = cursor + (newLen - oldLen);
+                this.setSelectionRange(cursor, cursor);
+                calcularEsperado();
+            });
+        });
+        
         calcularEsperado(); // Cálculo inicial
     }
 });

@@ -123,7 +123,7 @@
             {% for d in factura.detalles %}
             <tr>
                 <td>{{ d.cantidad }}</td>
-                <td>{{ d.producto.nombre[:20] }}</td>
+                <td>{{ (d.producto.nombre if d.producto else d.nombre_manual)[:20] }}</td>
                 <td style="text-align: right;">${{ d.subtotal | cop }}</td>
             </tr>
             {% endfor %}

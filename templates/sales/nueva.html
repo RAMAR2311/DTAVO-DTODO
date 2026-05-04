@@ -393,7 +393,7 @@
         return carrito.reduce((sum, item) => sum + (item.cantidad * item.precio_final), 0);
     }
     
-    const formatoCOP = (num) => "$" + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    const formatoCOP = (num) => "$" + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
     function actualizarSaldoRestante() {
         const granTotal = obtenerGranTotal();

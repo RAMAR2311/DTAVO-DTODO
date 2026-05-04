@@ -58,7 +58,7 @@ def nuevo():
     arqueo_existente = ArqueoCaja.query.filter_by(fecha_arqueo=fecha_seleccionada, vendedor_id=current_user.id).first()
 
     if request.method == 'POST':
-        base_inicial = float(request.form.get('base_inicial', 0.0))
+        base_inicial = float(request.form.get('base_inicial', '0').replace(',', ''))
         
         # Recalcular gastos automáticos por seguridad en el backend
         gastos_recalculados = Expense.query.filter(

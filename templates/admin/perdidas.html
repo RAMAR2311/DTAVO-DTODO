@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(data => {
                         idInput.value = data.id;
                         nameInput.value = data.nombre;
-                        costInput.value = '$' + new Intl.NumberFormat('es-CO').format(data.precio_costo);
+                        costInput.value = '$' + new Intl.NumberFormat('en-US').format(data.precio_costo);
                         statusText.textContent = '¡Producto enlazado!';
                         statusText.className = 'form-text text-success mt-1 fw-bold';
                         submitBtn.disabled = false;
