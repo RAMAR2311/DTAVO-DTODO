@@ -13,6 +13,54 @@
     </div>
 </div>
 
+<!-- KPIs / Tarjetas Informativas -->
+<div class="row g-3 mb-4">
+    <!-- Tarjeta 1: Unidades Totales -->
+    <div class="col-md-4">
+        <div class="card card-custom border-0 shadow-sm bg-tekfix-card h-100 p-3">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; background-color: rgba(123, 200, 208, 0.15);">
+                    <i class="fa-solid fa-boxes-stacked fs-4 text-tekfix-primary"></i>
+                </div>
+                <div>
+                    <h6 class="text-tekfix-sec fw-bold mb-1" style="font-size: 0.8rem; text-transform: uppercase;">Total Unidades</h6>
+                    <h3 class="fw-bold text-tekfix-main m-0">{{ total_unidades }} <span class="fs-6 fw-normal text-muted">uds</span></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tarjeta 2: Costo Total -->
+    <div class="col-md-4">
+        <div class="card card-custom border-0 shadow-sm bg-tekfix-card h-100 p-3">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; background-color: rgba(220, 53, 69, 0.1);">
+                    <i class="fa-solid fa-money-bill-transfer fs-4 text-danger"></i>
+                </div>
+                <div>
+                    <h6 class="text-tekfix-sec fw-bold mb-1" style="font-size: 0.8rem; text-transform: uppercase;">Costo Total Inventario</h6>
+                    <h3 class="fw-bold text-tekfix-main m-0">${{ valor_total_costo|cop }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjeta 3: Valor de Venta Esperado -->
+    <div class="col-md-4">
+        <div class="card card-custom border-0 shadow-sm bg-tekfix-card h-100 p-3" style="border-left: 4px solid var(--tekfix-hover) !important;">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; background-color: rgba(221, 184, 86, 0.15);">
+                    <i class="fa-solid fa-cash-register fs-4" style="color: var(--tekfix-hover);"></i>
+                </div>
+                <div>
+                    <h6 class="text-tekfix-sec fw-bold mb-1" style="font-size: 0.8rem; text-transform: uppercase;">Ventas Proyectadas</h6>
+                    <h3 class="fw-bold text-tekfix-main m-0">${{ valor_total_venta|cop }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Buscador Rápido de Inventario -->
 <div class="card card-custom p-3 mb-4 border-0 shadow-sm bg-tekfix-card">
     <div class="row align-items-center">

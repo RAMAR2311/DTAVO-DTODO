@@ -15,7 +15,29 @@ inventory_bp = Blueprint('inventory_bp', __name__)
 def index():
     tipo = 'bodega' if current_user.rol == 'bodega' else 'tienda'
     productos = Product.query.filter_by(tipo_inventario=tipo).order_by(Product.nombre).all()
-    return render_template('inventory/index.html', productos=productos)
+    
+    total_unidades = 0
+    valor_total_costo = 0.0
+    valor_total_venta = 0.0
+    
+    for p in productos:
+        # Calcular sumatorias para productos con variantes
+        if p.variantes:
+            for v in p.variantes:
+                total_unidades += v.cantidad_stock
+                valor_total_costo += (v.cantidad_stock * float(v.precio_costo or p.precio_costo))
+                valor_total_venta += (v.cantidad_stock * float(v.precio_sugerido or p.precio_sugerido))
+        else:
+            # Producto simple (sin variantes)
+            total_unidades += p.cantidad_stock
+            valor_total_costo += (p.cantidad_stock * float(p.precio_costo))
+            valor_total_venta += (p.cantidad_stock * float(p.precio_sugerido))
+            
+    return render_template('inventory/index.html', 
+                           productos=productos, 
+                           total_unidades=total_unidades, 
+                           valor_total_costo=valor_total_costo, 
+                           valor_total_venta=valor_total_venta)
 
 @inventory_bp.route('/nuevo', methods=['GET', 'POST'])
 @login_required
