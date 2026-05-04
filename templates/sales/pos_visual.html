@@ -94,15 +94,50 @@
                 <input type="date" id="fecha-venta" class="form-control border-0 shadow-sm bg-white form-control-lg" style="font-size:0.9rem;">
             </div>
             
+            <!-- Toggle: Pago Único vs Pago Dividido -->
             <div class="mb-3">
-                <label class="form-label fw-bold small text-tekfix-main">Método de Pago:</label>
-                <select id="metodo-pago" class="form-select border-0 shadow-sm bg-white form-select-lg" style="font-size:0.9rem;">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <label class="form-label fw-bold text-tekfix-main small text-uppercase m-0">Método de Pago</label>
+                    <div class="form-check form-switch ms-auto">
+                        <input class="form-check-input" type="checkbox" id="toggle_pago_mixto" style="cursor: pointer; width: 2.5rem; height: 1.25rem;">
+                        <label class="form-check-label fw-bold small text-tekfix-sec" for="toggle_pago_mixto" style="cursor: pointer;">Dividir Pago</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modo 1: Pago Único (por defecto) -->
+            <div id="pago_unico_section" class="mb-3">
+                <select id="metodo-pago" class="form-select border-0 shadow-sm bg-white form-select-lg" style="font-size:0.9rem; cursor: pointer;">
                     <option value="efectivo">💵 Efectivo</option>
                     <option value="nequi">📱 Nequi</option>
                     <option value="bancolombia">🏦 Bancolombia</option>
                     <option value="daviplata">📱 Daviplata</option>
                     <option value="tarjeta">💳 Tarjeta</option>
                 </select>
+            </div>
+
+            <!-- Modo 2: Pago Dividido/Mixto (oculto por defecto) -->
+            <div id="pago_mixto_section" style="display: none;" class="mb-3">
+                <!-- Indicador visual del saldo restante -->
+                <div class="alert border shadow-sm py-2 px-3 mb-2 bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="fw-bold text-tekfix-sec text-uppercase" id="saldo_label"><i class="fa-solid fa-scale-balanced me-1"></i> Saldo por cubrir:</small>
+                        <span class="fw-bolder fs-5" id="saldo_restante" style="color: var(--tekfix-primary);">$0</span>
+                    </div>
+                    <!-- Barra de progreso visual -->
+                    <div class="progress mt-2" style="height: 6px; border-radius: 10px; background-color: var(--tekfix-border);">
+                        <div class="progress-bar" id="barra_progreso_pago" role="progressbar" style="width: 0%; background: linear-gradient(90deg, #DDB856, #F9E491); border-radius: 10px;"></div>
+                    </div>
+                </div>
+
+                <!-- Lista dinámica de pagos parciales -->
+                <div id="pagos_list" class="d-flex flex-column gap-2 mb-2">
+                    <!-- Se inyecta dinámicamente -->
+                </div>
+
+                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold w-100" id="btn_agregar_pago">
+                    <i class="fa-solid fa-plus me-1"></i> Agregar otro pago
+                </button>
             </div>
 
             <button class="btn btn-tekfix w-100 py-3 rounded-pill fw-bold fs-5 shadow-sm text-uppercase mb-2" id="btn-process-sale">
@@ -140,7 +175,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Estado de la caja
     let carrito = [];
+    let pagosMixtos = [];
     let currentCategory = 'Todas';
+
+    const METODOS_DISPONIBLES = [
+        { value: 'efectivo', label: '💵 Efectivo' },
+        { value: 'nequi', label: '📱 Nequi' },
+        { value: 'bancolombia', label: '🏦 Bancolombia' },
+        { value: 'daviplata', label: '📱 Daviplata' },
+        { value: 'tarjeta', label: '💳 Tarjeta' }
+    ];
 
     const gridEl = document.getElementById('product-grid');
     const cartEl = document.getElementById('cart-items');
@@ -334,6 +378,129 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('cart-count').innerText = `${totalItems} ítems`;
         document.getElementById('subtotal-val').innerText = formatoCOP(granTotal);
         document.getElementById('total-val').innerText = formatoCOP(granTotal);
+
+        if (document.getElementById('toggle_pago_mixto').checked) {
+            actualizarSaldoRestante();
+        }
+    }
+
+    // --- LOGICA DE PAGO MIXTO ---
+    document.getElementById('toggle_pago_mixto').addEventListener('change', function() {
+        const unicoSec = document.getElementById('pago_unico_section');
+        const mixtoSec = document.getElementById('pago_mixto_section');
+        
+        if (this.checked) {
+            unicoSec.style.display = 'none';
+            mixtoSec.style.display = 'block';
+            if (pagosMixtos.length === 0) {
+                agregarPagoParcial();
+            }
+            actualizarSaldoRestante();
+        } else {
+            unicoSec.style.display = 'block';
+            mixtoSec.style.display = 'none';
+        }
+    });
+
+    document.getElementById('btn_agregar_pago').addEventListener('click', agregarPagoParcial);
+
+    function agregarPagoParcial() {
+        pagosMixtos.push({ metodo_pago: 'efectivo', monto: 0 });
+        renderizarPagosMixtos();
+    }
+
+    window.eliminarPagoParcial = function(index) {
+        if (pagosMixtos.length <= 1) {
+            alert('Debe existir al menos un método de pago.');
+            return;
+        }
+        pagosMixtos.splice(index, 1);
+        renderizarPagosMixtos();
+    }
+
+    window.actualizarPagoParcial = function(index, campo, valor) {
+        if (campo === 'metodo_pago') {
+            pagosMixtos[index].metodo_pago = valor;
+        }
+        if (campo === 'monto') {
+            pagosMixtos[index].monto = parseFloat(valor.toString().replace(/,/g, '')) || 0;
+        }
+        actualizarSaldoRestante();
+    }
+
+    function resetPagosMixtos() {
+        pagosMixtos = [];
+        const toggle = document.getElementById('toggle_pago_mixto');
+        if (toggle.checked) {
+            agregarPagoParcial();
+        }
+        renderizarPagosMixtos();
+        actualizarSaldoRestante();
+    }
+
+    function obtenerGranTotal() {
+        return carrito.reduce((sum, item) => sum + (item.cantidad * item.precio_final), 0);
+    }
+
+    function actualizarSaldoRestante() {
+        const granTotal = obtenerGranTotal();
+        const sumaPagos = pagosMixtos.reduce((sum, p) => sum + (p.monto || 0), 0);
+        const saldo = granTotal - sumaPagos;
+        
+        const saldoEl = document.getElementById('saldo_restante');
+        const barraEl = document.getElementById('barra_progreso_pago');
+        const labelEl = document.getElementById('saldo_label');
+        
+        saldoEl.innerText = formatoCOP(Math.abs(saldo));
+        
+        const porcentaje = granTotal > 0 ? Math.min((sumaPagos / granTotal) * 100, 100) : 0;
+        barraEl.style.width = porcentaje + '%';
+        
+        if (saldo === 0 && granTotal > 0) {
+            saldoEl.style.color = '#28a745';
+            barraEl.style.background = 'linear-gradient(90deg, #28a745, #34ce57)';
+            labelEl.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> ¡Pago completo!';
+        } else if (saldo < 0) {
+            saldoEl.style.color = '#dc3545';
+            saldoEl.innerText = '+' + formatoCOP(Math.abs(saldo));
+            barraEl.style.background = 'linear-gradient(90deg, #dc3545, #e74c5c)';
+            labelEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i> Excedente:';
+        } else {
+            saldoEl.style.color = 'var(--tekfix-primary)';
+            barraEl.style.background = 'linear-gradient(90deg, #A3D8DE, #7BC8D0)';
+            labelEl.innerHTML = '<i class="fa-solid fa-scale-balanced me-1"></i> Saldo por cubrir:';
+        }
+    }
+
+    function renderizarPagosMixtos() {
+        const container = document.getElementById('pagos_list');
+        container.innerHTML = '';
+
+        pagosMixtos.forEach((pago, index) => {
+            const div = document.createElement('div');
+            div.className = 'd-flex gap-2 align-items-center mb-1';
+            
+            let optionsHtml = METODOS_DISPONIBLES.map(m => 
+                `<option value="${m.value}" ${m.value === pago.metodo_pago ? 'selected' : ''}>${m.label}</option>`
+            ).join('');
+
+            div.innerHTML = `
+                <select class="form-select form-select-sm border-0 shadow-sm bg-white" style="cursor: pointer; flex: 1;" onchange="actualizarPagoParcial(${index}, 'metodo_pago', this.value)">
+                    ${optionsHtml}
+                </select>
+                <div class="input-group input-group-sm" style="flex: 1;">
+                    <span class="input-group-text bg-white border-0">$</span>
+                    <input type="text" class="form-control border-0 shadow-sm text-end money-input" placeholder="Monto" value="${pago.monto > 0 ? new Intl.NumberFormat('en-US').format(Math.round(pago.monto)) : ''}" 
+                           oninput="actualizarPagoParcial(${index}, 'monto', this.value)">
+                </div>
+                <button type="button" class="btn btn-sm text-danger px-2" onclick="eliminarPagoParcial(${index})" title="Quitar este pago">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        });
+
+        actualizarSaldoRestante();
     }
 
     // Botón Vaciar Caja
@@ -341,6 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(carrito.length > 0 && confirm('¿Estás seguro de vaciar todos los productos de la caja?')) {
             carrito = [];
             renderCart();
+            resetPagosMixtos();
         }
     });
 
@@ -355,15 +523,43 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.disabled = true;
         btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-2"></i> Cobrando...';
 
+        const esMixto = document.getElementById('toggle_pago_mixto').checked;
+        let pagosPayload = [];
+        const granTotal = obtenerGranTotal();
+
+        if (esMixto) {
+            let sumaPagos = 0;
+            for (let i = 0; i < pagosMixtos.length; i++) {
+                const p = pagosMixtos[i];
+                if (!p.monto || p.monto <= 0) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-cash-register me-2"></i> Procesar Venta';
+                    return alert(`El pago #${i + 1} tiene un monto inválido. Todos los pagos deben tener un monto mayor a $0.`);
+                }
+                sumaPagos += p.monto;
+                pagosPayload.push({
+                    metodo_pago: p.metodo_pago,
+                    monto: Math.round(p.monto)
+                });
+            }
+
+            if (Math.round(sumaPagos) !== Math.round(granTotal)) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-cash-register me-2"></i> Procesar Venta';
+                const diff = Math.round(granTotal) - Math.round(sumaPagos);
+                return alert(`⚠️ La suma de los pagos no coincide con el total. Falta: $${formatoCOP(Math.abs(diff)).replace('$','')}`);
+            }
+        } else {
+            pagosPayload.push({
+                metodo_pago: document.getElementById('metodo-pago').value,
+                monto: Math.round(granTotal)
+            });
+        }
+
         const payload = {
             items: carrito,
             fecha_venta: document.getElementById('fecha-venta').value,
-            pagos: [
-                {
-                    metodo_pago: document.getElementById('metodo-pago').value,
-                    monto: carrito.reduce((sum, item) => sum + (item.cantidad * item.precio_final), 0)
-                }
-            ],
+            pagos: pagosPayload,
             cliente: "Consumidor Final (POS Visual)"
         };
 
@@ -383,6 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert(`✅ Venta exitosa. El inventario se ha actualizado automáticamente. Ticket #${data.sale_id}`);
                 carrito = [];
                 renderCart();
+                resetPagosMixtos();
                 // Abrir ticket automáticamente si no está bloqueado por el navegador
                 window.open(`/sales/recibo/${data.sale_id}`, '_blank');
             } else {
@@ -399,6 +596,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Iniciar
     renderCatalog();
+});
+
+// Listener global para formatear inputs de dinero
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('money-input')) {
+        let input = e.target;
+        let cursor = input.selectionStart;
+        let oldLen = input.value.length;
+        
+        let val = input.value.replace(/[^\d]/g, '');
+        if (val) {
+            input.value = new Intl.NumberFormat('en-US').format(val);
+        } else {
+            input.value = '';
+        }
+        
+        let newLen = input.value.length;
+        cursor = cursor + (newLen - oldLen);
+        input.setSelectionRange(cursor, cursor);
+    }
 });
 </script>
 {% endblock %}
