@@ -74,7 +74,7 @@ def cuenta(id):
 def registrar_factura(id):
     proveedor = Provider.query.get_or_404(id)
     
-    monto_total = float(request.form.get('monto_total', 0))
+    monto_total = float(request.form.get('monto_total', '0').replace(',', ''))
     numero_factura = request.form.get('numero_factura')
     descripcion = request.form.get('descripcion')
     
@@ -110,7 +110,7 @@ def registrar_factura(id):
 def registrar_abono(id):
     proveedor = Provider.query.get_or_404(id)
     
-    monto_abonado = float(request.form.get('monto_abonado', 0))
+    monto_abonado = float(request.form.get('monto_abonado', '0').replace(',', ''))
     observacion = request.form.get('observacion')
     
     if monto_abonado <= 0:

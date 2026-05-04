@@ -194,7 +194,7 @@
                         <label class="form-label fw-bold text-tekfix-main"><i class="fa-solid fa-arrow-down text-danger me-1"></i>Costo de Compra</label>
                         <div class="input-group">
                             <span class="input-group-text bg-tekfix-card border-end-0 text-tekfix-sec">$</span>
-                            <input type="number" step="1" min="0" id="manual_costo" class="form-control border-start-0" placeholder="Lo que se le paga al vecino" required>
+                            <input type="text" id="manual_costo" class="form-control border-start-0 money-input" placeholder="Lo que se le paga al vecino" required>
                         </div>
                         <small class="form-text text-tekfix-sec">Precio al que te lo vende el otro local</small>
                     </div>
@@ -202,7 +202,7 @@
                         <label class="form-label fw-bold text-tekfix-main"><i class="fa-solid fa-arrow-up text-success me-1"></i>Precio de Venta</label>
                         <div class="input-group">
                             <span class="input-group-text bg-tekfix-card border-end-0 text-success fw-bold">$</span>
-                            <input type="number" step="1" min="0" id="manual_precio_venta" class="form-control border-start-0" placeholder="Lo que se cobra al cliente" required>
+                            <input type="text" id="manual_precio_venta" class="form-control border-start-0 money-input" placeholder="Lo que se cobra al cliente" required>
                         </div>
                         <small class="form-text text-tekfix-sec">Precio al que se le vende al cliente final</small>
                     </div>
@@ -299,8 +299,8 @@
     // Botón para agregar producto manual (prestado de otro local)
     document.getElementById('btn_agregar_manual').addEventListener('click', function() {
         const nombre = document.getElementById('manual_nombre').value.trim();
-        const costo = parseFloat(document.getElementById('manual_costo').value) || 0;
-        const precioVenta = parseFloat(document.getElementById('manual_precio_venta').value) || 0;
+        const costo = parseFloat(document.getElementById('manual_costo').value.replace(/,/g, '')) || 0;
+        const precioVenta = parseFloat(document.getElementById('manual_precio_venta').value.replace(/,/g, '')) || 0;
         const cantidad = parseInt(document.getElementById('manual_cantidad').value) || 1;
 
         if (!nombre) return alert('Debes ingresar un nombre para el producto.');
@@ -374,7 +374,7 @@
             pagosMixtos[index].metodo_pago = valor;
         }
         if (campo === 'monto') {
-            pagosMixtos[index].monto = parseFloat(valor) || 0;
+            pagosMixtos[index].monto = parseFloat(valor.toString().replace(/,/g, '')) || 0;
         }
         actualizarSaldoRestante();
     }
@@ -393,7 +393,7 @@
         return carrito.reduce((sum, item) => sum + (item.cantidad * item.precio_final), 0);
     }
     
-    const formatoCOP = (num) => "$" + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    const formatoCOP = (num) => "$" + new Intl.NumberFormat('en-US').format(Math.round(num));
 
     function actualizarSaldoRestante() {
         const granTotal = obtenerGranTotal();
@@ -449,9 +449,8 @@
                 </select>
                 <div class="input-group input-group-sm" style="flex: 1;">
                     <span class="input-group-text bg-tekfix-card border-0">$</span>
-                    <input type="number" class="form-control border-0 shadow-sm text-end" placeholder="Monto" value="${pago.monto > 0 ? Math.round(pago.monto) : ''}" 
-                           oninput="actualizarPagoParcial(${index}, 'monto', this.value)" 
-                           step="1" min="0">
+                    <input type="text" class="form-control border-0 shadow-sm text-end money-input" placeholder="Monto" value="${pago.monto > 0 ? new Intl.NumberFormat('en-US').format(Math.round(pago.monto)) : ''}" 
+                           oninput="actualizarPagoParcial(${index}, 'monto', this.value)">
                 </div>
                 <button type="button" class="btn btn-sm text-danger px-2" onclick="eliminarPagoParcial(${index})" title="Quitar este pago">
                     <i class="fa-solid fa-xmark"></i>
@@ -579,7 +578,7 @@
         }
 
         if (campo === 'precio_final') {
-            const nuevoPrecio = parseFloat(valor);
+            const nuevoPrecio = parseFloat(valor.toString().replace(/,/g, ''));
             item.precio_final = nuevoPrecio;
         }
         
@@ -655,12 +654,12 @@
                     ${item.es_manual ? `
                     <div class="input-group input-group-sm">
                         <span class="input-group-text bg-tekfix-card border-end-0">$</span>
-                        <input type="number" step="1" class="form-control text-end border-start-0 pe-2" value="${Math.round(item.precio_final)}" onchange="actualizarItem(${index}, 'precio_final', this.value)">
+                        <input type="text" class="form-control text-end border-start-0 pe-2 money-input" value="${new Intl.NumberFormat('en-US').format(Math.round(item.precio_final))}" onchange="actualizarItem(${index}, 'precio_final', this.value)">
                     </div>
                     ` : `
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-tekfix-card border-end-0">$</span>
-                            <input type="number" step="1" class="form-control text-end border-start-0 pe-2" value="${Math.round(item.precio_final)}" onchange="actualizarItem(${index}, 'precio_final', this.value)">
+                            <input type="text" class="form-control text-end border-start-0 pe-2 money-input" value="${new Intl.NumberFormat('en-US').format(Math.round(item.precio_final))}" onchange="actualizarItem(${index}, 'precio_final', this.value)">
                             <button class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="visually-hidden">Opciones</span>
                             </button>
@@ -815,5 +814,33 @@
             alert('Falló la validación final y la Transacción colapsó. Comprueba el Servidor.');
         }
     }
+</script>
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function formatMoneyInput(input) {
+        let val = input.value.replace(/[^\d]/g, '');
+        if (val) {
+            input.value = new Intl.NumberFormat('en-US').format(val);
+        } else {
+            input.value = '';
+        }
+    }
+
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('money-input')) {
+            let input = e.target;
+            let cursor = input.selectionStart;
+            let oldLen = input.value.length;
+            formatMoneyInput(input);
+            let newLen = input.value.length;
+            cursor = cursor + (newLen - oldLen);
+            input.setSelectionRange(cursor, cursor);
+        }
+    });
+
+    document.querySelectorAll('.money-input').forEach(formatMoneyInput);
+});
 </script>
 {% endblock %}

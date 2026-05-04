@@ -51,7 +51,7 @@ def registrar_factura():
     data = request.get_json()
     cliente_id = data.get('cliente_id')
     items = data.get('items', [])
-    abono_inicial = Decimal(str(data.get('abono_inicial', 0)))
+    abono_inicial = Decimal(str(data.get('abono_inicial', 0)).replace(',', ''))
     
     if not cliente_id or not items:
         return jsonify({'error': 'Datos de factura incompletos.'}), 400
@@ -150,7 +150,7 @@ def ticket_credito(id):
 @admin_required
 def registrar_abono():
     factura_id = request.form.get('factura_id')
-    monto = Decimal(request.form.get('monto_abono', 0))
+    monto = Decimal(str(request.form.get('monto_abono', 0)).replace(',', ''))
     
     factura = FacturaCredito.query.get_or_404(factura_id)
     
@@ -227,7 +227,7 @@ def crear_acuerdo():
     nuevo_acuerdo = AcuerdoPago(
         factura_id=factura_id,
         fecha_acordada=datetime.strptime(fecha_str, '%Y-%m-%d').date(),
-        monto_esperado=float(monto) if monto else None
+        monto_esperado=float(monto.replace(',', '')) if monto else None
     )
     db.session.add(nuevo_acuerdo)
     db.session.commit()
@@ -325,7 +325,7 @@ def editar_acuerdo(id):
     
     if fecha_str:
         acuerdo.fecha_acordada = datetime.strptime(fecha_str, '%Y-%m-%d').date()
-    acuerdo.monto_esperado = float(monto) if monto else None
+    acuerdo.monto_esperado = float(monto.replace(',', '')) if monto else None
     acuerdo.cumplido = cumplido
     
     db.session.commit()
@@ -381,7 +381,7 @@ def agregar_item_factura():
     variant_id = data.get('variant_id')
     nombre_manual = data.get('nombre_manual')
     cantidad = int(data.get('cantidad', 1))
-    precio = Decimal(str(data.get('precio')))
+    precio = Decimal(str(data.get('precio')).replace(',', ''))
     
     factura = FacturaCredito.query.get_or_404(factura_id)
     
@@ -430,7 +430,7 @@ def editar_item_factura():
     data = request.get_json()
     detalle_id = data.get('detalle_id')
     nueva_cantidad = int(data.get('cantidad'))
-    nuevo_precio = Decimal(str(data.get('precio')))
+    nuevo_precio = Decimal(str(data.get('precio')).replace(',', ''))
     
     detalle = DetalleFacturaCredito.query.get_or_404(detalle_id)
     factura = detalle.factura

@@ -102,7 +102,7 @@
                             <label class="form-label fw-bold">Monto a Abonar</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-tekfix-card border-0">$</span>
-                                <input type="number" step="1" min="0.01" max="{{ "%.0f"|format(f.saldo_pendiente) }}" name="monto_abono" class="form-control border-0 bg-tekfix-card" required placeholder="0.00">
+                                <input type="text" name="monto_abono" class="form-control border-0 bg-tekfix-card money-input" required placeholder="0.00">
                             </div>
                         </div>
                         
@@ -170,4 +170,33 @@
         </div>
     </div>
 {% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function formatMoneyInput(input) {
+        let val = input.value.replace(/[^\d]/g, '');
+        if (val) {
+            input.value = new Intl.NumberFormat('en-US').format(val);
+        } else {
+            input.value = '';
+        }
+    }
+
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('money-input')) {
+            let input = e.target;
+            let cursor = input.selectionStart;
+            let oldLen = input.value.length;
+            formatMoneyInput(input);
+            let newLen = input.value.length;
+            cursor = cursor + (newLen - oldLen);
+            input.setSelectionRange(cursor, cursor);
+        }
+    });
+
+    document.querySelectorAll('.money-input').forEach(formatMoneyInput);
+});
+</script>
 {% endblock %}

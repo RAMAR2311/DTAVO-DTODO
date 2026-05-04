@@ -68,7 +68,7 @@
             </div>
             <div class="col-md-2">
                 <label class="form-label fw-bold text-tekfix-main">Monto ($)</label>
-                <input type="number" step="1" min="0" name="monto" class="form-control bg-tekfix-card border-0" required>
+                <input type="text" name="monto" class="form-control bg-tekfix-card border-0 money-input" required>
             </div>
             <div class="col-md-2">
                 <label class="form-label fw-bold text-tekfix-main">Fecha</label>
@@ -138,4 +138,30 @@
         </table>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function formatMoneyInput(input) {
+        let val = input.value.replace(/[^\d]/g, '');
+        if (val) {
+            input.value = new Intl.NumberFormat('en-US').format(val);
+        } else {
+            input.value = '';
+        }
+    }
+
+    document.querySelectorAll('.money-input').forEach(input => {
+        input.addEventListener('input', function(e) {
+            let cursor = e.target.selectionStart;
+            let oldLen = this.value.length;
+            formatMoneyInput(this);
+            let newLen = this.value.length;
+            cursor = cursor + (newLen - oldLen);
+            this.setSelectionRange(cursor, cursor);
+        });
+    });
+});
+</script>
 {% endblock %}

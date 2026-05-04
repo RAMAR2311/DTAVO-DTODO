@@ -103,7 +103,7 @@ def nueva_factura():
                     cliente_id=cliente_id,
                     usuario_id=current_user.id,
                     numero_factura=num_factura,
-                    monto_total=float(monto_total),
+                    monto_total=float(str(monto_total).replace(',', '')),
                     archivo_ruta=f"uploads/facturas/{unique_filename}"
                 )
                 db.session.add(nueva_fact)
@@ -112,7 +112,7 @@ def nueva_factura():
                 # Procesar productos y descontar el stock
                 for p_id, cant, precio_uni in zip(productos_ids, cantidades, precios_unitarios):
                     cant = int(cant)
-                    precio_uni = float(precio_uni)
+                    precio_uni = float(str(precio_uni).replace(',', ''))
                     producto = Product.query.get(p_id)
                     
                     if not producto or producto.cantidad_stock < cant:
@@ -195,7 +195,7 @@ def cliente_detalle(id):
 @bodega_required
 def nuevo_abono(factura_id):
     factura = FacturaBodega.query.get_or_404(factura_id)
-    monto_abono = float(request.form.get('monto_abono', 0.0))
+    monto_abono = float(request.form.get('monto_abono', '0').replace(',', ''))
     metodo_pago = request.form.get('metodo_pago', 'efectivo')
     observacion = request.form.get('observacion', '')
 

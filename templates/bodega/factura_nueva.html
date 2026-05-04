@@ -31,7 +31,7 @@
                         <label class="form-label fw-bold">Monto Total de la Deuda <span class="text-danger">*</span></label>
                         <div class="input-group shadow-sm">
                             <span class="input-group-text border-0 bg-tekfix-card text-success fw-bold">$</span>
-                            <input type="number" step="1" min="0" name="monto_total" id="inputMontoTotal" class="form-control bg-tekfix-card border-0" required placeholder="0.00" title="Calculado automáticamente, pero puedes ajustarlo si hay descuentos finales">
+                            <input type="text" name="monto_total" id="inputMontoTotal" class="form-control bg-tekfix-card border-0 money-input" required placeholder="0.00" title="Calculado automáticamente, pero puedes ajustarlo si hay descuentos finales">
                         </div>
                     </div>
                 </div>
@@ -163,7 +163,7 @@
                 <td>
                     <div class="input-group input-group-sm">
                         <span class="input-group-text">$</span>
-                        <input type="number" step="1" min="0" name="precio_unitario[]" value="${precioSugerido.toFixed(2)}" class="form-control text-end fw-bold" id="input_precio_${id}" onchange="actualizarPrecio('${id}', this.value)">
+                        <input type="text" name="precio_unitario[]" value="${new Intl.NumberFormat('en-US').format(precioSugerido)}" class="form-control text-end fw-bold money-input" id="input_precio_${id}" onchange="actualizarPrecio('${id}', this.value)">
                     </div>
                 </td>
                 <td class="fw-bolder text-success" id="subtotal_${id}">$${precioSugerido.toFixed(2)}</td>
@@ -195,7 +195,7 @@
         let val = parseFloat(newVal);
         if (isNaN(val) || val < 0) val = 0.00;
         
-        document.getElementById('input_precio_' + id).value = val.toFixed(2);
+        document.getElementById('input_precio_' + id).value = new Intl.NumberFormat('en-US').format(val);
         carrito[id].precio = val;
         
         actualizarFilaUI(id);
@@ -203,7 +203,7 @@
 
     function actualizarFilaUI(id) {
         const sub = carrito[id].cantidad * carrito[id].precio;
-        document.getElementById('subtotal_' + id).innerText = "$" + sub.toFixed(2);
+        document.getElementById('subtotal_' + id).innerText = "$" + new Intl.NumberFormat('en-US').format(sub);
         recalcularTotal();
     }
 
@@ -224,7 +224,7 @@
             suma += (carrito[key].cantidad * carrito[key].precio);
         }
         // Actualizamos el input de Monto Total Principal para que se envíe formateado
-        document.getElementById('inputMontoTotal').value = suma.toFixed(2);
+        document.getElementById('inputMontoTotal').value = new Intl.NumberFormat('en-US').format(suma);
     }
 
     function validarEnvio() {
@@ -235,5 +235,31 @@
         }
         document.getElementById('facturaForm').submit();
     }
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function formatMoneyInput(input) {
+        let val = input.value.replace(/[^\d]/g, '');
+        if (val) {
+            input.value = new Intl.NumberFormat('en-US').format(val);
+        } else {
+            input.value = '';
+        }
+    }
+
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('money-input')) {
+            let input = e.target;
+            let cursor = input.selectionStart;
+            let oldLen = input.value.length;
+            formatMoneyInput(input);
+            let newLen = input.value.length;
+            cursor = cursor + (newLen - oldLen);
+            input.setSelectionRange(cursor, cursor);
+        }
+    });
+
+    document.querySelectorAll('.money-input').forEach(formatMoneyInput);
+});
 </script>
 {% endblock %}

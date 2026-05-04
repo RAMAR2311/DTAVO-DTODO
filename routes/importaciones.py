@@ -61,7 +61,7 @@ def ajustar_saldo():
     """Permite al admin definir o ajustar el capital base de importaciones."""
     nuevo_saldo = request.form.get('nuevo_saldo', '').strip()
     try:
-        nuevo_saldo = float(nuevo_saldo)
+        nuevo_saldo = float(nuevo_saldo.replace(',', ''))
         if nuevo_saldo < 0:
             raise ValueError("Negativo")
     except ValueError:
@@ -106,8 +106,8 @@ def crear_proveedor():
 def crear():
     proveedor_id = request.form.get('proveedor_id')
     numero_contenedor = request.form.get('numero_contenedor')
-    valor_contenedor = float(request.form.get('valor_contenedor', 0))
-    valor_flete = float(request.form.get('valor_flete', 0))
+    valor_contenedor = float(request.form.get('valor_contenedor', '0').replace(',', ''))
+    valor_flete = float(request.form.get('valor_flete', '0').replace(',', ''))
     # El toggle/checkbox llega como 'on' si está marcado, o no llega si no está marcado
     pedido_completo = request.form.get('pedido_completo') == 'on'
     observaciones = request.form.get('observaciones')
@@ -165,8 +165,8 @@ def editar(id):
 
     proveedor_id = request.form.get('proveedor_id')
     numero_contenedor = request.form.get('numero_contenedor')
-    valor_contenedor = float(request.form.get('valor_contenedor', 0))
-    valor_flete = float(request.form.get('valor_flete', 0))
+    valor_contenedor = float(request.form.get('valor_contenedor', '0').replace(',', ''))
+    valor_flete = float(request.form.get('valor_flete', '0').replace(',', ''))
     pedido_completo = request.form.get('pedido_completo') == 'on'
     observaciones = request.form.get('observaciones')
 

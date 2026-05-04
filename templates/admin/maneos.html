@@ -114,9 +114,9 @@
                                                             <div class="input-group">
                                                                 <span class="input-group-text border-0 bg-tekfix-card text-success fw-bold">$</span>
                                                                 {% if m.variante and m.variante.precio_sugerido %}
-                                                                    <input type="number" step="1" min="{{ "%.0f"|format((m.variante.precio_minimo or m.producto.precio_minimo)|float) }}" class="form-control bg-tekfix-card border-0" name="precio_venta" value="{{ "%.0f"|format((m.variante.precio_sugerido or m.producto.precio_sugerido)|float) }}" required>
+                                                                    <input type="text" class="form-control bg-tekfix-card border-0 money-input" name="precio_venta" value="{{ (m.variante.precio_sugerido or m.producto.precio_sugerido)|cop }}" required>
                                                                 {% else %}
-                                                                    <input type="number" step="1" min="{{ "%.0f"|format(m.producto.precio_minimo) }}" class="form-control bg-tekfix-card border-0" name="precio_venta" value="{{ "%.0f"|format(m.producto.precio_sugerido) }}" required>
+                                                                    <input type="text" class="form-control bg-tekfix-card border-0 money-input" name="precio_venta" value="{{ m.producto.precio_sugerido|cop }}" required>
                                                                 {% endif %}
                                                             </div>
                                                         </div>
@@ -273,5 +273,34 @@
             variantStockInfo.textContent = '';
         }
     }
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function formatMoneyInput(input) {
+        let val = input.value.replace(/[^\d]/g, '');
+        if (val) {
+            input.value = new Intl.NumberFormat('en-US').format(val);
+        } else {
+            input.value = '';
+        }
+    }
+
+    // Usar delegación de eventos para manejar inputs dentro de modales
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('money-input')) {
+            let input = e.target;
+            let cursor = input.selectionStart;
+            let oldLen = input.value.length;
+            formatMoneyInput(input);
+            let newLen = input.value.length;
+            cursor = cursor + (newLen - oldLen);
+            input.setSelectionRange(cursor, cursor);
+        }
+    });
+
+    // Formatear valores iniciales
+    document.querySelectorAll('.money-input').forEach(formatMoneyInput);
+});
 </script>
 {% endblock %}

@@ -265,7 +265,7 @@
             <label class="form-label fw-bold text-success">Abono Inicial (Opcional)</label>
             <div class="input-group">
                 <span class="input-group-text">$</span>
-                <input type="number" id="abonoInicial" class="form-control" placeholder="0.00">
+                <input type="text" id="abonoInicial" class="form-control money-input" placeholder="0.00">
             </div>
             <small class="text-muted">Este monto entrará directamente a caja.</small>
         </div>
@@ -312,7 +312,7 @@
                         <label class="form-label fw-semibold">Monto del Abono</label>
                         <div class="input-group">
                             <span class="input-group-text">$</span>
-                            <input type="number" name="monto_abono" id="input_monto_abono" class="form-control" placeholder="0.00" step="0.01" required>
+                            <input type="text" name="monto_abono" id="input_monto_abono" class="form-control money-input" placeholder="0.00" required>
                         </div>
                     </div>
                 </div>
@@ -350,7 +350,7 @@
                     </div>
                     <div class="mb-0">
                         <label class="form-label fw-semibold">Monto Prometido (Opcional)</label>
-                        <input type="number" name="monto_esperado" class="form-control" placeholder="0.00">
+                        <input type="text" name="monto_esperado" class="form-control money-input" placeholder="0.00">
                     </div>
                 </div>
                 <div class="modal-footer border-0">
@@ -408,7 +408,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Monto Prometido</label>
-                        <input type="number" name="monto_esperado" id="edit_acuerdo_monto" class="form-control" placeholder="0.00">
+                        <input type="text" name="monto_esperado" id="edit_acuerdo_monto" class="form-control money-input" placeholder="0.00">
                     </div>
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" name="cumplido" id="edit_acuerdo_cumplido">
@@ -583,7 +583,7 @@ window.agregarFilaAcuerdo = () => {
         </div>
         <div class="col-5">
             <label class="form-label mb-1" style="font-size: 0.7rem;">Monto</label>
-            <input type="number" class="form-control form-control-sm monto-acuerdo" placeholder="0.00">
+            <input type="text" class="form-control form-control-sm monto-acuerdo money-input" placeholder="0.00">
         </div>
         <div class="col-1">
             <button type="button" class="btn btn-sm btn-outline-danger border-0 p-1" onclick="this.parentElement.parentElement.remove()">
@@ -705,4 +705,59 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 .offcanvas { background-color: var(--tekfix-bg); }
 </style>
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function formatMoneyInput(input) {
+        let val = input.value.replace(/[^\d]/g, '');
+        if (val) {
+            input.value = new Intl.NumberFormat('en-US').format(val);
+        } else {
+            input.value = '';
+        }
+    }
+
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('money-input')) {
+            let input = e.target;
+            let cursor = input.selectionStart;
+            let oldLen = input.value.length;
+            formatMoneyInput(input);
+            let newLen = input.value.length;
+            cursor = cursor + (newLen - oldLen);
+            input.setSelectionRange(cursor, cursor);
+        }
+    });
+
+    document.querySelectorAll('.money-input').forEach(formatMoneyInput);
+});
+
+// Sobrescribir prepararAbonoFromBtn para formatear el saldo
+window.prepararAbonoFromBtn = function(btn) {
+    const id = btn.getAttribute('data-id');
+    const saldo = btn.getAttribute('data-saldo');
+    document.getElementById('abono_factura_id').value = id;
+    document.getElementById('abono_max_saldo').textContent = '$' + new Intl.NumberFormat('en-US').format(saldo);
+    document.getElementById('input_monto_abono').value = new Intl.NumberFormat('en-US').format(saldo);
+};
+
+// Sobrescribir abrirEditarAcuerdoFromBtn
+window.abrirEditarAcuerdoFromBtn = function(btn) {
+    const id = btn.getAttribute('data-id');
+    const fecha = btn.getAttribute('data-fecha');
+    const monto = btn.getAttribute('data-monto');
+    const cumplido = btn.getAttribute('data-cumplido') === 'true';
+
+    document.getElementById('formEditarAcuerdo').action = `/clientes/acuerdo/editar/${id}`;
+    document.getElementById('edit_acuerdo_fecha').value = fecha;
+    
+    const montoInput = document.getElementById('edit_acuerdo_monto');
+    montoInput.value = monto ? new Intl.NumberFormat('en-US').format(monto) : '';
+    
+    document.getElementById('edit_acuerdo_cumplido').checked = cumplido;
+    
+    new bootstrap.Modal(document.getElementById('modalEditarAcuerdo')).show();
+};
+</script>
 {% endblock %}

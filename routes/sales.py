@@ -448,7 +448,7 @@ def process_exchange():
         new = data.get('new_item')
         reason = data.get('reason')
         perfect_state = data.get('perfect_state')
-        excedente = Decimal(str(data.get('excedente', 0)))
+        excedente = Decimal(str(data.get('excedente', 0)).replace(',', ''))
         metodo_pago = data.get('metodo_pago')
 
         # 1. Reversar Stock del producto que regresa (si está OK)

@@ -151,7 +151,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label fw-bold text-tekfix-main small">Monto Total de la Factura (*)</label>
-                        <input type="number" step="0.01" name="monto_total" class="form-control form-control-lg bg-tekfix-card border-0 text-tekfix-main fw-bold fs-5" required>
+                        <input type="text" name="monto_total" class="form-control form-control-lg bg-tekfix-card border-0 text-tekfix-main fw-bold fs-5 money-input" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold text-tekfix-main small">Número de Factura (Opcional)</label>
@@ -193,7 +193,7 @@
                     
                     <div class="mb-3">
                         <label class="form-label fw-bold text-tekfix-main small">Valor del Abono / Pago (*)</label>
-                        <input type="number" step="0.01" name="monto_abonado" class="form-control form-control-lg bg-tekfix-card border-0 text-success fw-bold fs-4" autofocus required>
+                        <input type="text" name="monto_abonado" class="form-control form-control-lg bg-tekfix-card border-0 text-success fw-bold fs-4 money-input" autofocus required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold text-tekfix-main small">Observación / Método de Pago</label>
@@ -208,4 +208,33 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function formatMoneyInput(input) {
+        let val = input.value.replace(/[^\d]/g, '');
+        if (val) {
+            input.value = new Intl.NumberFormat('en-US').format(val);
+        } else {
+            input.value = '';
+        }
+    }
+
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('money-input')) {
+            let input = e.target;
+            let cursor = input.selectionStart;
+            let oldLen = input.value.length;
+            formatMoneyInput(input);
+            let newLen = input.value.length;
+            cursor = cursor + (newLen - oldLen);
+            input.setSelectionRange(cursor, cursor);
+        }
+    });
+
+    document.querySelectorAll('.money-input').forEach(formatMoneyInput);
+});
+</script>
 {% endblock %}

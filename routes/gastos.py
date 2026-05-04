@@ -19,7 +19,7 @@ def index():
             
         categoria = request.form.get('categoria')
         descripcion = request.form.get('descripcion')
-        monto = float(request.form.get('monto', 0))
+        monto = float(request.form.get('monto', '0').replace(',', ''))
         fecha_str = request.form.get('fecha_gasto')
 
         # Use the provided date or fallback to current datetime
