@@ -249,6 +249,7 @@ def historial():
     total_bancolombia = Decimal('0')
     total_daviplata = Decimal('0')
     total_tarjeta = Decimal('0')
+    total_credito = Decimal('0')
     total_transferencia_legacy = Decimal('0')
     total_mixto = 0  # Contador de ventas con pago mixto
 
@@ -265,6 +266,8 @@ def historial():
                     total_daviplata += pago.monto
                 elif pago.metodo_pago == 'tarjeta':
                     total_tarjeta += pago.monto
+                elif pago.metodo_pago == 'credito':
+                    total_credito += pago.monto
                 elif pago.metodo_pago == 'transferencia':
                     total_transferencia_legacy += pago.monto
             if len(v.pagos) > 1:
@@ -280,6 +283,8 @@ def historial():
                 total_daviplata += v.monto_total
             elif v.metodo_pago == 'tarjeta':
                 total_tarjeta += v.monto_total
+            elif v.metodo_pago == 'credito':
+                total_credito += v.monto_total
             elif v.metodo_pago == 'transferencia':
                 total_transferencia_legacy += v.monto_total
 
@@ -291,6 +296,7 @@ def historial():
                            total_bancolombia=total_bancolombia,
                            total_daviplata=total_daviplata,
                            total_tarjeta=total_tarjeta,
+                           total_credito=total_credito,
                            total_transferencia_legacy=total_transferencia_legacy,
                            total_mixto=total_mixto,
                            fecha_inicio=fecha_inicio,

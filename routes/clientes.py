@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from models import db, ClienteCartera, FacturaCredito, DetalleFacturaCredito, AbonoCredito, AcuerdoPago, MovimientoCajaCartera, Product, ProductVariant, obtener_hora_bogota
+from models import db, ClienteCartera, FacturaCredito, DetalleFacturaCredito, AbonoCredito, AcuerdoPago, MovimientoCajaCartera, Product, ProductVariant, Sale, SaleDetail, SalePayment, obtener_hora_bogota
 from decorators import admin_required
 from datetime import datetime
 from decimal import Decimal
@@ -52,6 +52,7 @@ def registrar_factura():
     cliente_id = data.get('cliente_id')
     items = data.get('items', [])
     abono_inicial = Decimal(str(data.get('abono_inicial', 0)).replace(',', ''))
+    metodo_abono = data.get('metodo_abono', 'efectivo')
     
     if not cliente_id or not items:
         return jsonify({'error': 'Datos de factura incompletos.'}), 400
@@ -116,7 +117,7 @@ def registrar_factura():
             # Registro en Caja
             mov_caja = MovimientoCajaCartera(
                 monto=abono_inicial,
-                concepto=f"Abono Inicial Factura #{nueva_factura.id} - Cliente ID {cliente_id}",
+                concepto=f"Abono Inicial Factura #{nueva_factura.id} - Cliente ID {cliente_id} ({metodo_abono.capitalize()})",
                 abono_id=nuevo_abono.id
             )
             db.session.add(mov_caja)
@@ -131,6 +132,52 @@ def registrar_factura():
                     monto_esperado=Decimal(str(ac['monto']).replace(',', '')) if ac.get('monto') else None
                 )
                 db.session.add(nuevo_acuerdo)
+
+        # --- INTEGRACIÓN CON HISTORIAL DE VENTAS (Sale) ---
+        cliente_obj = ClienteCartera.query.get(cliente_id)
+        nombre_cliente = cliente_obj.nombre_completo if cliente_obj else "Cliente Cartera"
+        
+        ultimo_consecutivo = db.session.query(db.func.max(Sale.consecutivo)).scalar() or 0
+        nueva_venta = Sale(
+            vendedor_id=current_user.id,
+            consecutivo=ultimo_consecutivo + 1,
+            cliente_nombre=nombre_cliente,
+            monto_total=total_factura,
+            metodo_pago='mixto' if abono_inicial > 0 else 'credito',
+            fecha_venta=obtener_hora_bogota()
+        )
+        db.session.add(nueva_venta)
+        db.session.flush()
+
+        # Detalles de la Venta (para reportes de productos)
+        for detail in nueva_factura.detalles:
+            sd = SaleDetail(
+                sale_id=nueva_venta.id,
+                product_id=detail.producto_id,
+                variant_id=detail.variant_id,
+                cantidad_vendida=detail.cantidad,
+                precio_venta_final=detail.precio_unitario,
+                nombre_manual=detail.nombre_manual
+            )
+            db.session.add(sd)
+
+        # Pagos de la Venta
+        if abono_inicial > 0:
+            p_abono = SalePayment(
+                sale_id=nueva_venta.id,
+                metodo_pago=metodo_abono,
+                monto=abono_inicial
+            )
+            db.session.add(p_abono)
+        
+        if nueva_factura.saldo_pendiente > 0:
+            p_credito = SalePayment(
+                sale_id=nueva_venta.id,
+                metodo_pago='credito',
+                monto=nueva_factura.saldo_pendiente
+            )
+            db.session.add(p_credito)
+        # --------------------------------------------------
 
         db.session.commit()
         return jsonify({'success': True, 'factura_id': nueva_factura.id})
@@ -151,6 +198,7 @@ def ticket_credito(id):
 def registrar_abono():
     factura_id = request.form.get('factura_id')
     monto = Decimal(str(request.form.get('monto_abono', 0)).replace(',', ''))
+    metodo_pago = request.form.get('metodo_pago', 'efectivo')
     
     factura = FacturaCredito.query.get_or_404(factura_id)
     
@@ -172,16 +220,42 @@ def registrar_abono():
         # Registro en Caja
         mov_caja = MovimientoCajaCartera(
             monto=monto,
-            concepto=f"Abono Factura #{factura.id} - {factura.cliente.nombre_completo}",
+            concepto=f"Abono Factura #{factura.id} - {factura.cliente.nombre_completo} ({metodo_pago.capitalize()})",
             abono_id=nuevo_abono.id
         )
         db.session.add(mov_caja)
         
-        # Marcar acuerdo si existe
-        hoy = obtener_hora_bogota().date()
-        acuerdo = AcuerdoPago.query.filter_by(factura_id=factura_id, fecha_acordada=hoy, cumplido=False).first()
-        if acuerdo:
-            acuerdo.cumplido = True
+        # --- INTEGRACIÓN CON HISTORIAL DE VENTAS (Sale) ---
+        # Registramos el abono como una "venta" de tipo ingreso para que sume en el reporte diario
+        ultimo_consecutivo = db.session.query(db.func.max(Sale.consecutivo)).scalar() or 0
+        venta_abono = Sale(
+            vendedor_id=current_user.id,
+            consecutivo=ultimo_consecutivo + 1,
+            cliente_nombre=factura.cliente.nombre_completo,
+            monto_total=monto,
+            metodo_pago=metodo_pago,
+            fecha_venta=obtener_hora_bogota()
+        )
+        db.session.add(venta_abono)
+        db.session.flush()
+
+        # Detalle descriptivo (Manual para no afectar inventario)
+        sd_abono = SaleDetail(
+            sale_id=venta_abono.id,
+            cantidad_vendida=1,
+            precio_venta_final=monto,
+            nombre_manual=f"ABONO Cartera - Factura #{factura.id}"
+        )
+        db.session.add(sd_abono)
+
+        # Pago real
+        p_abono = SalePayment(
+            sale_id=venta_abono.id,
+            metodo_pago=metodo_pago,
+            monto=monto
+        )
+        db.session.add(p_abono)
+        # --------------------------------------------------
             
         db.session.commit()
         flash('Abono registrado e ingresado a caja.', 'success')

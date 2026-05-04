@@ -282,14 +282,27 @@
                     <span class="fw-bold" id="resumenSaldoPendiente">$0</span>
                 </div>
             </div>
-           <!-- Abono Inicial -->
-        <div class="mb-3">
-            <label class="form-label fw-bold text-success">Abono Inicial (Opcional)</label>
-            <div class="input-group">
-                <span class="input-group-text">$</span>
-                <input type="text" id="abonoInicial" class="form-control money-input" placeholder="0.00">
+        <div class="mb-3 p-3 rounded-4 bg-success bg-opacity-10 border border-success border-opacity-10 shadow-sm">
+            <label class="form-label fw-bold text-success"><i class="fa-solid fa-money-bill-trend-up me-1"></i> Abono Inicial (Opcional)</label>
+            <div class="input-group mb-2">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-dollar-sign text-success"></i></span>
+                <input type="text" id="abonoInicial" class="form-control money-input border-start-0 ps-0" placeholder="0.00" oninput="toggleMetodoAbonoInicial()">
             </div>
-            <small class="text-muted">Este monto entrará directamente a caja.</small>
+            
+            <div id="contenedorMetodoAbonoInicial" style="display: none;" class="animate__animated animate__fadeIn">
+                <label class="form-label small fw-bold text-tekfix-sec mb-1">¿Cómo se realizó el pago?</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light"><i class="fa-solid fa-wallet"></i></span>
+                    <select id="metodoAbonoInicial" class="form-select">
+                        <option value="efectivo">Efectivo</option>
+                        <option value="nequi">Nequi</option>
+                        <option value="daviplata">Daviplata</option>
+                        <option value="bancolombia">Bancolombia</option>
+                        <option value="tarjeta">Tarjeta</option>
+                    </select>
+                </div>
+            </div>
+            <small class="text-muted small d-block mt-2">Este monto entrará directamente a caja hoy.</small>
         </div>
 
         <hr>
@@ -336,6 +349,16 @@
                             <span class="input-group-text">$</span>
                             <input type="text" name="monto_abono" id="input_monto_abono" class="form-control money-input" placeholder="0.00" required>
                         </div>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-semibold">¿Cómo recibiste el dinero?</label>
+                        <select name="metodo_pago" class="form-select" required>
+                            <option value="efectivo">Efectivo</option>
+                            <option value="nequi">Nequi</option>
+                            <option value="daviplata">Daviplata</option>
+                            <option value="bancolombia">Bancolombia</option>
+                            <option value="tarjeta">Tarjeta</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer border-0">
@@ -622,7 +645,7 @@ window.ajustarCantidad = (index, delta) => {
 
 window.agregarFilaAcuerdo = () => {
     const div = document.createElement('div');
-    div.className = 'row g-2 mb-2 align-items-end animate__animated animate__fadeIn';
+    div.className = 'row g-2 mb-2 align-items-end animate__animated animate__fadeIn fila-acuerdo';
     div.innerHTML = `
         <div class="col-6">
             <label class="form-label mb-1" style="font-size: 0.7rem;">Fecha</label>
@@ -642,53 +665,27 @@ window.agregarFilaAcuerdo = () => {
 };
 
 btnFinalizar.addEventListener('click', async () => {
-    const abonoInic = unformatMoney(document.getElementById('abonoInicial').value);
-    const totalActual = carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+    const abonoInicial = unformatMoney(document.getElementById('abonoInicial').value);
+    const metodoAbono = document.getElementById('metodoAbonoInicial').value;
     
-    if (abonoInic > totalActual) {
-        alert('El abono inicial no puede ser mayor al total de la factura.');
-        return;
-    }
-
-    // Recolectar acuerdos
-    const acuerdos = [];
-    document.querySelectorAll('#contenedorAcuerdosPOS .row').forEach(row => {
-        const fecha = row.querySelector('.fecha-acuerdo').value;
-        const montoRaw = row.querySelector('.monto-acuerdo').value;
-        if (fecha) {
-            acuerdos.push({ fecha, monto: unformatMoney(montoRaw) });
-        }
-    });
+    const acuerdos = Array.from(contenedorAcuerdosPOS.querySelectorAll('.fila-acuerdo')).map(row => ({
+        fecha: row.querySelector('.fecha-acuerdo').value,
+        monto: unformatMoney(row.querySelector('.monto-acuerdo').value)
+    }));
 
     btnFinalizar.disabled = true;
     btnFinalizar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> PROCESANDO...';
 
-    const url = "{{ url_for('clientes_bp.registrar_factura') }}";
-    const csrfToken = "{{ csrf_token() }}";
-    const clienteId = parseInt("{{ cliente.id }}");
-
-    const payload = {
-        cliente_id: clienteId,
-        items: carrito.map(i => {
-            return {
-                product_id: i.product_id,
-                variant_id: i.variant_id,
-                nombre_manual: i.nombre_manual,
-                cantidad: i.cantidad,
-                precio: i.precio
-            };
-        }),
-        abono_inicial: abonoInic,
-        acuerdos: acuerdos
-    };
-
-    const response = await fetch(url, {
+    const response = await fetch('/clientes/factura/nueva', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken
-        },
-        body: JSON.stringify(payload)
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token() }}' },
+        body: JSON.stringify({ 
+            cliente_id: {{ cliente.id }}, 
+            items: carrito, 
+            abono_inicial: abonoInicial,
+            metodo_abono: metodoAbono,
+            acuerdos: acuerdos 
+        })
     });
 
     const result = await response.json();
@@ -755,6 +752,8 @@ document.addEventListener('DOMContentLoaded', () => {
 .border-dashed { border-style: dashed !important; }
 </style>
 
+<script>
+
 document.addEventListener('DOMContentLoaded', function() {
     function formatMoneyInput(input) {
         let val = input.value.replace(/[^\d]/g, '');
@@ -805,6 +804,15 @@ window.abrirEditarAcuerdoFromBtn = function(btn) {
     document.getElementById('edit_acuerdo_cumplido').checked = cumplido;
     
     new bootstrap.Modal(document.getElementById('modalEditarAcuerdo')).show();
+};
+window.toggleMetodoAbonoInicial = function() {
+    const abono = unformatMoney(document.getElementById('abonoInicial').value);
+    const contenedor = document.getElementById('contenedorMetodoAbonoInicial');
+    if (abono > 0) {
+        contenedor.style.display = 'block';
+    } else {
+        contenedor.style.display = 'none';
+    }
 };
 </script>
 {% endblock %}
