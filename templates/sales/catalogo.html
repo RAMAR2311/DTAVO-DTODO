@@ -82,6 +82,15 @@
         background-color: var(--tekfix-hover);
         color: white;
     }
+    .title-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.2;
+        min-height: 2.4em;
+        white-space: normal;
+    }
 </style>
 
 <div class="row row-cols-1 row-cols-md-3 row-cols-xl-4 g-4 print-friendly-row">
@@ -106,7 +115,7 @@
                     {% endif %}
                 </div>
                 
-                <h6 class="fw-bold text-tekfix-main mb-1 text-truncate" title="{{ p.nombre }}">{{ p.nombre }}</h6>
+                <h6 class="fw-bold text-tekfix-main mb-1 title-clamp-2" title="{{ p.nombre }}">{{ p.nombre }}</h6>
                 
                 <div class="mb-2">
                     <span class="fw-bold" style="color: var(--tekfix-primary); font-size: 1.1rem;">${{ p.precio_sugerido|cop }}</span>

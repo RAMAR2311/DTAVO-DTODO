@@ -350,6 +350,60 @@ def catalogo():
 
 
 # ========================================================
+# ====== NUEVO MÓDULO: CAJA RÁPIDA VISUAL ======
+# ========================================================
+@sales_bp.route('/pos_visual', methods=['GET'])
+@login_required
+def pos_visual():
+    # Obtener todos los productos de la tienda con stock > 0 para agilizar la venta visual
+    # Usamos joinedload para traer las variantes en la misma consulta
+    productos = Product.query.options(joinedload(Product.variantes)).filter_by(tipo_inventario='tienda').all()
+    
+    # Dado que no hay un campo formal de categoría en el modelo actual, 
+    # inferimos las categorías a partir de la primera palabra del nombre del producto (ej: Saco, Buzo, Pantalón)
+    categorias_set = set()
+    for p in productos:
+        if p.nombre:
+            primera_palabra = p.nombre.strip().split(' ')[0].capitalize()
+            # Filtro básico para no llenar de categorías basura (palabras muy cortas)
+            if len(primera_palabra) > 2:
+                categorias_set.add(primera_palabra)
+                
+    categorias = sorted(list(categorias_set))
+    
+    # Pre-estructurar los datos para enviarlos fácilmente como JSON al frontend
+    productos_data = []
+    for p in productos:
+        cat_inferida = p.nombre.strip().split(' ')[0].capitalize() if p.nombre else 'Otros'
+        
+        # Agregar el producto base
+        item = {
+            'id': p.id,
+            'sku': p.sku,
+            'nombre': p.nombre,
+            'categoria': cat_inferida,
+            'precio_final': float(p.precio_sugerido),
+            'cantidad_stock': p.cantidad_stock,
+            'imagen': p.imagen,
+            'es_variante': False,
+            'variantes': []
+        }
+        
+        # Agregar variantes si tiene
+        if p.variantes:
+            for v in p.variantes:
+                item['variantes'].append({
+                    'id': v.id,
+                    'nombre_variante': v.nombre_variante,
+                    'precio_final': float(v.precio_sugerido or p.precio_sugerido),
+                    'cantidad_stock': v.cantidad_stock
+                })
+                
+        productos_data.append(item)
+
+    return render_template('sales/pos_visual.html', categorias=categorias, productos_data=productos_data)
+
+# ========================================================
 # ====== API ENDPOINTS PARA GESTIÓN DE CAMBIOS ======
 # ========================================================
 

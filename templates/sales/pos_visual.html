@@ -1,0 +1,404 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .pos-layout { display: flex; height: calc(100vh - 120px); gap: 20px; overflow: hidden; margin-top: -10px; }
+    .pos-catalog { width: 70%; display: flex; flex-direction: column; overflow: hidden; }
+    .pos-sidebar { width: 30%; display: flex; flex-direction: column; background: var(--tekfix-card); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .category-scroll { display: flex; overflow-x: auto; padding-bottom: 10px; gap: 10px; flex-shrink: 0; }
+    .category-scroll::-webkit-scrollbar { height: 6px; }
+    .category-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); grid-auto-rows: minmax(280px, auto); gap: 15px; overflow-y: auto; padding-right: 5px; align-content: flex-start; flex-grow: 1; padding-bottom: 20px; }
+    .product-grid::-webkit-scrollbar { width: 8px; }
+    .product-grid::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+    .product-card { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--tekfix-border); border-radius: 10px; overflow: hidden; background: #fff; display: flex; flex-direction: column; height: 100%; }
+    .product-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); border-color: var(--tekfix-primary); }
+    .product-img { width: 100%; height: 140px; object-fit: contain; background: #f8f9fa; padding: 10px; border-bottom: 1px solid #f1f1f1; flex-shrink: 0; }
+    .product-info { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; }
+    .product-title { font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; color: var(--tekfix-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.2; min-height: 2.4em; }
+    .product-price { color: var(--tekfix-primary); font-weight: 800; font-size: 1.1rem; margin-top: auto; }
+    .product-stock { font-size: 0.75rem; color: #6c757d; margin-top: 4px; flex-shrink: 0; }
+    
+    .cart-header { padding: 15px 20px; border-bottom: 1px solid var(--tekfix-border); flex-shrink: 0; }
+    .cart-items { flex-grow: 1; overflow-y: auto; padding: 15px 20px; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--tekfix-border); padding-bottom: 10px; margin-bottom: 10px; }
+    .cart-item-info { flex-grow: 1; padding-right: 10px; }
+    .cart-item-title { font-weight: bold; font-size: 0.85rem; margin-bottom: 2px; }
+    .cart-item-price { color: var(--tekfix-primary); font-size: 0.85rem; font-weight: bold; }
+    .cart-controls { display: flex; align-items: center; gap: 8px; }
+    .cart-controls button { width: 28px; height: 28px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; }
+    .cart-qty { font-weight: bold; width: 20px; text-align: center; font-size: 0.9rem; }
+    
+    .cart-footer { padding: 20px; border-top: 1px solid var(--tekfix-border); background: #f8f9fa; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; flex-shrink: 0; }
+    .cart-total-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    .cart-total-final { font-size: 1.4rem; font-weight: 900; color: #C794C7; }
+</style>
+
+<div class="d-flex align-items-center mb-3">
+    <h2 class="fw-bold text-tekfix-main m-0"><i class="fa-solid fa-store me-2" style="color: var(--tekfix-hover);"></i>Caja Rápida Visual</h2>
+</div>
+
+<div class="pos-layout">
+    <!-- PANEL IZQUIERDO: CATÁLOGO -->
+    <div class="pos-catalog">
+        <!-- Categorías -->
+        <div class="mb-3">
+            <h6 class="fw-bold text-tekfix-sec mb-2">Filtrar por Categoría:</h6>
+            <div class="category-scroll" id="category-filters">
+                <button class="btn btn-tekfix rounded-pill px-4 cat-btn active shadow-sm" data-category="Todas">Todas</button>
+                {% for cat in categorias %}
+                <button class="btn btn-outline-secondary rounded-pill px-3 cat-btn bg-white" data-category="{{ cat }}">{{ cat }}</button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Grid de Productos -->
+        <div class="product-grid" id="product-grid">
+            <!-- Rellenado por JS -->
+        </div>
+    </div>
+
+    <!-- PANEL DERECHO: SIDEBAR CARRITO -->
+    <div class="pos-sidebar">
+        <div class="cart-header d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold m-0 text-tekfix-main"><i class="fa-solid fa-shopping-cart me-2 text-tekfix-primary"></i>Caja Rápida</h5>
+            <span class="badge bg-tekfix-primary rounded-pill px-3" id="cart-count" style="font-size:0.85rem;">0 ítems</span>
+        </div>
+        
+        <div class="cart-items" id="cart-items">
+            <!-- Items del carrito -->
+            <div class="text-center text-muted mt-5" id="empty-cart-msg">
+                <i class="fa-solid fa-basket-shopping fs-1 mb-3 opacity-25"></i>
+                <p class="mb-1 fw-bold">Tu carrito está vacío.</p>
+                <small>Selecciona prendas del catálogo.</small>
+            </div>
+        </div>
+        
+        <div class="cart-footer">
+            <div class="cart-total-row text-muted fw-semibold">
+                <span>Subtotal:</span>
+                <span id="subtotal-val">$0</span>
+            </div>
+            <div class="cart-total-row text-muted fw-semibold mb-3">
+                <span>Impuestos:</span>
+                <span>$0</span>
+            </div>
+            <hr class="mb-3">
+            <div class="cart-total-row mb-4">
+                <span class="fw-bold fs-5 align-self-end text-tekfix-main">Total a Cobrar:</span>
+                <span class="cart-total-final" id="total-val">$0</span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold small text-tekfix-main"><i class="fa-regular fa-calendar me-1"></i>Fecha de Venta:</label>
+                <input type="date" id="fecha-venta" class="form-control border-0 shadow-sm bg-white form-control-lg" style="font-size:0.9rem;">
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label fw-bold small text-tekfix-main">Método de Pago:</label>
+                <select id="metodo-pago" class="form-select border-0 shadow-sm bg-white form-select-lg" style="font-size:0.9rem;">
+                    <option value="efectivo">💵 Efectivo</option>
+                    <option value="nequi">📱 Nequi</option>
+                    <option value="bancolombia">🏦 Bancolombia</option>
+                    <option value="daviplata">📱 Daviplata</option>
+                    <option value="tarjeta">💳 Tarjeta</option>
+                </select>
+            </div>
+
+            <button class="btn btn-tekfix w-100 py-3 rounded-pill fw-bold fs-5 shadow-sm text-uppercase mb-2" id="btn-process-sale">
+                <i class="fa-solid fa-cash-register me-2"></i> Procesar Venta
+            </button>
+            <button class="btn btn-outline-danger w-100 rounded-pill fw-bold" id="btn-clear-cart">
+                <i class="fa-solid fa-trash me-1"></i> Vaciar Caja
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL VARIANTES -->
+<div class="modal fade" id="modalVariantes" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 bg-tekfix-card pb-3">
+                <h5 class="modal-title fw-bold text-tekfix-main" id="modalVariantesTitle">Seleccionar Talla/Color</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="list-group border-0 gap-2" id="variantes-list">
+                    <!-- Variantes dinámicas -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Datos inyectados desde Jinja
+    const productosData = {{ productos_data | tojson | safe }};
+    const csrfToken = "{{ csrf_token() }}";
+    
+    // Estado de la caja
+    let carrito = [];
+    let currentCategory = 'Todas';
+
+    const gridEl = document.getElementById('product-grid');
+    const cartEl = document.getElementById('cart-items');
+    const emptyMsg = document.getElementById('empty-cart-msg');
+    
+    // Pre-llenar fecha con hoy
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    document.getElementById('fecha-venta').value = `${yyyy}-${mm}-${dd}`;
+    
+    // Utilidad de formato moneda con separador de miles
+    const formatoCOP = (num) => "$" + new Intl.NumberFormat('en-US').format(Math.round(num));
+
+    // Renderizar Cuadrícula de Productos
+    function renderCatalog() {
+        gridEl.innerHTML = '';
+        const filtrados = currentCategory === 'Todas' 
+            ? productosData 
+            : productosData.filter(p => p.categoria === currentCategory);
+
+        if (filtrados.length === 0) {
+            gridEl.innerHTML = '<div class="col-12 text-center text-muted mt-5">No hay productos en esta categoría.</div>';
+            return;
+        }
+
+        filtrados.forEach(p => {
+            // Manejo de imagen (requiere que exista la ruta real o usa fallback)
+            const imgPath = p.imagen ? `/static/uploads/productos/${p.imagen}` : '/static/img/default-product.png';
+            
+            // Stock Global (Base + Variantes)
+            const totalStock = p.cantidad_stock + (p.variantes ? p.variantes.reduce((sum, v) => sum + v.cantidad_stock, 0) : 0);
+            const isDisabled = totalStock <= 0;
+            const cardClass = isDisabled ? 'product-card opacity-50 bg-light' : 'product-card';
+            
+            const card = document.createElement('div');
+            card.className = cardClass;
+            card.onclick = () => { if(!isDisabled) handleProductClick(p); };
+            
+            card.innerHTML = `
+                <img src="${imgPath}" onerror="this.src='https://placehold.co/300x300/f8f9fa/a3a3a3?text=Sin+Imagen'" class="product-img" alt="${p.nombre}">
+                <div class="product-info">
+                    <div class="product-title" title="${p.nombre}">${p.nombre}</div>
+                    ${p.variantes.length > 0 ? '<span class="badge bg-tekfix-card text-tekfix-sec border mb-1" style="width:fit-content; font-size:0.65rem;">Con Variantes</span>' : ''}
+                    <div class="product-price">${formatoCOP(p.precio_final)}</div>
+                    <div class="product-stock ${totalStock <= 0 ? 'text-danger fw-bold' : ''}">
+                        ${totalStock > 0 ? `<i class="fa-solid fa-box-open me-1"></i>${totalStock} en stock` : '<i class="fa-solid fa-ban me-1"></i>Agotado'}
+                    </div>
+                </div>
+            `;
+            gridEl.appendChild(card);
+        });
+    }
+
+    // Filtros de Categoría
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const targetBtn = e.currentTarget;
+            document.querySelectorAll('.cat-btn').forEach(b => {
+                b.classList.remove('btn-tekfix', 'active', 'shadow-sm');
+                b.classList.add('btn-outline-secondary', 'bg-white');
+            });
+            targetBtn.classList.add('btn-tekfix', 'active', 'shadow-sm');
+            targetBtn.classList.remove('btn-outline-secondary', 'bg-white');
+            
+            currentCategory = targetBtn.dataset.category;
+            renderCatalog();
+        });
+    });
+
+    // Clic en Producto (Directo al carrito o Modal si hay variantes)
+    const modalVariantes = new bootstrap.Modal(document.getElementById('modalVariantes'));
+
+    function handleProductClick(producto) {
+        if (producto.variantes && producto.variantes.length > 0) {
+            document.getElementById('modalVariantesTitle').innerText = producto.nombre;
+            const listEl = document.getElementById('variantes-list');
+            listEl.innerHTML = '';
+            
+            producto.variantes.forEach(v => {
+                const btn = document.createElement('button');
+                btn.className = `list-group-item list-group-item-action rounded-3 shadow-sm border-0 mb-2 d-flex justify-content-between align-items-center ${v.cantidad_stock <= 0 ? 'disabled bg-light opacity-50' : ''}`;
+                btn.innerHTML = `
+                    <div>
+                        <span class="fw-bold text-tekfix-main">${v.nombre_variante}</span><br>
+                        <small class="${v.cantidad_stock > 0 ? 'text-success fw-bold' : 'text-danger fw-bold'}">Stock: ${v.cantidad_stock}</small>
+                    </div>
+                    <span class="fw-bolder fs-5" style="color: var(--tekfix-primary);">${formatoCOP(v.precio_final)}</span>
+                `;
+                btn.onclick = () => {
+                    if(v.cantidad_stock > 0) {
+                        addToCart(producto.id, producto.nombre, v.id, v.nombre_variante, v.precio_final, v.cantidad_stock);
+                        modalVariantes.hide();
+                    }
+                };
+                listEl.appendChild(btn);
+            });
+            modalVariantes.show();
+        } else {
+            // Añadir directo si no tiene variantes
+            addToCart(producto.id, producto.nombre, null, null, producto.precio_final, producto.cantidad_stock);
+        }
+    }
+
+    // Agregar al Carrito (Estado Local)
+    function addToCart(productId, productName, variantId, variantName, price, maxStock) {
+        const existing = carrito.find(i => i.product_id === productId && i.variant_id === variantId);
+        
+        if (existing) {
+            if (existing.cantidad < maxStock) {
+                existing.cantidad++;
+            } else {
+                alert('Stock máximo alcanzado para este ítem.');
+            }
+        } else {
+            carrito.push({
+                product_id: productId,
+                nombre: productName,
+                variant_id: variantId,
+                variante: variantName,
+                precio_final: price,
+                cantidad: 1,
+                max_stock: maxStock
+            });
+        }
+        renderCart();
+    }
+
+    // Botones + y - en Carrito
+    window.updateCartQty = function(index, delta) {
+        const item = carrito[index];
+        const nuevaQty = item.cantidad + delta;
+        
+        if (nuevaQty <= 0) {
+            carrito.splice(index, 1);
+        } else if (nuevaQty > item.max_stock) {
+            alert('Stock máximo en tienda alcanzado.');
+        } else {
+            item.cantidad = nuevaQty;
+        }
+        renderCart();
+    }
+
+    // Botón Papelera
+    window.removeCartItem = function(index) {
+        carrito.splice(index, 1);
+        renderCart();
+    }
+
+    // Redibujar Carrito (DOM)
+    function renderCart() {
+        let totalItems = 0;
+        let granTotal = 0;
+        
+        // Limpiar
+        Array.from(cartEl.children).forEach(c => {
+            if (c.id !== 'empty-cart-msg') c.remove();
+        });
+        
+        if (carrito.length === 0) {
+            emptyMsg.style.display = 'block';
+        } else {
+            emptyMsg.style.display = 'none';
+            
+            carrito.forEach((item, idx) => {
+                const subtotal = item.cantidad * item.precio_final;
+                totalItems += item.cantidad;
+                granTotal += subtotal;
+                
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <div class="cart-item-info">
+                        <div class="cart-item-title text-tekfix-main">${item.nombre}</div>
+                        ${item.variante ? `<small class="badge bg-light text-secondary border d-inline-block mb-1 px-2">${item.variante}</small>` : ''}
+                        <div class="cart-item-price">${formatoCOP(item.precio_final)}</div>
+                    </div>
+                    <div class="cart-controls">
+                        <button class="btn btn-outline-secondary shadow-sm" onclick="updateCartQty(${idx}, -1)"><i class="fa-solid fa-minus"></i></button>
+                        <span class="cart-qty text-tekfix-main">${item.cantidad}</span>
+                        <button class="btn btn-outline-secondary shadow-sm" onclick="updateCartQty(${idx}, 1)"><i class="fa-solid fa-plus"></i></button>
+                        <button class="btn btn-danger shadow-sm ms-2" onclick="removeCartItem(${idx})" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                cartEl.appendChild(div);
+            });
+        }
+
+        // Reflejar en la UI
+        document.getElementById('cart-count').innerText = `${totalItems} ítems`;
+        document.getElementById('subtotal-val').innerText = formatoCOP(granTotal);
+        document.getElementById('total-val').innerText = formatoCOP(granTotal);
+    }
+
+    // Botón Vaciar Caja
+    document.getElementById('btn-clear-cart').addEventListener('click', () => {
+        if(carrito.length > 0 && confirm('¿Estás seguro de vaciar todos los productos de la caja?')) {
+            carrito = [];
+            renderCart();
+        }
+    });
+
+    // Petición AJAX (Fetch) para Cobrar
+    document.getElementById('btn-process-sale').addEventListener('click', async () => {
+        if (carrito.length === 0) {
+            alert('La caja está vacía, agrega productos del catálogo para cobrar.');
+            return;
+        }
+
+        const btn = document.getElementById('btn-process-sale');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-2"></i> Cobrando...';
+
+        const payload = {
+            items: carrito,
+            fecha_venta: document.getElementById('fecha-venta').value,
+            pagos: [
+                {
+                    metodo_pago: document.getElementById('metodo-pago').value,
+                    monto: carrito.reduce((sum, item) => sum + (item.cantidad * item.precio_final), 0)
+                }
+            ],
+            cliente: "Consumidor Final (POS Visual)"
+        };
+
+        try {
+            const response = await fetch('/sales/nueva', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(`✅ Venta exitosa. El inventario se ha actualizado automáticamente. Ticket #${data.sale_id}`);
+                carrito = [];
+                renderCart();
+                // Abrir ticket automáticamente si no está bloqueado por el navegador
+                window.open(`/sales/recibo/${data.sale_id}`, '_blank');
+            } else {
+                alert(`❌ Error al cobrar: ${data.error}`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Ocurrió un error de red o de servidor. No se pudo procesar.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-cash-register me-2"></i> Procesar Venta';
+        }
+    });
+
+    // Iniciar
+    renderCatalog();
+});
+</script>
+{% endblock %}
