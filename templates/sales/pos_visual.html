@@ -605,7 +605,7 @@ document.addEventListener('input', function(e) {
         let cursor = input.selectionStart;
         let oldLen = input.value.length;
         
-        let val = input.value.replace(/[^\d]/g, '');
+        let val = input.value.split('.')[0].replace(/[^\d]/g, '');
         if (val) {
             input.value = new Intl.NumberFormat('en-US').format(val);
         } else {

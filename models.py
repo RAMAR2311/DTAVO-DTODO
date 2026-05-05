@@ -48,9 +48,9 @@ class Product(db.Model):
     sku = db.Column(db.String(50), unique=True, nullable=False, index=True)
     tipo_inventario = db.Column(db.String(50), nullable=False, server_default='tienda') # 'tienda' o 'bodega'
     cantidad_stock = db.Column(db.Integer, nullable=False, default=0)
-    precio_costo = db.Column(db.Numeric(10, 2), nullable=False, default=0.00) # El Costo de Bodega
-    precio_minimo = db.Column(db.Numeric(10, 2), nullable=False)
-    precio_sugerido = db.Column(db.Numeric(10, 2), nullable=False)
+    precio_costo = db.Column(db.Numeric(14, 2), nullable=False, default=0.00) # El Costo de Bodega
+    precio_minimo = db.Column(db.Numeric(14, 2), nullable=False)
+    precio_sugerido = db.Column(db.Numeric(14, 2), nullable=False)
     imagen = db.Column(db.String(255), nullable=True) # Nombre de la foto subida
     observacion = db.Column(db.Text, nullable=True) # Nota descriptiva
     fecha_creacion = db.Column(db.DateTime, default=obtener_hora_bogota)
@@ -87,9 +87,9 @@ class ProductVariant(db.Model):
     cantidad_stock = db.Column(db.Integer, nullable=False, default=0)
     
     # Nuevos precios específicos para variantes
-    precio_costo = db.Column(db.Numeric(10, 2), nullable=True) 
-    precio_minimo = db.Column(db.Numeric(10, 2), nullable=True)
-    precio_sugerido = db.Column(db.Numeric(10, 2), nullable=True)
+    precio_costo = db.Column(db.Numeric(14, 2), nullable=True) 
+    precio_minimo = db.Column(db.Numeric(14, 2), nullable=True)
+    precio_sugerido = db.Column(db.Numeric(14, 2), nullable=True)
 
 class Loss(db.Model):
     __tablename__ = 'losses'
@@ -98,7 +98,7 @@ class Loss(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True) # Quién registró la pérdida
     quantity = db.Column(db.Integer, nullable=False)
-    cost_at_loss = db.Column(db.Numeric(10, 2), nullable=False)
+    cost_at_loss = db.Column(db.Numeric(14, 2), nullable=False)
     reason = db.Column(db.String(255), nullable=True)
     date = db.Column(db.DateTime, default=obtener_hora_bogota)
     
@@ -113,7 +113,7 @@ class Sale(db.Model):
     vendedor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     cliente_nombre = db.Column(db.String(150), nullable=True) # Nombre del cliente para facturación POS
     fecha_venta = db.Column(db.DateTime, default=obtener_hora_bogota)
-    monto_total = db.Column(db.Numeric(10, 2), nullable=False, default=0.0)
+    monto_total = db.Column(db.Numeric(14, 2), nullable=False, default=0.0)
     metodo_pago = db.Column(db.String(50), nullable=False, default='efectivo')
     
     detalles = db.relationship('SaleDetail', backref='venta', lazy=True, cascade="all, delete-orphan")
@@ -140,7 +140,7 @@ class SalePayment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sale_id = db.Column(db.Integer, db.ForeignKey('sales.id'), nullable=False)
     metodo_pago = db.Column(db.String(50), nullable=False)  # efectivo, nequi, bancolombia, daviplata
-    monto = db.Column(db.Numeric(10, 2), nullable=False)
+    monto = db.Column(db.Numeric(14, 2), nullable=False)
 
 class SaleDetail(db.Model):
     __tablename__ = 'sale_details'
@@ -150,10 +150,10 @@ class SaleDetail(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=True)
     variant_id = db.Column(db.Integer, db.ForeignKey('product_variants.id'), nullable=True)
     cantidad_vendida = db.Column(db.Integer, nullable=False)
-    precio_venta_final = db.Column(db.Numeric(10, 2), nullable=False)
+    precio_venta_final = db.Column(db.Numeric(14, 2), nullable=False)
     # Campos para productos manuales (prestados de otros locales)
     nombre_manual = db.Column(db.String(200), nullable=True)
-    precio_costo_manual = db.Column(db.Numeric(10, 2), nullable=True)
+    precio_costo_manual = db.Column(db.Numeric(14, 2), nullable=True)
 
     variante = db.relationship('ProductVariant', backref='ventas_rel', lazy=True)
 
@@ -174,11 +174,11 @@ class ArqueoCaja(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     vendedor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     fecha_arqueo = db.Column(db.Date, nullable=False)
-    base_inicial = db.Column(db.Numeric(10, 2), nullable=False, default=0.0)
-    gastos_del_dia = db.Column(db.Numeric(10, 2), nullable=False, default=0.0)
+    base_inicial = db.Column(db.Numeric(14, 2), nullable=False, default=0.0)
+    gastos_del_dia = db.Column(db.Numeric(14, 2), nullable=False, default=0.0)
     observaciones_gastos = db.Column(db.String(255), nullable=True)
-    total_efectivo_sistema = db.Column(db.Numeric(10, 2), nullable=False, default=0.0)
-    total_transferencia_sistema = db.Column(db.Numeric(10, 2), nullable=False, default=0.0)
+    total_efectivo_sistema = db.Column(db.Numeric(14, 2), nullable=False, default=0.0)
+    total_transferencia_sistema = db.Column(db.Numeric(14, 2), nullable=False, default=0.0)
     fecha_creacion = db.Column(db.DateTime, default=obtener_hora_bogota)
 
 class Maneo(db.Model):
@@ -204,7 +204,7 @@ class Expense(db.Model):
     tipo_gasto = db.Column(db.String(50), nullable=False) # 'Gasto Diario' o 'Costo Indirecto'
     categoria = db.Column(db.String(100), nullable=False)
     descripcion = db.Column(db.String(255), nullable=True)
-    monto = db.Column(db.Numeric(10, 2), nullable=False)
+    monto = db.Column(db.Numeric(14, 2), nullable=False)
     fecha_gasto = db.Column(db.DateTime, default=obtener_hora_bogota)
 
     usuario = db.relationship('User', backref='gastos', lazy=True)
@@ -238,7 +238,7 @@ class FacturaBodega(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     numero_factura = db.Column(db.String(100), nullable=False)
     archivo_ruta = db.Column(db.String(255), nullable=False)
-    monto_total = db.Column(db.Numeric(10, 2), nullable=False, default=0.0)
+    monto_total = db.Column(db.Numeric(14, 2), nullable=False, default=0.0)
     estado = db.Column(db.String(50), nullable=False, default='Pendiente') # Pendiente, Parcial, Pagado
     fecha_subida = db.Column(db.DateTime, default=obtener_hora_bogota)
 
@@ -258,7 +258,7 @@ class FacturaBodegaDetalle(db.Model):
     factura_id = db.Column(db.Integer, db.ForeignKey('facturas_bodega.id'), nullable=False)
     producto_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     cantidad = db.Column(db.Integer, nullable=False)
-    precio_venta = db.Column(db.Numeric(10, 2), nullable=True) # Opcional para futuros análisis
+    precio_venta = db.Column(db.Numeric(14, 2), nullable=True) # Opcional para futuros análisis
 
     producto = db.relationship('Product', backref='detalles_factura_bodega', lazy=True)
 
@@ -268,7 +268,7 @@ class AbonoBodega(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     factura_id = db.Column(db.Integer, db.ForeignKey('facturas_bodega.id'), nullable=False)
     usuario_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    monto = db.Column(db.Numeric(10, 2), nullable=False)
+    monto = db.Column(db.Numeric(14, 2), nullable=False)
     metodo_pago = db.Column(db.String(50), nullable=False, default='efectivo')
     observacion = db.Column(db.String(255), nullable=True)
     fecha_abono = db.Column(db.DateTime, default=obtener_hora_bogota)
@@ -294,7 +294,7 @@ class ProviderInvoice(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     provider_id = db.Column(db.Integer, db.ForeignKey('providers.id'), nullable=False)
-    monto_total = db.Column(db.Numeric(10, 2), nullable=False)
+    monto_total = db.Column(db.Numeric(14, 2), nullable=False)
     numero_factura = db.Column(db.String(100), nullable=True)
     descripcion = db.Column(db.String(255), nullable=True)
     comprobante = db.Column(db.String(255), nullable=True) # Archivo subido
@@ -305,7 +305,7 @@ class ProviderPayment(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     provider_id = db.Column(db.Integer, db.ForeignKey('providers.id'), nullable=False)
-    monto_abonado = db.Column(db.Numeric(10, 2), nullable=False)
+    monto_abonado = db.Column(db.Numeric(14, 2), nullable=False)
     observacion = db.Column(db.String(255), nullable=True)
     fecha_pago = db.Column(db.DateTime, default=obtener_hora_bogota)
 
@@ -362,7 +362,7 @@ class ProductExchange(db.Model):
     variant_new_id = db.Column(db.Integer, db.ForeignKey('product_variants.id'), nullable=True)
     
     reason = db.Column(db.String(500), nullable=False)
-    excedente_pagado = db.Column(db.Numeric(10, 2), default=0.0)
+    excedente_pagado = db.Column(db.Numeric(14, 2), default=0.0)
     metodo_pago_excedente = db.Column(db.String(50), nullable=True) # Nequi, Efectivo, etc.
     created_at = db.Column(db.DateTime, default=obtener_hora_bogota)
 
@@ -380,8 +380,8 @@ class Importacion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     proveedor_id = db.Column(db.Integer, db.ForeignKey('providers.id'), nullable=False)
     numero_contenedor = db.Column(db.String(100), nullable=False)
-    valor_contenedor = db.Column(db.Numeric(10, 2), nullable=False, default=0.00)
-    valor_flete = db.Column(db.Numeric(10, 2), nullable=False, default=0.00)
+    valor_contenedor = db.Column(db.Numeric(14, 2), nullable=False, default=0.00)
+    valor_flete = db.Column(db.Numeric(14, 2), nullable=False, default=0.00)
     pedido_completo = db.Column(db.Boolean, default=True)
     observaciones = db.Column(db.Text, nullable=True)
     fecha_registro = db.Column(db.DateTime, default=obtener_hora_bogota)
@@ -466,8 +466,8 @@ class FacturaCredito(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     cliente_id = db.Column(db.Integer, db.ForeignKey('cliente_cartera.id'), nullable=False)
-    total_factura = db.Column(db.Numeric(10, 2), nullable=False)
-    saldo_pendiente = db.Column(db.Numeric(10, 2), nullable=False)
+    total_factura = db.Column(db.Numeric(14, 2), nullable=False)
+    saldo_pendiente = db.Column(db.Numeric(14, 2), nullable=False)
     fecha_emision = db.Column(db.DateTime, default=obtener_hora_bogota)
     
     detalles = db.relationship('DetalleFacturaCredito', backref='factura', lazy=True, cascade='all, delete-orphan')
@@ -489,8 +489,8 @@ class DetalleFacturaCredito(db.Model):
     producto_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=True)
     variant_id = db.Column(db.Integer, db.ForeignKey('product_variants.id'), nullable=True)
     cantidad = db.Column(db.Integer, nullable=False)
-    precio_unitario = db.Column(db.Numeric(10, 2), nullable=False)
-    subtotal = db.Column(db.Numeric(10, 2), nullable=False)
+    precio_unitario = db.Column(db.Numeric(14, 2), nullable=False)
+    subtotal = db.Column(db.Numeric(14, 2), nullable=False)
     nombre_manual = db.Column(db.String(200), nullable=True)
 
     producto = db.relationship('Product', backref='detalles_factura_cartera', lazy=True)
@@ -501,7 +501,7 @@ class AbonoCredito(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     factura_id = db.Column(db.Integer, db.ForeignKey('factura_credito.id'), nullable=False)
-    monto_abono = db.Column(db.Numeric(10, 2), nullable=False)
+    monto_abono = db.Column(db.Numeric(14, 2), nullable=False)
     fecha_abono = db.Column(db.DateTime, default=obtener_hora_bogota)
     
     # Relación inversa con el movimiento de caja para trazabilidad
@@ -513,7 +513,7 @@ class AcuerdoPago(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     factura_id = db.Column(db.Integer, db.ForeignKey('factura_credito.id'), nullable=False)
     fecha_acordada = db.Column(db.Date, nullable=False)
-    monto_esperado = db.Column(db.Numeric(10, 2), nullable=True)
+    monto_esperado = db.Column(db.Numeric(14, 2), nullable=True)
     cumplido = db.Column(db.Boolean, default=False)
 
 class MovimientoCajaCartera(db.Model):
@@ -522,7 +522,7 @@ class MovimientoCajaCartera(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     tipo = db.Column(db.String(20), default='Ingreso')
-    monto = db.Column(db.Numeric(10, 2), nullable=False)
+    monto = db.Column(db.Numeric(14, 2), nullable=False)
     concepto = db.Column(db.String(255), nullable=False)
     fecha_movimiento = db.Column(db.DateTime, default=obtener_hora_bogota)
     abono_id = db.Column(db.Integer, db.ForeignKey('abono_credito.id'), nullable=False)

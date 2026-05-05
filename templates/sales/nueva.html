@@ -895,7 +895,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     function formatMoneyInput(input) {
-        let val = input.value.replace(/[^\d]/g, '');
+        let val = input.value.split('.')[0].replace(/[^\d]/g, '');
         if (val) {
             input.value = new Intl.NumberFormat('en-US').format(val);
         } else {

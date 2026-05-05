@@ -30,21 +30,21 @@
                         <label class="form-label fw-bold text-tekfix-main text-truncate">Costo Compra</label>
                         <div class="input-group">
                             <span class="input-group-text bg-tekfix-card border-0">$</span>
-                            <input type="text" class="form-control bg-tekfix-card border-0 money-input" name="precio_costo" required value="{{ producto.precio_costo if producto else '' }}">
+                            <input type="text" class="form-control bg-tekfix-card border-0 money-input" name="precio_costo" required value="{{ (producto.precio_costo | int) if producto else '' }}">
                         </div>
                     </div>
                     <div class="col-md-3 mt-4">
                         <label class="form-label fw-bold text-tekfix-main text-truncate">Precio Mínimo</label>
                         <div class="input-group">
                             <span class="input-group-text bg-tekfix-card border-0">$</span>
-                            <input type="text" class="form-control bg-tekfix-card border-0 money-input" name="precio_minimo" required value="{{ producto.precio_minimo if producto else '' }}">
+                            <input type="text" class="form-control bg-tekfix-card border-0 money-input" name="precio_minimo" required value="{{ (producto.precio_minimo | int) if producto else '' }}">
                         </div>
                     </div>
                     <div class="col-md-3 mt-4">
                         <label class="form-label fw-bold text-tekfix-main text-truncate">Precio Sugerido</label>
                         <div class="input-group">
                             <span class="input-group-text bg-tekfix-card border-0">$</span>
-                            <input type="text" class="form-control bg-tekfix-card border-0 money-input" name="precio_sugerido" required value="{{ producto.precio_sugerido if producto else '' }}">
+                            <input type="text" class="form-control bg-tekfix-card border-0 money-input" name="precio_sugerido" required value="{{ (producto.precio_sugerido | int) if producto else '' }}">
                         </div>
                     </div>
                     
@@ -79,7 +79,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Formatear automáticamente inputs de dinero con comas
     function formatMoneyInput(input) {
-        let val = input.value.replace(/[^\d]/g, '');
+        // Tomar solo la parte entera si el valor viene con decimales (ej: de la DB)
+        // para evitar que los decimales se conviertan en miles (multiplicación por 100)
+        let val = input.value.split('.')[0].replace(/[^\d]/g, '');
         if (val) {
             input.value = new Intl.NumberFormat('en-US').format(val);
         } else {

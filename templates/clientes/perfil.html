@@ -486,6 +486,8 @@ const carritoItems = document.getElementById('carritoItems');
 const totalFacturaDisplay = document.getElementById('totalFactura');
 const btnFinalizar = document.getElementById('btnFinalizarVenta');
 const contenedorAcuerdosPOS = document.getElementById('contenedorAcuerdosPOS');
+const CLIENTE_ID = Number('{{ cliente.id }}');
+const CSRF_TOKEN = '{{ csrf_token() }}';
 
 
 // Buscador de productos
@@ -678,9 +680,9 @@ btnFinalizar.addEventListener('click', async () => {
 
     const response = await fetch('/clientes/factura/nueva', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token() }}' },
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
         body: JSON.stringify({ 
-            cliente_id: {{ cliente.id }}, 
+            cliente_id: CLIENTE_ID, 
             items: carrito, 
             abono_inicial: abonoInicial,
             metodo_abono: metodoAbono,
@@ -756,7 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener('DOMContentLoaded', function() {
     function formatMoneyInput(input) {
-        let val = input.value.replace(/[^\d]/g, '');
+        let val = input.value.split('.')[0].replace(/[^\d]/g, '');
         if (val) {
             input.value = new Intl.NumberFormat('en-US').format(val);
         } else {

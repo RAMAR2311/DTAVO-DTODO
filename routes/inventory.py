@@ -9,6 +9,15 @@ from io import BytesIO
 
 inventory_bp = Blueprint('inventory_bp', __name__)
 
+MAX_PRICE_LIMIT = 99999999999.99
+
+def validate_prices(*prices):
+    """Retorna True si todos los precios están dentro del rango permitido por la DB."""
+    for price in prices:
+        if price > MAX_PRICE_LIMIT:
+            return False
+    return True
+
 @inventory_bp.route('/', methods=['GET'])
 @login_required
 @admin_or_bodega_required
@@ -55,14 +64,22 @@ def nuevo():
 
         # La instanciación agrupa todos los parámetros del nuevo producto
         tipo = 'bodega' if current_user.rol == 'bodega' else 'tienda'
+        nuevo_costo = float(request.form.get('precio_costo', '0').replace(',', ''))
+        nuevo_minimo = float(request.form.get('precio_minimo', '0').replace(',', ''))
+        nuevo_sugerido = float(request.form.get('precio_sugerido', '0').replace(',', ''))
+
+        if not validate_prices(nuevo_costo, nuevo_minimo, nuevo_sugerido):
+            flash('Uno de los precios ingresados es demasiado alto. El máximo permitido es 99,999,999.99.', 'danger')
+            return render_template('inventory/form.html')
+
         nuevo_prod = Product(
             sku=request.form.get('sku').strip(),
             nombre=request.form.get('nombre').strip(),
             tipo_inventario=tipo,
             cantidad_stock=int(request.form.get('cantidad_stock', 0)),
-            precio_costo=float(request.form.get('precio_costo', '0').replace(',', '')),
-            precio_minimo=float(request.form.get('precio_minimo', '0').replace(',', '')),
-            precio_sugerido=float(request.form.get('precio_sugerido', '0').replace(',', '')),
+            precio_costo=nuevo_costo,
+            precio_minimo=nuevo_minimo,
+            precio_sugerido=nuevo_sugerido,
             imagen=imagen_filename,
             observacion=request.form.get('observacion')
         )
@@ -115,6 +132,10 @@ def editar_producto(id):
         nuevo_costo = float(request.form.get('precio_costo', '0').replace(',', ''))
         nuevo_minimo = float(request.form.get('precio_minimo', '0').replace(',', ''))
         nuevo_sugerido = float(request.form.get('precio_sugerido', '0').replace(',', ''))
+
+        if not validate_prices(nuevo_costo, nuevo_minimo, nuevo_sugerido):
+            flash('Uno de los precios ingresados es demasiado alto. El máximo permitido es 99,999,999.99.', 'danger')
+            return render_template('inventory/form.html', producto=producto)
 
         # Actualizar producto principal
         producto.sku = request.form.get('sku').strip()
@@ -228,13 +249,21 @@ def agregar_variante(id):
         flash('El nombre de la variante es obligatorio.', 'danger')
         return redirect(url_for('inventory_bp.index'))
 
+    v_costo = float(str(precio_costo_req).replace(',', '')) if precio_costo_req else producto.precio_costo
+    v_minimo = float(str(precio_minimo_req).replace(',', '')) if precio_minimo_req else producto.precio_minimo
+    v_sugerido = float(str(precio_sugerido_req).replace(',', '')) if precio_sugerido_req else producto.precio_sugerido
+
+    if not validate_prices(v_costo, v_minimo, v_sugerido):
+        flash('Uno de los precios para la variante es demasiado alto.', 'danger')
+        return redirect(url_for('inventory_bp.index'))
+
     nueva_variante = ProductVariant(
         product_id=producto.id,
         nombre_variante=nombre_variante,
         cantidad_stock=cantidad_stock,
-        precio_costo=float(str(precio_costo_req).replace(',', '')) if precio_costo_req else producto.precio_costo,
-        precio_minimo=float(str(precio_minimo_req).replace(',', '')) if precio_minimo_req else producto.precio_minimo,
-        precio_sugerido=float(str(precio_sugerido_req).replace(',', '')) if precio_sugerido_req else producto.precio_sugerido
+        precio_costo=v_costo,
+        precio_minimo=v_minimo,
+        precio_sugerido=v_sugerido
     )
     try:
         db.session.add(nueva_variante)
@@ -260,9 +289,17 @@ def editar_variante(id):
     precio_minimo_req = request.form.get('precio_minimo')
     precio_sugerido_req = request.form.get('precio_sugerido')
     
-    if precio_costo_req: variante.precio_costo = float(str(precio_costo_req).replace(',', ''))
-    if precio_minimo_req: variante.precio_minimo = float(str(precio_minimo_req).replace(',', ''))
-    if precio_sugerido_req: variante.precio_sugerido = float(str(precio_sugerido_req).replace(',', ''))
+    v_costo = float(str(precio_costo_req).replace(',', '')) if precio_costo_req else variante.precio_costo
+    v_minimo = float(str(precio_minimo_req).replace(',', '')) if precio_minimo_req else variante.precio_minimo
+    v_sugerido = float(str(precio_sugerido_req).replace(',', '')) if precio_sugerido_req else variante.precio_sugerido
+
+    if not validate_prices(v_costo, v_minimo, v_sugerido):
+        flash('Uno de los precios para la variante es demasiado alto.', 'danger')
+        return redirect(url_for('inventory_bp.index'))
+
+    variante.precio_costo = v_costo
+    variante.precio_minimo = v_minimo
+    variante.precio_sugerido = v_sugerido
     
     try:
         db.session.commit()
