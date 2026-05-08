@@ -15,16 +15,65 @@
                 <div class="row g-4">
                     <div class="col-md-4">
                         <label class="form-label fw-bold text-tekfix-main">SKU / Código</label>
-                        <input type="text" class="form-control bg-tekfix-card border-0" name="sku" required placeholder="Ej: FUNDA-XXX" value="{{ producto.sku if producto else '' }}">
+                        <input type="text" class="form-control bg-tekfix-card border-0" name="sku" required placeholder="Ej: SKU-123" value="{{ producto.sku if producto else '' }}">
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-md-5">
                         <label class="form-label fw-bold text-tekfix-main">Nombre del Producto</label>
-                        <input type="text" class="form-control bg-tekfix-card border-0" name="nombre" required placeholder="Acme Case Pro" value="{{ producto.nombre if producto else '' }}">
+                        <input type="text" class="form-control bg-tekfix-card border-0" name="nombre" required placeholder="Nombre del producto" value="{{ producto.nombre if producto else '' }}">
                     </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold text-tekfix-main">Categoría</label>
+                        <select class="form-select bg-tekfix-card border-0" name="categoria_id">
+                            <option value="">Seleccionar Categoría...</option>
+                            {% for cat in categorias %}
+                                <option value="{{ cat.id }}" {% if producto and producto.categoria_id == cat.id %}selected{% endif %}>{{ cat.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Toggle Serialización -->
+                    <div class="col-12 mt-3">
+                        <div class="form-check form-switch p-3 bg-tekfix-card rounded-4 border-0 shadow-sm d-inline-block ps-5 pe-4">
+                            <input class="form-check-input" type="checkbox" id="es_serializado" name="es_serializado" {% if producto and producto.es_serializado %}checked{% endif %}>
+                            <label class="form-check-label fw-bold text-tekfix-main" for="es_serializado">
+                                <i class="fa-solid fa-barcode text-tekfix-primary me-2"></i>Producto Serializado (Control de IMEI)
+                            </label>
+                        </div>
+                        <p class="text-tekfix-sec small mt-2 ps-2">Si activas esta opción, el stock se gestionará registrando cada serial de forma individual.</p>
+                    </div>
+
                     
+                    <!-- Sección de Atributos Dinámicos -->
+                    <div class="col-12 mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold text-tekfix-main mb-0"><i class="fa-solid fa-list-check me-2 text-tekfix-primary"></i>Atributos Dinámicos</h5>
+                            <button type="button" class="btn btn-sm btn-outline-tekfix-primary rounded-pill" onclick="addAttrRow()">
+                                <i class="fa-solid fa-plus me-1"></i> Añadir Atributo
+                            </button>
+                        </div>
+                        <div id="dynamic-attrs-container">
+                            {% if producto and producto.atributos %}
+                                {% for key, value in producto.atributos.items() %}
+                                <div class="row g-2 mb-2 attr-row">
+                                    <div class="col-md-5">
+                                        <input type="text" name="attr_key[]" class="form-control bg-tekfix-card border-0" placeholder="Ej: Talla, Color, RAM..." value="{{ key }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="text" name="attr_value[]" class="form-control bg-tekfix-card border-0" placeholder="Valor del atributo" value="{{ value }}">
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" class="btn btn-link text-danger p-1" onclick="this.closest('.attr-row').remove()"><i class="fa-solid fa-circle-minus fs-5"></i></button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <small class="text-tekfix-sec">Ejemplo: Marca: Apple, RAM: 8GB, Color: Dorado, etc.</small>
+                    </div>
+
                     <div class="col-md-3 mt-4">
-                        <label class="form-label fw-bold text-tekfix-main text-truncate">Existencias</label>
-                        <input type="number" class="form-control bg-tekfix-card border-0" name="cantidad_stock" required min="0" value="{{ producto.cantidad_stock if producto else '' }}">
+                        <label class="form-label fw-bold text-tekfix-main">Existencias</label>
+                        <input type="number" class="form-control bg-tekfix-card border-0" name="cantidad_stock" required min="0" value="{{ producto.cantidad_stock if producto else '0' }}">
                     </div>
                     <div class="col-md-3 mt-4">
                         <label class="form-label fw-bold text-tekfix-main text-truncate">Costo Compra</label>
@@ -58,6 +107,36 @@
                     <div class="col-md-6 mt-4">
                         <label class="form-label fw-bold text-tekfix-main">Observación (Opcional)</label>
                         <textarea class="form-control bg-tekfix-card border-0" name="observacion" rows="3" placeholder="Notas sobre el producto...">{{ producto.observacion if producto and producto.observacion else '' }}</textarea>
+                    </div>
+
+                    <!-- NUEVA SECCIÓN: VARIANTES (TALLAS/COLORES) -->
+                    <div class="col-12 mt-5 p-4 rounded-4" id="variants-section" style="background: rgba(212, 168, 67, 0.05); border: 1px dashed rgba(212, 168, 67, 0.3); display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold text-tekfix-main mb-0">
+                                <i class="fa-solid fa-layer-group me-2 text-tekfix-primary"></i>Variantes de Talla / Color
+                            </h5>
+                            <button type="button" class="btn btn-sm btn-tekfix-primary rounded-pill px-3" onclick="addVariantRow()">
+                                <i class="fa-solid fa-plus me-1"></i>Añadir Talla
+                            </button>
+                        </div>
+                        <div id="variants-container">
+                            {% if producto and producto.variantes %}
+                                {% for v in producto.variantes %}
+                                <div class="row g-2 mb-2 variant-row align-items-center">
+                                    <div class="col-md-7">
+                                        <input type="text" name="variant_name[]" class="form-control bg-white border-0 shadow-sm" placeholder="Ej: Talla M, Color Rojo..." value="{{ v.nombre_variante }}">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="number" name="variant_stock[]" class="form-control bg-white border-0 shadow-sm" placeholder="Stock" value="{{ v.cantidad_stock }}">
+                                    </div>
+                                    <div class="col-md-1 text-center">
+                                        <button type="button" class="btn btn-link text-danger p-0" onclick="this.closest('.variant-row').remove()"><i class="fa-solid fa-trash-can"></i></button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        <p class="text-tekfix-sec small mt-2 mb-0"><i class="fa-solid fa-circle-info me-1"></i>Usa esta sección para productos que se dividen en tallas o colores (ej. Ropa).</p>
                     </div>
                 </div>
 
@@ -108,6 +187,69 @@ document.addEventListener('DOMContentLoaded', function() {
             this.setSelectionRange(cursor, cursor);
         });
     });
-});
+ });
+
+ function addAttrRow() {
+     const container = document.getElementById('dynamic-attrs-container');
+     const row = document.createElement('div');
+     row.className = 'row g-2 mb-2 attr-row';
+     row.innerHTML = `
+         <div class="col-md-5">
+             <input type="text" name="attr_key[]" class="form-control bg-tekfix-card border-0" placeholder="Ej: Talla, Color, RAM...">
+         </div>
+         <div class="col-md-6">
+             <input type="text" name="attr_value[]" class="form-control bg-tekfix-card border-0" placeholder="Valor del atributo">
+         </div>
+         <div class="col-md-1">
+             <button type="button" class="btn btn-link text-danger p-1" onclick="this.closest('.attr-row').remove()"><i class="fa-solid fa-circle-minus fs-5"></i></button>
+         </div>
+     `;
+     container.appendChild(row);
+ }
+
+ function addVariantRow() {
+     const container = document.getElementById('variants-container');
+     const row = document.createElement('div');
+     row.className = 'row g-2 mb-2 variant-row align-items-center';
+     row.innerHTML = `
+         <div class="col-md-7">
+             <input type="text" name="variant_name[]" class="form-control bg-white border-0 shadow-sm" placeholder="Ej: Talla M, Color Rojo...">
+         </div>
+         <div class="col-md-4">
+             <input type="number" name="variant_stock[]" class="form-control bg-white border-0 shadow-sm" placeholder="Stock" value="0">
+         </div>
+         <div class="col-md-1 text-center">
+             <button type="button" class="btn btn-link text-danger p-0" onclick="this.closest('.variant-row').remove()"><i class="fa-solid fa-trash-can"></i></button>
+         </div>
+     `;
+     container.appendChild(row);
+ }
+
+ // Lógica para mostrar sección de variantes automáticamente
+ const catSelect = document.querySelector('select[name="categoria_id"]');
+ const variantSec = document.getElementById('variants-section');
+
+ function checkCategory() {
+     const text = catSelect.options[catSelect.selectedIndex].text.toLowerCase();
+     if (text.includes('ropa') || text.includes('vestuario') || text.includes('calzado')) {
+         variantSec.style.display = 'block';
+         // Si está vacío y es ropa, añadir una fila inicial
+         if (document.querySelectorAll('.variant-row').length === 0) {
+             addVariantRow();
+         }
+     } else {
+         // Si tiene variantes ya guardadas, dejarla visible para que no se asusten, 
+         // pero si está vacío ocultar.
+         if (document.querySelectorAll('.variant-row').length === 0) {
+             variantSec.style.display = 'none';
+         } else {
+             variantSec.style.display = 'block';
+         }
+     }
+ }
+
+ catSelect.addEventListener('change', checkCategory);
+ window.addEventListener('load', checkCategory);
+
 </script>
 {% endblock %}

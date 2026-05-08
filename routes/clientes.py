@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from models import db, ClienteCartera, FacturaCredito, DetalleFacturaCredito, AbonoCredito, AcuerdoPago, MovimientoCajaCartera, Product, ProductVariant, Sale, SaleDetail, SalePayment, obtener_hora_bogota
+from models import db, ClienteCartera, FacturaCredito, DetalleFacturaCredito, AbonoCredito, AcuerdoPago, MovimientoCajaCartera, Product, ProductVariant, Sale, SaleDetail, SalePayment, obtener_hora_bogota, Customer
 from decorators import admin_required
 from datetime import datetime
 from decimal import Decimal
@@ -10,10 +10,23 @@ clientes_bp = Blueprint('clientes_bp', __name__)
 
 @clientes_bp.route('/')
 @login_required
-@admin_required
 def index():
+    q = request.args.get('q', '').strip()
+    if q:
+        search = f"%{q}%"
+        clientes = Customer.query.filter(
+            or_(Customer.nombre.ilike(search), Customer.cedula.ilike(search))
+        ).order_by(Customer.nombre).all()
+    else:
+        clientes = Customer.query.order_by(Customer.nombre).all()
+    return render_template('clientes/index.html', clientes=clientes, q=q)
+
+@clientes_bp.route('/cartera')
+@login_required
+@admin_required
+def cartera_index():
     clientes = ClienteCartera.query.order_by(ClienteCartera.nombre_completo).all()
-    return render_template('clientes/index.html', clientes=clientes)
+    return render_template('clientes/cartera.html', clientes=clientes)
 
 @clientes_bp.route('/nuevo', methods=['POST'])
 @login_required

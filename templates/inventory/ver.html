@@ -112,5 +112,167 @@
             </div>
         </div>
     </div>
+    <div class="row g-4 mt-2">
+        <!-- Gestión de Variantes (Abajo) -->
+        <div class="col-12">
+            <div class="card card-custom border-0 shadow-sm overflow-hidden">
+                <div class="card-header bg-tekfix-card border-bottom p-4 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold text-tekfix-main mb-0"><i class="fa-solid fa-layer-group text-tekfix-primary me-2"></i>Variantes y Subcategorías (Tallas / Colores)</h5>
+                    <button type="button" class="btn btn-sm btn-tekfix-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#variantesModal{{ producto.id }}">
+                        <i class="fa-solid fa-plus me-1"></i>Gestionar Variantes
+                    </button>
+                </div>
+                <div class="card-body p-4">
+                    {% if producto.variantes %}
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
+                            {% for v in producto.variantes %}
+                                <div class="col">
+                                    <div class="p-3 bg-tekfix-card rounded border border-light shadow-xs h-100">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <span class="badge bg-tekfix-primary rounded-pill px-3">{{ v.nombre_variante }}</span>
+                                            <span class="fw-bold fs-5 text-tekfix-main">{{ v.cantidad_stock }} <small class="fw-normal text-muted" style="font-size: 0.7rem;">uds</small></span>
+                                        </div>
+                                        <div class="small text-tekfix-sec">
+                                            <div class="d-flex justify-content-between mt-2">
+                                                <span>Costo:</span>
+                                                <span class="text-danger">${{ (v.precio_costo or producto.precio_costo)|cop }}</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span>P. Sugerido:</span>
+                                                <span class="text-success fw-bold">${{ (v.precio_sugerido or producto.precio_sugerido)|cop }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4 opacity-75">
+                            <i class="fa-solid fa-boxes-stacked fs-2 mb-2 text-tekfix-sec"></i>
+                            <p class="text-tekfix-sec mb-0">Este producto no tiene variantes configuradas. Se gestiona como stock plano.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Re-utilizamos el mismo modal de gestión que está en el index -->
+<div class="modal fade" id="variantesModal{{ producto.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 bg-tekfix-card">
+                <h5 class="modal-title fw-bold text-tekfix-main">Gestión de Variantes - {{ producto.nombre }}</h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 text-start bg-tekfix-card rounded-bottom">
+                
+                <!-- Sección para Añadir Nueva Variante -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-3">
+                        <h6 class="fw-bold mb-3 text-tekfix-main"><i class="fa-solid fa-plus-circle text-success me-2"></i>Añadir Subcategoría Nueva</h6>
+                        <form method="POST" action="{{ url_for('inventory_bp.agregar_variante', id=producto.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-9">
+                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">Talla / Medida</label>
+                                    <input type="text" name="nombre_variante" class="form-control form-control-sm" placeholder="Ej: Talla M, Color Rojo..." required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">Stock Inicial</label>
+                                    <input type="number" name="cantidad_stock" class="form-control form-control-sm" placeholder="0" required min="0">
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">P. Costo</label>
+                                    <input type="text" name="precio_costo" class="form-control form-control-sm money-input" value="{{ "%.0f"|format(producto.precio_costo) }}" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">P. Mínimo</label>
+                                    <input type="text" name="precio_minimo" class="form-control form-control-sm money-input" value="{{ "%.0f"|format(producto.precio_minimo) }}" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold mb-1 text-tekfix-primary">P. Sugerido</label>
+                                    <input type="text" name="precio_sugerido" class="form-control form-control-sm money-input" value="{{ "%.0f"|format(producto.precio_sugerido) }}" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-sm fw-bold w-100 rounded-pill"><i class="fa-solid fa-plus me-1"></i> Registrar Subcategoría</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <h6 class="fw-bold mb-3 text-tekfix-main"><i class="fa-solid fa-boxes-stacked text-primary me-2"></i>Variantes Registradas</h6>
+                {% if producto.variantes %}
+                <div class="d-flex flex-column gap-3" style="max-height: 400px; overflow-y: auto;">
+                    {% for v in producto.variantes %}
+                    <div class="card border border-light shadow-sm bg-tekfix-card rounded-3">
+                        <div class="card-body p-3">
+                            <form method="POST" action="{{ url_for('inventory_bp.editar_variante', id=v.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <div class="row g-2 align-items-center mb-3">
+                                    <div class="col-8">
+                                        <input type="text" name="nombre_variante" class="form-control form-control-sm fw-bold" value="{{ v.nombre_variante }}" required>
+                                    </div>
+                                    <div class="col-4">
+                                        <input type="number" name="cantidad_stock" class="form-control form-control-sm text-center fw-bold text-primary" value="{{ v.cantidad_stock }}" required>
+                                    </div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <label class="form-label x-small text-muted mb-0">COSTO</label>
+                                        <input type="text" name="precio_costo" class="form-control form-control-sm money-input" value="{{ "%.0f"|format(v.precio_costo|float) if v.precio_costo else "%.0f"|format(producto.precio_costo|float) }}">
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="form-label x-small text-muted mb-0">MÍNIMO</label>
+                                        <input type="text" name="precio_minimo" class="form-control form-control-sm money-input" value="{{ "%.0f"|format(v.precio_minimo|float) if v.precio_minimo else "%.0f"|format(producto.precio_minimo|float) }}">
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="form-label x-small text-tekfix-primary mb-0">SUGERIDO</label>
+                                        <input type="text" name="precio_sugerido" class="form-control form-control-sm money-input fw-bold text-tekfix-primary" value="{{ "%.0f"|format(v.precio_sugerido|float) if v.precio_sugerido else "%.0f"|format(producto.precio_sugerido|float) }}">
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                                    <button type="button" class="btn btn-sm text-danger" onclick="if(confirm('¿Eliminar la subcategoría {{ v.nombre_variante }}?')) { document.getElementById('delVarForm{{ v.id }}').submit(); }">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                    <button type="submit" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                        Actualizar
+                                    </button>
+                                </div>
+                            </form>
+                            <form id="delVarForm{{ v.id }}" method="POST" action="{{ url_for('inventory_bp.eliminar_variante', id=v.id) }}" class="d-none">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function formatMoneyInput(input) {
+        let val = input.value.split('.')[0].replace(/[^\d]/g, '');
+        if (val) {
+            input.value = new Intl.NumberFormat('en-US').format(val);
+        } else {
+            input.value = '';
+        }
+    }
+
+    document.querySelectorAll('.money-input').forEach(input => {
+        if (input.value) formatMoneyInput(input);
+        input.addEventListener('input', function(e) {
+            formatMoneyInput(this);
+        });
+    });
+});
+</script>
 {% endblock %}
+

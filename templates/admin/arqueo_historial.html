@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex align-items-center mb-4">
+        <h2 class="fw-bold text-tekfix-main m-0"><i class="fa-solid fa-clock-rotate-left me-3 text-tekfix-primary"></i>Historial de Cierres de Caja</h2>
+        <div class="ms-auto">
+            <a href="{{ url_for('arqueo_bp.index') }}" class="btn btn-tekfix rounded-pill px-4 shadow-sm">
+                <i class="fa-solid fa-plus me-2"></i> Nuevo Arqueo
+            </a>
+        </div>
+    </div>
+
+    <div class="card bg-tekfix-card border-0 shadow-lg rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-custom mb-0">
+                    <thead class="bg-tekfix-input">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Fecha y Hora</th>
+                            <th>Base Inicial</th>
+                            <th>Total Ventas</th>
+                            <th>Gastos</th>
+                            <th>Efectivo Neto</th>
+                            <th class="text-center">Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cierre in cierres %}
+                        <tr>
+                            <td class="ps-4 fw-bold text-tekfix-primary">#{{ cierre.id }}</td>
+                            <td>
+                                <div class="text-tekfix-main fw-bold">{{ cierre.fecha_arqueo.strftime('%d/%m/%Y') }}</div>
+                                <small class="text-tekfix-sec">{{ cierre.fecha_creacion.strftime('%H:%M %p') }}</small>
+                            </td>
+                            <td class="text-tekfix-main">${{ (cierre.base_inicial)|cop }}</td>
+                            <td class="fw-bold text-tekfix-primary">${{ (cierre.total_ventas)|cop }}</td>
+                            <td class="text-danger">-${{ (cierre.gastos_del_dia)|cop }}</td>
+                            <td class="fw-bold text-success">${{ (cierre.total_efectivo_sistema)|cop }}</td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-tekfix rounded-pill px-3 btn-detalle" 
+                                        data-cierre='{{ {
+                                            "id": cierre.id,
+                                            "fecha": cierre.fecha_arqueo.strftime("%d/%m/%Y"),
+                                            "obs": cierre.observaciones_gastos,
+                                            "categorias": cierre.desglose_categorias,
+                                            "pagos": cierre.desglose_pagos
+                                        }|tojson }}'>
+                                    <i class="fa-solid fa-eye"></i> Ver
+                                </button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-tekfix-sec">
+                                <i class="fa-solid fa-folder-open fs-1 mb-3 d-block opacity-25"></i>
+                                No se han registrado cierres de caja aún.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalles -->
+<div class="modal fade" id="modalDetalle" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-tekfix-card border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 p-4 pb-0">
+                <h5 class="modal-title fw-bold text-tekfix-primary">Detalles del Cierre #<span id="modal-id"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-4">
+                    <h6 class="small fw-bold text-tekfix-sec text-uppercase mb-2">Observaciones</h6>
+                    <p class="text-tekfix-main mb-0 p-3 bg-tekfix-input rounded-3" id="modal-obs"></p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <h6 class="small fw-bold text-tekfix-sec text-uppercase mb-3">Ventas por Nicho</h6>
+                        <div id="modal-cat-list" class="small">
+                            <!-- JS -->
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h6 class="small fw-bold text-tekfix-sec text-uppercase mb-3">Ventas por Pago</h6>
+                        <div id="modal-pag-list" class="small">
+                            <!-- JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0 gap-2">
+                <button type="button" class="btn btn-outline-tekfix rounded-pill fw-bold px-4" id="btn-imprimir-cierre">
+                    <i class="fa-solid fa-print me-2"></i>Imprimir Comprobante
+                </button>
+                <button type="button" class="btn btn-tekfix-secondary flex-grow-1 rounded-pill fw-bold" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const formatCOP = (num) => "$" + new Intl.NumberFormat('en-US').format(Math.round(num || 0));
+    const modal = new bootstrap.Modal(document.getElementById('modalDetalle'));
+
+    document.querySelectorAll('.btn-detalle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const data = JSON.parse(btn.getAttribute('data-cierre'));
+            
+            document.getElementById('modal-id').innerText = data.id;
+            document.getElementById('modal-obs').innerText = data.obs || 'Sin observaciones';
+            
+            // Configurar botón de impresión
+            const btnPrint = document.getElementById('btn-imprimir-cierre');
+            btnPrint.onclick = () => {
+                window.open(`/arqueo/recibo/${data.id}`, '_blank');
+            };
+            
+            // Llenar Categorías
+            const catList = document.getElementById('modal-cat-list');
+            catList.innerHTML = '';
+            for (const [name, total] of Object.entries(data.categorias || {})) {
+                catList.innerHTML += `
+                    <div class="d-flex justify-content-between border-bottom border-tekfix-input py-2">
+                        <span class="text-tekfix-sec">${name}</span>
+                        <span class="text-tekfix-main fw-bold">${formatCOP(total)}</span>
+                    </div>
+                `;
+            }
+
+            // Llenar Pagos
+            const pagList = document.getElementById('modal-pag-list');
+            pagList.innerHTML = '';
+            for (const [metodo, total] of Object.entries(data.pagos || {})) {
+                pagList.innerHTML += `
+                    <div class="d-flex justify-content-between border-bottom border-tekfix-input py-2">
+                        <span class="text-tekfix-sec text-capitalize">${metodo}</span>
+                        <span class="text-tekfix-main fw-bold">${formatCOP(total)}</span>
+                    </div>
+                `;
+            }
+
+            modal.show();
+        });
+    });
+});
+</script>
+{% endblock %}

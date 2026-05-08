@@ -2,7 +2,18 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold text-tekfix-main m-0">Inventario Central</h2>
+    <div class="mb-4">
+        <h2 class="fw-bold text-tekfix-main m-0">Gestión de Inventario</h2>
+        <p class="text-tekfix-sec small mb-0"><i class="fa-solid fa-eye me-1"></i> {{ titulo_contexto }}</p>
+    </div>
+    {% if busqueda_activa %}
+        <div class="ms-3">
+            <span class="badge bg-tekfix-primary rounded-pill px-3 py-2">
+                <i class="fa-solid fa-filter me-1"></i> {{ busqueda_activa }}
+                <a href="/inventory" class="text-white ms-2"><i class="fa-solid fa-circle-xmark"></i></a>
+            </span>
+        </div>
+    {% endif %}
     <div class="d-flex gap-2">
         <button type="button" class="btn btn-outline-success rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#importarModal">
             <i class="fa-solid fa-file-excel me-1"></i> Importar Masivo
@@ -13,48 +24,51 @@
     </div>
 </div>
 
-<!-- KPIs / Tarjetas Informativas -->
+<!-- Valoración de Inventario (Panel Financiero) -->
 <div class="row g-3 mb-4">
-    <!-- Tarjeta 1: Unidades Totales -->
+    <!-- Tarjeta 1: Valor a Costo -->
     <div class="col-md-4">
-        <div class="card card-custom border-0 shadow-sm bg-tekfix-card h-100 p-3">
+        <div class="card card-custom border-0 shadow-sm bg-tekfix-card h-100 p-3" style="border-left: 4px solid #C59F60 !important;">
             <div class="d-flex align-items-center">
-                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; background-color: rgba(123, 200, 208, 0.15);">
-                    <i class="fa-solid fa-boxes-stacked fs-4 text-tekfix-primary"></i>
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 55px; height: 55px; background-color: rgba(197, 159, 96, 0.15);">
+                    <i class="fa-solid fa-coins fs-4" style="color: #C59F60;"></i>
                 </div>
                 <div>
-                    <h6 class="text-tekfix-sec fw-bold mb-1" style="font-size: 0.8rem; text-transform: uppercase;">Total Unidades</h6>
-                    <h3 class="fw-bold text-tekfix-main m-0">{{ total_unidades }} <span class="fs-6 fw-normal text-muted">uds</span></h3>
+                    <h6 class="text-tekfix-sec fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Valor a Costo</h6>
+                    <h3 class="fw-bold text-tekfix-main m-0">${{ total_costo|cop }}</h3>
+                    <small class="text-tekfix-sec">Inversión total en bodega</small>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Tarjeta 2: Costo Total -->
+    <!-- Tarjeta 2: Valor Potencial -->
     <div class="col-md-4">
-        <div class="card card-custom border-0 shadow-sm bg-tekfix-card h-100 p-3">
+        <div class="card card-custom border-0 shadow-sm bg-tekfix-card h-100 p-3" style="border-left: 4px solid #22c55e !important;">
             <div class="d-flex align-items-center">
-                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; background-color: rgba(220, 53, 69, 0.1);">
-                    <i class="fa-solid fa-money-bill-transfer fs-4 text-danger"></i>
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 55px; height: 55px; background-color: rgba(34, 197, 94, 0.15);">
+                    <i class="fa-solid fa-chart-line fs-4" style="color: #22c55e;"></i>
                 </div>
                 <div>
-                    <h6 class="text-tekfix-sec fw-bold mb-1" style="font-size: 0.8rem; text-transform: uppercase;">Costo Total Inventario</h6>
-                    <h3 class="fw-bold text-tekfix-main m-0">${{ valor_total_costo|cop }}</h3>
+                    <h6 class="text-tekfix-sec fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Valor Potencial</h6>
+                    <h3 class="fw-bold text-tekfix-main m-0">${{ total_potencial|cop }}</h3>
+                    <small class="text-tekfix-sec">Proyección de ventas</small>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tarjeta 3: Valor de Venta Esperado -->
+    <!-- Tarjeta 3: Unidades en Stock -->
     <div class="col-md-4">
-        <div class="card card-custom border-0 shadow-sm bg-tekfix-card h-100 p-3" style="border-left: 4px solid var(--tekfix-hover) !important;">
+        <div class="card card-custom border-0 shadow-sm bg-tekfix-card h-100 p-3" style="border-left: 4px solid #3b82f6 !important;">
             <div class="d-flex align-items-center">
-                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; background-color: rgba(221, 184, 86, 0.15);">
-                    <i class="fa-solid fa-cash-register fs-4" style="color: var(--tekfix-hover);"></i>
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 55px; height: 55px; background-color: rgba(59, 130, 246, 0.15);">
+                    <i class="fa-solid fa-boxes-stacked fs-4" style="color: #3b82f6;"></i>
                 </div>
                 <div>
-                    <h6 class="text-tekfix-sec fw-bold mb-1" style="font-size: 0.8rem; text-transform: uppercase;">Ventas Proyectadas</h6>
-                    <h3 class="fw-bold text-tekfix-main m-0">${{ valor_total_venta|cop }}</h3>
+                    <h6 class="text-tekfix-sec fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Unidades en Stock</h6>
+                    <h3 class="fw-bold text-tekfix-main m-0">{{ total_unidades }} <span class="fs-6 fw-normal text-muted">uds</span></h3>
+                    <small class="text-tekfix-sec">Ítems físicos disponibles</small>
                 </div>
             </div>
         </div>
@@ -99,7 +113,16 @@
                 {% for p in productos %}
                 <tr>
                     <td class="text-tekfix-sec"><small><strong>{{ p.sku }}</strong></small></td>
-                    <td class="fw-semibold text-tekfix-main">{{ p.nombre }}</td>
+                    <td class="fw-semibold text-tekfix-main">
+                        {{ p.nombre }}
+                        {% if p.atributos %}
+                            <div class="mt-1 d-flex flex-wrap gap-1">
+                                {% for k, v in p.atributos.items() %}
+                                    <span class="badge bg-tekfix-card text-tekfix-sec border fw-normal" style="font-size: 0.65rem;">{{ k }}: {{ v }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </td>
                     <td>
                         <!-- Regla Estricta: Badge rojo si el stock <= 3 -->
                         {% if p.total_stock <= 3 %}
@@ -110,15 +133,12 @@
 
                         {% if p.variantes %}
                             <div class="mt-2 pt-1 border-top">
-                                <div class="d-flex flex-column gap-1">
-                                    {% set t_order = ["S", "M", "L", "XL", "ÚNICA"] %}
-                                    {% for o_name in t_order %}
-                                        {% for v in p.variantes if v.nombre_variante.lower().replace('talla', '').replace(' ', '') == o_name.lower() %}
-                                            <div class="d-flex align-items-center gap-2 py-0 px-2 rounded-pill shadow-xs border" style="background-color: var(--tekfix-card-bg); border-color: var(--tekfix-border) !important; width: fit-content;">
-                                                <span class="fw-bold" style="font-size: 0.68rem; color: var(--tekfix-primary);">{{ o_name }}</span>
-                                                <span class="badge rounded-pill shadow-sm px-1 py-0" style="background-color: var(--tekfix-hover); color: #FFFFFF; font-size: 0.65rem; min-width: 20px;">{{ v.cantidad_stock }}</span>
-                                            </div>
-                                        {% endfor %}
+                                <div class="d-flex flex-wrap gap-1 mt-1">
+                                    {% for v in p.variantes %}
+                                        <div class="d-flex align-items-center gap-1 py-0 px-2 rounded-pill shadow-xs border" style="background-color: var(--tekfix-card-bg); border-color: var(--tekfix-border) !important; width: fit-content;" title="{{ v.nombre_variante }}">
+                                            <span class="fw-bold text-truncate" style="font-size: 0.65rem; color: var(--tekfix-primary); max-width: 60px;">{{ v.nombre_variante }}</span>
+                                            <span class="badge rounded-pill shadow-sm px-1 py-0" style="background-color: var(--tekfix-hover); color: #FFFFFF; font-size: 0.62rem; min-width: 18px;">{{ v.cantidad_stock }}</span>
+                                        </div>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -141,6 +161,11 @@
                         {% endif %}
                     </td>
                     <td class="text-center">
+                        {% if p.es_serializado %}
+                        <button type="button" class="btn btn-sm btn-outline-warning rounded-pill me-1" title="Gestionar Seriales (IMEI)" onclick="abrirModalSeriales({{ p.id }}, '{{ p.nombre }}')">
+                            <i class="fa-solid fa-barcode"></i>
+                        </button>
+                        {% endif %}
                         <button type="button" class="btn btn-sm btn-outline-primary rounded-pill hover-primary me-1" title="Gestionar Variantes" data-bs-toggle="modal" data-bs-target="#variantesModal{{ p.id }}">
                             <i class="fa-solid fa-layer-group"></i>
                         </button>
@@ -431,5 +456,131 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// --- Lógica de Gestión de Seriales ---
+let currentProductId = null;
+
+function abrirModalSeriales(productId, nombre) {
+    currentProductId = productId;
+    document.getElementById('serialModalLabel').innerText = `IMEIs Disponibles - ${nombre}`;
+    cargarSeriales();
+    const modal = new bootstrap.Modal(document.getElementById('serialManagementModal'));
+    modal.show();
+}
+
+async function cargarSeriales() {
+    const listEl = document.getElementById('seriales-list');
+    listEl.innerHTML = '<div class="text-center p-3"><div class="spinner-border spinner-border-sm text-tekfix-primary" role="status"></div></div>';
+    
+    try {
+        const res = await fetch(`/inventory/producto/${currentProductId}/seriales`);
+        const data = await res.json();
+        
+        listEl.innerHTML = '';
+        if (data.length === 0) {
+            listEl.innerHTML = '<p class="text-center text-tekfix-sec my-3 small">No hay seriales registrados.</p>';
+            return;
+        }
+
+        data.forEach(s => {
+            const isVendido = s.estado === 'vendido';
+            listEl.innerHTML += `
+                <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-tekfix-card rounded border ${isVendido ? 'opacity-50' : ''}">
+                    <div>
+                        <span class="fw-bold text-tekfix-main">${s.serial}</span>
+                        <span class="badge ${isVendido ? 'bg-danger' : 'bg-success'} ms-2" style="font-size: 0.6rem;">${s.estado.toUpperCase()}</span>
+                    </div>
+                    ${!isVendido ? `
+                        <button class="btn btn-sm text-danger" onclick="eliminarSerial(${s.id})">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+        });
+    } catch (e) {
+        listEl.innerHTML = '<p class="text-danger text-center">Error al cargar seriales.</p>';
+    }
+}
+
+async function agregarSerial() {
+    const input = document.getElementById('new-serial-input');
+    const serial = input.value.trim();
+    if (!serial) return;
+
+    const btn = document.getElementById('btn-add-serial');
+    btn.disabled = true;
+
+    const formData = new FormData();
+    formData.append('serial', serial);
+    formData.append('csrf_token', "{{ csrf_token() }}");
+
+    try {
+        const res = await fetch(`/inventory/producto/${currentProductId}/seriales/agregar`, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            input.value = '';
+            cargarSeriales();
+        } else {
+            alert(data.error || "Error al agregar serial");
+        }
+    } catch (e) {
+        alert("Error de conexión");
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+async function eliminarSerial(serialId) {
+    if (!confirm("¿Eliminar este serial del inventario?")) return;
+
+    const formData = new FormData();
+    formData.append('csrf_token', "{{ csrf_token() }}");
+
+    try {
+        const res = await fetch(`/inventory/seriales/eliminar/${serialId}`, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+            cargarSeriales();
+        } else {
+            alert(data.error || "Error al eliminar");
+        }
+    } catch (e) {
+        alert("Error de conexión");
+    }
+}
 </script>
+
+<!-- Modal Único de Gestión de Seriales -->
+<div class="modal fade" id="serialManagementModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-tekfix-card border-0 shadow-lg">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-tekfix-main" id="serialModalLabel">Gestión de Seriales</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group mb-4 shadow-sm">
+                    <input type="text" id="new-serial-input" class="form-control bg-tekfix-input border-0" placeholder="Escribe el nuevo IMEI/Serial..." onkeypress="if(event.key === 'Enter') agregarSerial()">
+                    <button class="btn btn-tekfix-primary px-3" type="button" id="btn-add-serial" onclick="agregarSerial()">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+                
+                <h6 class="fw-bold text-tekfix-sec small text-uppercase mb-3">Lista de Unidades Físicas</h6>
+                <div id="seriales-list" style="max-height: 300px; overflow-y: auto;">
+                    <!-- Se llena con JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
+

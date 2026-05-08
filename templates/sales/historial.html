@@ -95,36 +95,39 @@
     </div>
     {% endif %}
     
-    <!-- UI: Filtro de Fechas Oculto (Collapsible Bootstrap) -->
+    <!-- UI: Filtro de Fechas y Categorías Siempre Visible -->
     <div class="col-12 mt-2 mb-2 d-print-none">
-        <button class="btn btn-sm rounded-pill fw-bold border" type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse" style="border-color: var(--tekfix-border) !important; color: var(--tekfix-text-main);">
-            <i class="fa-solid fa-filter me-1"></i> Ver más filtros
-        </button>
-        
-        <div class="collapse mt-3" id="filtrosCollapse">
-            <div class="card card-custom p-4 bg-tekfix-card">
-                <form method="GET" action="{{ url_for('sales_bp.historial') }}" class="row align-items-end g-3">
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold text-tekfix-main small">Desde (Día)</label>
-                        <input type="date" name="fecha_inicio" class="form-control border-0 shadow-sm" value="{{ fecha_inicio or '' }}">
+        <div class="card card-custom p-4 bg-tekfix-card">
+            <form method="GET" action="{{ url_for('sales_bp.historial') }}" class="row align-items-end g-3">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold text-tekfix-main small">Desde (Día)</label>
+                    <input type="date" name="fecha_inicio" class="form-control border-0 shadow-sm" value="{{ fecha_inicio or '' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold text-tekfix-main small">Hasta (Límite)</label>
+                    <input type="date" name="fecha_fin" class="form-control border-0 shadow-sm" value="{{ fecha_fin or '' }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold text-tekfix-main small">Nicho / Categoría</label>
+                    <select name="categoria_id" class="form-select border-0 shadow-sm">
+                        <option value="">Todas las categorías</option>
+                        {% for cat in categorias %}
+                        <option value="{{ cat.id }}" {% if categoria_id|string == cat.id|string %}selected{% endif %}>{{ cat.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <!-- El botón manda la alerta GET en color predominante Turquesa -->
+                    <button type="submit" class="btn btn-tekfix-secondary w-100 rounded-3 shadow-sm fw-bold">
+                        <i class="fa-solid fa-magnifying-glass me-2"></i>Aplicar Filtros
+                    </button>
+                    {% if fecha_inicio or fecha_fin or categoria_id %}
+                    <div class="text-center mt-2">
+                        <a href="{{ url_for('sales_bp.historial') }}" class="text-tekfix-sec small text-decoration-none border-bottom border-secondary">Borrar Todos los Filtros</a>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label fw-bold text-tekfix-main small">Hasta (Límite)</label>
-                        <input type="date" name="fecha_fin" class="form-control border-0 shadow-sm" value="{{ fecha_fin or '' }}">
-                    </div>
-                    <div class="col-md-4">
-                        <!-- El botón manda la alerta GET en color predominante Turquesa -->
-                        <button type="submit" class="btn btn-tekfix-secondary w-100 rounded-3 shadow-sm fw-bold">
-                            <i class="fa-solid fa-magnifying-glass me-2"></i>Aplicar Filtros
-                        </button>
-                        {% if fecha_inicio or fecha_fin %}
-                        <div class="text-center mt-2">
-                            <a href="{{ url_for('sales_bp.historial') }}" class="text-tekfix-sec small text-decoration-none border-bottom border-secondary">Borrar Rango Analítico</a>
-                        </div>
-                        {% endif %}
-                    </div>
-                </form>
-            </div>
+                    {% endif %}
+                </div>
+            </form>
         </div>
     </div>
 </div>

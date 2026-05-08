@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4 animate__animated animate__fadeIn">
+    <!-- Cabecera -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <a href="{{ url_for('providers_bp.index') }}" class="btn btn-light rounded-circle me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <div>
+                <h2 class="fw-bold text-tekfix-main mb-1">{{ proveedor.nombre }}</h2>
+                <span class="badge bg-tekfix-primary rounded-pill px-3">{{ proveedor.empresa or 'Sin Empresa' }}</span>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-tekfix rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalFactura">
+                <i class="fa-solid fa-file-invoice me-2"></i>Ingresar Factura
+            </button>
+            <button class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalAbono">
+                <i class="fa-solid fa-hand-holding-dollar me-2"></i>Registrar Abono
+            </button>
+        </div>
+    </div>
+
+    <!-- Panel de Tarjetas de Resumen -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card card-custom border-0 shadow-sm p-4 text-center h-100">
+                <div class="text-tekfix-sec small fw-bold mb-2 text-uppercase letter-spacing-1">Total Facturado</div>
+                <div class="display-6 fw-bold text-tekfix-main">${{ total_facturado | cop }}</div>
+                <div class="small text-tekfix-border mt-2">Acumulado histórico</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-custom border-0 shadow-sm p-4 text-center h-100">
+                <div class="text-tekfix-sec small fw-bold mb-2 text-uppercase letter-spacing-1">Total Abonos</div>
+                <div class="display-6 fw-bold text-success">${{ total_abonos | cop }}</div>
+                <div class="small text-success opacity-75 mt-2">Pagos realizados</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-custom border-0 shadow-sm p-4 text-center h-100 bg-light">
+                <div class="text-tekfix-sec small fw-bold mb-2 text-uppercase letter-spacing-1">Saldo Pendiente</div>
+                <div class="display-6 fw-bold {{ 'text-danger' if saldo_pendiente > 0 else 'text-tekfix-main' }}">
+                    ${{ saldo_pendiente | cop }}
+                </div>
+                <div class="small mt-2 {{ 'text-danger' if saldo_pendiente > 0 else 'text-tekfix-sec' }}">
+                    {{ 'Deuda actual' if saldo_pendiente > 0 else 'Cuenta al día' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tablas Divididas (50-50) -->
+    <div class="row g-4">
+        <!-- Facturas Registradas -->
+        <div class="col-lg-6">
+            <div class="card card-custom border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 p-4 pb-0">
+                    <h5 class="fw-bold text-tekfix-main mb-0"><i class="fa-solid fa-receipt me-2 text-tekfix-primary"></i>Facturas Registradas</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 mt-3">
+                            <thead class="bg-light small">
+                                <tr>
+                                    <th class="ps-4">FECHA</th>
+                                    <th>N° FACTURA</th>
+                                    <th>MONTO</th>
+                                    <th class="pe-4 text-end">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody class="small">
+                                {% for f in facturas %}
+                                <tr>
+                                    <td class="ps-4 text-tekfix-sec">{{ f.fecha.strftime('%d/%m/%Y') }}</td>
+                                    <td class="fw-bold text-tekfix-main">{{ f.numero_factura or 'S/N' }}</td>
+                                    <td class="fw-bold">${{ f.monto | cop }}</td>
+                                    <td class="pe-4 text-end">
+                                        {% if f.comprobante_url %}
+                                        <a href="/static/uploads/providers/{{ f.comprobante_url }}" target="_blank" class="btn btn-sm btn-light rounded-circle" title="Ver Comprobante">
+                                            <i class="fa-solid fa-image"></i>
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-tekfix-border">No hay facturas registradas.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial de Abonos -->
+        <div class="col-lg-6">
+            <div class="card card-custom border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 p-4 pb-0">
+                    <h5 class="fw-bold text-tekfix-main mb-0"><i class="fa-solid fa-money-bill-wave me-2 text-success"></i>Historial de Abonos</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 mt-3">
+                            <thead class="bg-light small">
+                                <tr>
+                                    <th class="ps-4">FECHA</th>
+                                    <th>MONTO</th>
+                                    <th>OBSERVACIÓN</th>
+                                    <th class="pe-4 text-end">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody class="small">
+                                {% for a in abonos %}
+                                <tr>
+                                    <td class="ps-4 text-tekfix-sec">{{ a.fecha.strftime('%d/%m/%Y') }}</td>
+                                    <td class="fw-bold text-success">${{ a.monto | cop }}</td>
+                                    <td class="text-tekfix-sec">{{ a.observacion or 'Abono realizado' }}</td>
+                                    <td class="pe-4 text-end">
+                                        <a href="{{ url_for('providers_bp.imprimir_abono', id=a.id) }}" target="_blank" class="btn btn-sm btn-light rounded-circle" title="Imprimir Recibo">
+                                            <i class="fa-solid fa-print"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-4 text-tekfix-border">No hay abonos registrados.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ingresar Factura -->
+<div class="modal fade" id="modalFactura" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-bold text-tekfix-main">Cargar Nueva Factura</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('providers_bp.registrar_factura', id=proveedor.id) }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body py-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold text-tekfix-sec">N° de Factura</label>
+                            <input type="text" name="numero_factura" class="form-control rounded-3" placeholder="Ej: FV-001" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-bold text-tekfix-sec">Monto Total</label>
+                            <input type="number" name="monto" class="form-control rounded-3" placeholder="0.00" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-tekfix-sec">Descripción / Concepto</label>
+                        <textarea name="descripcion" class="form-control rounded-3" rows="2" placeholder="Ej: Compra de 50 protectores Cerámicos"></textarea>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label small fw-bold text-tekfix-sec">Foto del Comprobante (Opcional)</label>
+                        <input type="file" name="comprobante" class="form-control rounded-3" accept="image/*,.pdf">
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-tekfix-primary rounded-pill px-4 fw-bold">Guardar Factura</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Registrar Abono -->
+<div class="modal fade" id="modalAbono" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-bold text-tekfix-main">Registrar Abono / Pago</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('providers_bp.registrar_abono', id=proveedor.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body py-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-tekfix-sec">Monto del Abono</label>
+                        <input type="number" name="monto" class="form-control rounded-3" placeholder="0.00" required>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label small fw-bold text-tekfix-sec">Observación</label>
+                        <input type="text" name="observacion" class="form-control rounded-3" placeholder="Ej: Pago parcial factura FV-001">
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">Confirmar Pago</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .letter-spacing-1 { letter-spacing: 1px; }
+    .btn-outline-tekfix {
+        color: var(--tekfix-primary);
+        border-color: var(--tekfix-primary);
+    }
+    .btn-outline-tekfix:hover {
+        background-color: var(--tekfix-primary);
+        color: white;
+    }
+</style>
+{% endblock %}

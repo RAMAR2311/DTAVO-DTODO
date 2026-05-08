@@ -40,7 +40,7 @@
         <div class="row g-3 align-items-end">
             <div class="col-md-3">
                 <label class="form-label fw-bold text-tekfix-main">Tipo de Salida</label>
-                <select name="tipo_gasto" class="form-select bg-tekfix-card border-0" required>
+                <select name="tipo" class="form-select bg-tekfix-card border-0" required>
                     {% if current_user.rol == 'admin' %}
                     <option value="" selected disabled>Seleccionar tipo...</option>
                     <option value="Gasto Diario">Gasto Diario / Operativo</option>
@@ -72,7 +72,7 @@
             </div>
             <div class="col-md-2">
                 <label class="form-label fw-bold text-tekfix-main">Fecha</label>
-                <input type="date" name="fecha_gasto" class="form-control bg-tekfix-card border-0" value="{{ hoy }}" required>
+                <input type="date" name="fecha" class="form-control bg-tekfix-card border-0" value="{{ hoy }}" required>
             </div>
             <div class="col-md-10 mt-3">
                 <label class="form-label fw-bold text-tekfix-main">Nota o Descripción</label>
@@ -103,13 +103,13 @@
             <tbody>
                 {% for gasto in gastos %}
                 <tr>
-                    <td class="ps-4 text-tekfix-sec"><small>{{ gasto.fecha_gasto.strftime('%d/%m/%Y') }}</small></td>
+                    <td class="ps-4 text-tekfix-sec"><small>{{ gasto.fecha.strftime('%d/%m/%Y') }}</small></td>
                     <td><span class="text-tekfix-main fw-semibold"><i class="fa-solid fa-user-tie text-tekfix-sec me-1"></i>{{ gasto.usuario.nombre }}</span></td>
                     <td>
-                        {% if gasto.tipo_gasto == 'Gasto Diario' %}
-                            <span class="badge rounded-pill text-tekfix-main" style="background-color: var(--tekfix-primary);">{{ gasto.tipo_gasto }}</span>
+                        {% if gasto.tipo == 'Gasto Diario' %}
+                            <span class="badge rounded-pill text-tekfix-main" style="background-color: var(--tekfix-primary);">{{ gasto.tipo }}</span>
                         {% else %}
-                            <span class="badge rounded-pill text-tekfix-main" style="background-color: var(--tekfix-hover);">{{ gasto.tipo_gasto }}</span>
+                            <span class="badge rounded-pill text-tekfix-main" style="background-color: var(--tekfix-hover);">{{ gasto.tipo }}</span>
                         {% endif %}
                     </td>
                     <td class="fw-bold">{{ gasto.categoria }}</td>

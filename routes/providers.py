@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from flask_login import login_required
-from models import db, Provider, ProviderInvoice, ProviderPayment, obtener_hora_bogota
+from flask_login import login_required, current_user
+from models import db, Provider, ProviderInvoice, ProviderPayment, Expense, obtener_hora_bogota
 from decorators import admin_required
 from werkzeug.utils import secure_filename
 import os
@@ -52,15 +52,15 @@ def cuenta(id):
     proveedor = Provider.query.get_or_404(id)
     
     # Ordenar historial
-    facturas = ProviderInvoice.query.filter_by(provider_id=id).order_by(ProviderInvoice.fecha_factura.desc()).all()
-    abonos = ProviderPayment.query.filter_by(provider_id=id).order_by(ProviderPayment.fecha_pago.desc()).all()
+    facturas = ProviderInvoice.query.filter_by(proveedor_id=id).order_by(ProviderInvoice.fecha.desc()).all()
+    abonos = ProviderPayment.query.filter_by(proveedor_id=id).order_by(ProviderPayment.fecha.desc()).all()
     
     # Cálculo Principal de la Cuenta Corriente
-    total_facturado = sum(f.monto_total for f in facturas)
-    total_abonos = sum(a.monto_abonado for a in abonos)
+    total_facturado = sum(f.monto for f in facturas)
+    total_abonos = sum(a.monto for a in abonos)
     saldo_pendiente = float(total_facturado) - float(total_abonos)
     
-    return render_template('providers/cuenta.html', 
+    return render_template('providers/detail.html', 
                            proveedor=proveedor, 
                            facturas=facturas, 
                            abonos=abonos,
@@ -74,11 +74,11 @@ def cuenta(id):
 def registrar_factura(id):
     proveedor = Provider.query.get_or_404(id)
     
-    monto_total = float(request.form.get('monto_total', '0').replace(',', ''))
+    monto = float(request.form.get('monto', '0').replace(',', ''))
     numero_factura = request.form.get('numero_factura')
     descripcion = request.form.get('descripcion')
     
-    if monto_total <= 0:
+    if monto <= 0:
         flash('El monto de la factura debe ser mayor a 0.', 'danger')
         return redirect(url_for('providers_bp.cuenta', id=id))
         
@@ -92,11 +92,11 @@ def registrar_factura(id):
             file.save(filepath)
 
     nueva_factura = ProviderInvoice(
-        provider_id=id,
-        monto_total=monto_total,
+        proveedor_id=id,
+        monto=monto,
         numero_factura=numero_factura.strip() if numero_factura else None,
         descripcion=descripcion.strip() if descripcion else None,
-        comprobante=filename
+        comprobante_url=filename
     )
     
     db.session.add(nueva_factura)
@@ -110,23 +110,41 @@ def registrar_factura(id):
 def registrar_abono(id):
     proveedor = Provider.query.get_or_404(id)
     
-    monto_abonado = float(request.form.get('monto_abonado', '0').replace(',', ''))
+    monto = float(request.form.get('monto', '0').replace(',', ''))
     observacion = request.form.get('observacion')
     
-    if monto_abonado <= 0:
+    if monto <= 0:
         flash('El monto a abonar debe ser mayor a 0.', 'danger')
         return redirect(url_for('providers_bp.cuenta', id=id))
         
     nuevo_abono = ProviderPayment(
-        provider_id=id,
-        monto_abonado=monto_abonado,
+        proveedor_id=id,
+        monto=monto,
         observacion=observacion.strip() if observacion else None
     )
     
     db.session.add(nuevo_abono)
+    
+    # Integración con Gastos/Egresos (Sincronizado)
+    gasto_pago = Expense(
+        usuario_id=current_user.id,
+        tipo='Gasto Diario',
+        categoria='Pago a Proveedor',
+        descripcion=f"Abono a cuenta de {proveedor.nombre}. Ref: {observacion}",
+        monto=monto
+    )
+    db.session.add(gasto_pago)
+
     db.session.commit()
-    flash(f'Abono de ${monto_abonado} registrado exitosamente a favor de {proveedor.nombre}.', 'success')
+    flash(f'Abono de ${monto} registrado exitosamente a favor de {proveedor.nombre}.', 'success')
     return redirect(url_for('providers_bp.cuenta', id=id))
+
+@providers_bp.route('/abono/<int:id>/imprimir')
+@login_required
+@admin_required
+def imprimir_abono(id):
+    abono = ProviderPayment.query.get_or_404(id)
+    return render_template('providers/imprimir_abono.html', abono=abono, proveedor=abono.provider)
 
 @providers_bp.route('/eliminar/<int:id>', methods=['POST'])
 @login_required

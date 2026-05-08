@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprobante de Cierre #{{ arqueo.id }} - DTAVO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --paper-bg: #FFFFFF;
+            --paper-text: #1A1A1A;
+            --desktop-bg: #f0f2f5;
+        }
+        body {
+            background-color: var(--desktop-bg);
+            margin: 0;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            font-family: 'Roboto Mono', monospace;
+        }
+        .ticket {
+            background-color: var(--paper-bg);
+            width: 100%;
+            max-width: 380px;
+            padding: 25px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            color: var(--paper-text);
+            box-sizing: border-box;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px dashed #1A1A1A;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        .info {
+            font-size: 0.9rem;
+            margin: 5px 0;
+        }
+        .section-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin: 20px 0 10px 0;
+            text-align: center;
+            border-bottom: 1px solid #1A1A1A;
+            padding-bottom: 5px;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            padding: 4px 0;
+        }
+        .total-box {
+            margin-top: 20px;
+            background-color: #1A1A1A;
+            color: #FFFFFF;
+            padding: 12px;
+            text-align: center;
+            border-radius: 4px;
+        }
+        .total-box h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .footer {
+            text-align: center;
+            font-size: 0.8rem;
+            margin-top: 30px;
+            border-top: 1px dashed #ccc;
+            padding-top: 10px;
+        }
+        .btn-print {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #1A1A1A;
+            color: #FFFFFF;
+            border: none;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        @media print {
+            body { background: none; padding: 0; }
+            .ticket { box-shadow: none; width: 80mm; padding: 0; margin: 0; }
+            .btn-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="ticket">
+    <div class="header">
+        <h1 class="logo">DTAVO</h1>
+        <p class="info">COMPROBANTE DE CIERRE DIARIO</p>
+        <p class="info">Folio: #{{ arqueo.id }}</p>
+        <p class="info">Fecha: {{ arqueo.fecha_arqueo.strftime('%d/%m/%Y') }}</p>
+        <p class="info">Hora Cierre: {{ arqueo.fecha_creacion.strftime('%H:%M %p') }}</p>
+    </div>
+
+    <div class="section-title">RESUMEN GENERAL</div>
+    <div class="row">
+        <span>Base Inicial:</span>
+        <span>${{ (arqueo.base_inicial)|cop }}</span>
+    </div>
+    <div class="row">
+        <span>Total Ventas:</span>
+        <span>${{ (arqueo.total_ventas)|cop }}</span>
+    </div>
+    <div class="row">
+        <span>Gastos:</span>
+        <span style="color: red;">-${{ (arqueo.gastos_del_dia)|cop }}</span>
+    </div>
+
+    <div class="section-title">VENTAS POR NICHO</div>
+    {% for cat, total in arqueo.desglose_categorias.items() %}
+    <div class="row">
+        <span>{{ cat }}:</span>
+        <span>${{ (total)|cop }}</span>
+    </div>
+    {% endfor %}
+
+    <div class="section-title">DESGLOSE DE PAGOS</div>
+    {% for metodo, total in arqueo.desglose_pagos.items() %}
+    <div class="row">
+        <span style="text-transform: capitalize;">{{ metodo }}:</span>
+        <span>${{ (total)|cop }}</span>
+    </div>
+    {% endfor %}
+
+    <div class="total-box">
+        <small>EFECTIVO NETO EN CAJA</small>
+        <h2>${{ (arqueo.total_efectivo_sistema)|cop }}</h2>
+    </div>
+
+    {% if arqueo.observaciones_gastos %}
+    <div class="section-title">OBSERVACIONES</div>
+    <p style="font-size: 0.85rem; text-align: justify; margin: 0;">{{ arqueo.observaciones_gastos }}</p>
+    {% endif %}
+
+    <div class="footer">
+        <p>Cierre generado por: {{ current_user.nombre }}</p>
+        <p>DTAVO POS System - 2026</p>
+    </div>
+
+    <button class="btn-print" onclick="window.print()">[ IMPRIMIR COMPROBANTE ]</button>
+</div>
+
+<script>
+    window.onload = function() {
+        setTimeout(() => { window.print(); }, 500);
+    };
+</script>
+
+</body>
+</html>

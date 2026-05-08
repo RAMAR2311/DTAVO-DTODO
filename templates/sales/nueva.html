@@ -2,8 +2,9 @@
 
 {% block content %}
 <!-- Título de Pantalla Renombrado (Requerimento) -->
+<!-- Título de Pantalla Renombrado (Requerimento) -->
 <div class="d-flex align-items-center mb-4">
-    <h2 class="fw-bold text-tekfix-main m-0"><i class="fa-solid fa-cash-register me-2" style="color: var(--tekfix-hover);"></i>Caja Central</h2>
+    <h2 class="fw-bold text-tekfix-main m-0"><i class="fa-solid fa-cash-register me-2" style="color: var(--tekfix-primary);"></i>Caja Central</h2>
 </div>
 
 <div class="row">
@@ -11,18 +12,18 @@
     <div class="col-lg-8 mb-4">
         
         <!-- Panel de Escaneo -->
-        <div class="card card-custom p-4 mb-4">
-            <label class="form-label fw-bold text-tekfix-main">Buscar o Escanear Código</label>
+        <div class="card card-custom p-4 mb-4" style="background: var(--tekfix-card-bg); border: 1px solid var(--tekfix-border);">
+            <label class="form-label fw-bold text-tekfix-main mb-3">Buscar o Escanear Código</label>
             <div class="d-flex gap-2">
-                <div class="input-group input-group-lg shadow-sm border-0 rounded-3 overflow-visible flex-grow-1 position-relative">
-                    <span class="input-group-text bg-tekfix-card border-0"><i class="fa-solid fa-barcode text-tekfix-sec"></i></span>
-                    <input type="text" class="form-control border-0" id="sku_input" placeholder="Ingresa SKU o buscar por nombre..." autofocus autocomplete="off">
+                <div class="input-group input-group-lg shadow-sm border border-secondary rounded-3 overflow-visible flex-grow-1 position-relative">
+                    <span class="input-group-text bg-tekfix-input border-0"><i class="fa-solid fa-barcode text-tekfix-primary"></i></span>
+                    <input type="text" class="form-control border-0 bg-tekfix-input shadow-none text-white" id="sku_input" placeholder="Ingresa SKU, Nombre, IMEI o Talla..." autofocus autocomplete="off">
                     
                     <!-- Dropdown de autocompletado -->
-                    <ul class="dropdown-menu w-100 shadow border-0 mt-1" id="search_dropdown" style="display:none; position:absolute; top:100%; left:0; max-height:300px; overflow-y:auto; z-index:1050;">
+                    <ul class="dropdown-menu w-100 shadow-lg border border-secondary mt-1 bg-tekfix-card" id="search_dropdown" style="display:none; position:absolute; top:100%; left:0; max-height:400px; overflow-y:auto; z-index:1050;">
                         <!-- Resultados por JS -->
                     </ul>
-                    <!-- Botón Secundario Rosa Pastel -->
+                    <!-- Botón Dorado -->
                     <button class="btn btn-tekfix px-4" type="button" id="btn_add_product">
                         <i class="fa-solid fa-check ms-1"></i> Agregar
                     </button>
@@ -33,29 +34,51 @@
             </div>
         </div>
 
+        <!-- Filtros de Categoría -->
+        <div class="mb-3">
+            <h6 class="fw-bold text-tekfix-sec small text-uppercase mb-2"><i class="fa-solid fa-filter me-1"></i> Filtrar Catálogo:</h6>
+            <div class="category-scroll d-flex gap-2 overflow-auto pb-2">
+                <button class="btn btn-tekfix btn-sm rounded-pill px-3 cat-btn active" data-category="Todas">Todas</button>
+                {% for cat in categorias %}
+                <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 cat-btn text-white border-secondary" data-category="{{ cat }}">{{ cat }}</button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Grid de Productos (Catálogo Visual opcional) -->
+        <div class="mb-2 d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold text-tekfix-main m-0"><i class="fa-solid fa-layer-group me-2 text-tekfix-primary"></i>Catálogo de Productos</h6>
+            <button class="btn btn-sm btn-link text-tekfix-sec text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#visual-catalog-collapse">
+                <i class="fa-solid fa-chevron-down"></i> Mostrar/Ocultar
+            </button>
+        </div>
+        <div class="collapse show" id="visual-catalog-collapse">
+            <div class="product-grid mb-4" id="product-grid" style="max-height: 400px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;">
+                <!-- Rellenado por JS -->
+            </div>
+        </div>
+
         <!-- Tabla Carrito de Compras -->
-        <div class="card card-custom p-0 overflow-hidden">
+        <div class="card card-custom p-0 overflow-hidden" style="background: var(--tekfix-card-bg); border: 1px solid var(--tekfix-border);">
             <div class="table-responsive">
-                <table class="table table-custom mb-0 align-middle">
-                    <thead class="bg-tekfix-card">
-                        <tr>
-                            <th>Producto Seleccionado</th>
-                            <th class="text-center" width="130">Cantidad</th>
-                            <th class="text-end" width="160">Precio U.</th>
-                            <th class="text-end" width="120">Subtotal</th>
-                            <th class="text-center" width="70"></th>
+                <table class="table table-dark table-hover mb-0 align-middle">
+                    <thead style="background: var(--tekfix-input-bg);">
+                        <tr class="border-bottom border-secondary">
+                            <th class="py-3 ps-4 text-tekfix-primary">Producto Seleccionado</th>
+                            <th class="text-center py-3" width="130">Cantidad</th>
+                            <th class="text-end py-3" width="200">Precio U.</th>
+                            <th class="text-end py-3" width="120">Subtotal</th>
+                            <th class="text-center py-3 pe-4" width="70"></th>
                         </tr>
                     </thead>
                     <tbody id="cart_body">
                         <!-- ESPACIO RESERVADO PARA INYECCIÓN JS DINÁMICA -->
                         <tr>
                             <td colspan="5" class="text-center py-5 text-tekfix-sec" id="empty_cart_msg">
-                                <!-- Icono Rosa Pastel -->
                                 <i class="fa-solid fa-cart-arrow-down fs-2 mb-2 d-block text-tekfix-primary opacity-50"></i>
                                 La venta está vacía actualmente.
                             </td>
                         </tr>
-                        <!-- Fin items JS -->
                     </tbody>
                 </table>
             </div>
@@ -64,38 +87,27 @@
 
     <!-- Panel Vertical Cobro Total -->
     <div class="col-lg-4">
-        <div class="card card-custom p-4 position-sticky" style="top: 100px;">
-            <h4 class="fw-bold text-tekfix-main mb-4 pb-3 border-bottom">Balance</h4>
+        <div class="card card-custom p-4 position-sticky shadow-lg" style="top: 100px; background: var(--tekfix-card-bg); border: 1px solid var(--tekfix-border);">
+            <h4 class="fw-bold text-tekfix-main mb-4 pb-3 border-bottom border-secondary">Balance</h4>
             
             <div class="d-flex justify-content-between mb-3">
                 <span class="text-tekfix-sec fw-bold">Unidades Totales:</span>
-                <span class="fw-bold fs-5" id="total_items">0</span>
+                <span class="fw-bold fs-5 text-tekfix-main" id="total_items">0</span>
             </div>
             
             <div class="d-flex justify-content-between mb-4">
                 <span class="text-tekfix-sec fw-bold align-self-center">Total a Cobrar:</span>
-                <span class="fw-bolder fs-1" style="color: #C794C7;" id="total_amount">$0</span>
+                <span class="fw-bolder fs-1" style="color: var(--tekfix-primary); text-shadow: 0 0 15px rgba(197,159,96,0.2);" id="total_amount">$0</span>
             </div>
 
             {% if current_user.rol == 'admin' %}
-            <!-- Selector de Fecha de Venta (colapsable) exclusivo para Admin -->
             <div class="mb-3">
-                <div class="d-flex align-items-center justify-content-between">
-                    <small class="text-tekfix-sec fw-semibold"><i class="fa-regular fa-calendar me-1"></i> Fecha de Venta:</small>
-                    <button type="button" class="btn btn-sm btn-link text-decoration-none p-0" id="btn_toggle_fecha" onclick="toggleFechaVenta()">
-                        <span id="fecha_display_label" class="badge bg-tekfix-card text-tekfix-main border rounded-pill px-3 py-1" style="font-size: 0.8rem; cursor: pointer;">
-                            📅 Hoy
-                        </span>
-                    </button>
-                </div>
-                <div id="fecha_venta_container" style="display: none; margin-top: 8px;">
-                    <input type="date" id="fecha_venta_input" class="form-control form-control-sm" value="">
-                    <small class="form-text text-tekfix-sec"><i class="fa-solid fa-circle-info text-primary me-1"></i>Cambia la fecha para registrar ventas de días anteriores.</small>
-                </div>
+                <label class="form-label fw-bold small text-tekfix-main"><i class="fa-regular fa-calendar me-1"></i> Fecha de Venta:</label>
+                <input type="date" id="fecha_venta_input" class="form-control bg-tekfix-input border-secondary text-white" style="color-scheme: dark;">
             </div>
             {% endif %}
 
-            <hr class="mb-4">
+            <hr class="mb-4 border-secondary">
 
             <!-- Toggle: Pago Único vs Pago Dividido -->
             <div class="mb-3">
@@ -110,7 +122,7 @@
 
             <!-- Modo 1: Pago Único (por defecto) -->
             <div id="pago_unico_section">
-                <select id="metodo-pago" class="form-select form-select-lg border-0 shadow-sm bg-tekfix-card mb-3" style="cursor: pointer;">
+                <select id="metodo-pago" class="form-select form-select-lg border-0 shadow-sm bg-tekfix-input text-white mb-3" style="cursor: pointer;">
                     <option value="efectivo">💵 Efectivo</option>
                     <option value="nequi">📱 Nequi</option>
                     <option value="bancolombia">🏦 Bancolombia</option>
@@ -122,14 +134,14 @@
             <!-- Modo 2: Pago Dividido/Mixto (oculto por defecto) -->
             <div id="pago_mixto_section" style="display: none;">
                 <!-- Indicador visual del saldo restante -->
-                <div class="alert border shadow-sm py-2 px-3 mb-3" id="saldo_restante_alert" style="background-color: var(--tekfix-bg);">
+                <div class="alert border border-secondary shadow-sm py-2 px-3 mb-3 bg-tekfix-input">
                     <div class="d-flex justify-content-between align-items-center">
                         <small class="fw-bold text-tekfix-sec text-uppercase"><i class="fa-solid fa-scale-balanced me-1"></i> Saldo por cubrir:</small>
-                        <span class="fw-bolder fs-5" id="saldo_restante" style="color: var(--tekfix-primary);">$0</span>
+                        <span class="fw-bolder fs-5 text-tekfix-primary" id="saldo_restante">$0</span>
                     </div>
                     <!-- Barra de progreso visual -->
                     <div class="progress mt-2" style="height: 6px; border-radius: 10px; background-color: var(--tekfix-border);">
-                        <div class="progress-bar" id="barra_progreso_pago" role="progressbar" style="width: 0%; background: linear-gradient(90deg, #DDB856, #F9E491); border-radius: 10px;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar" id="barra_progreso_pago" role="progressbar" style="width: 0%; background: linear-gradient(90deg, var(--tekfix-primary), var(--tekfix-hover)); border-radius: 10px;"></div>
                     </div>
                 </div>
 
@@ -138,26 +150,41 @@
                     <!-- Se inyecta dinámicamente -->
                 </div>
 
-                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold w-100" id="btn_agregar_pago">
-                    <i class="fa-solid fa-plus me-1"></i> Agregar otro método de pago
+                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold w-100 text-tekfix-main border-secondary" id="btn_agregar_pago">
+                    <i class="fa-solid fa-plus me-1"></i> Agregar otro pago
                 </button>
             </div>
 
-            <!-- Botón de Cobro Masivo Azul Turquesa -->
+            <!-- Botón de Cobro -->
             <div class="d-grid gap-2 mt-4">
-                <button type="button" class="btn btn-tekfix-secondary btn-lg rounded-3 py-3 shadow-sm text-uppercase" id="btn_process_sale">
-                    <i class="fa-solid fa-credit-card me-2"></i> Procesar Cobro
+                <button type="button" class="btn btn-tekfix btn-lg rounded-3 py-3 shadow-sm text-uppercase" id="btn_process_sale">
+                    <i class="fa-solid fa-credit-card me-2"></i> Procesar Venta
                 </button>
-                <button type="button" class="btn btn-outline-secondary mt-2 fw-bold" id="btn_clear_cart">
+                <button type="button" class="btn btn-outline-secondary mt-2 fw-bold text-tekfix-sec border-secondary" id="btn_clear_cart">
                     Limpiar Venta
                 </button>
             </div>
         </div>
     </div>
 </div>
+        </div>
+    </div>
+</div>
 
-<!-- Estilos para animaciones del pago mixto -->
 <style>
+    .category-scroll { display: flex; overflow-x: auto; padding-bottom: 10px; gap: 10px; flex-shrink: 0; }
+    .category-scroll::-webkit-scrollbar { height: 6px; }
+    .category-scroll::-webkit-scrollbar-thumb { background: var(--tekfix-border); border-radius: 4px; }
+    .product-grid::-webkit-scrollbar { width: 8px; }
+    .product-grid::-webkit-scrollbar-thumb { background: var(--tekfix-border); border-radius: 4px; }
+    .product-card { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--tekfix-border); border-radius: 8px; overflow: hidden; background: var(--tekfix-card-bg); display: flex; flex-direction: column; height: 100%; min-height: 180px; }
+    .product-card:hover { transform: translateY(-2px); border-color: var(--tekfix-primary); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    .product-img { width: 100%; height: 80px; object-fit: contain; background: #2a2a2a; padding: 5px; border-bottom: 1px solid var(--tekfix-border); }
+    .product-info { padding: 8px; flex-grow: 1; display: flex; flex-direction: column; }
+    .product-title { font-weight: bold; font-size: 0.75rem; margin-bottom: 3px; color: var(--tekfix-text-main); line-height: 1.2; height: 2.4em; overflow: hidden; }
+    .product-price { color: var(--tekfix-primary); font-weight: 700; font-size: 0.9rem; margin-top: auto; }
+    .product-stock { font-size: 0.65rem; color: var(--tekfix-text-sec); }
+    
     #pago_mixto_section .pago-item {
         animation: slideDown 0.25s ease-out;
     }
@@ -168,12 +195,6 @@
     .form-check-input:checked {
         background-color: var(--tekfix-primary) !important;
         border-color: var(--tekfix-primary) !important;
-    }
-    #saldo_restante_alert.saldo-cubierto {
-        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
-    }
-    #saldo_restante_alert.saldo-excedido {
-        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%) !important;
     }
 </style>
 
@@ -231,23 +252,61 @@
 <script>
     let carrito = [];
     let pagosMixtos = []; // Array de {metodo_pago, monto}
+    const initialProducts = {{ productos_data | tojson if productos_data else '[]' }};
     const csrf_token = "{{ csrf_token() }}";
     const userRol = "{{ current_user.rol }}";
 
-    // Inicializar fecha de venta con la fecha de hoy (Solo Admin)
-    (function() {
-        const fechaInput = document.getElementById('fecha_venta_input');
-        if (!fechaInput) return; // Si no es admin, no existe en el DOM
-        
-        const hoy = new Date();
-        const yyyy = hoy.getFullYear();
-        const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-        const dd = String(hoy.getDate()).padStart(2, '0');
-        
-        fechaInput.value = `${yyyy}-${mm}-${dd}`;
-        fechaInput.max = `${yyyy}-${mm}-${dd}`; // No permitir fechas futuras
-        fechaInput.addEventListener('change', actualizarLabelFecha);
-    })();
+    // Inicializar Catálogo Visual
+    function renderizarCatalogo(filtro = 'Todas') {
+        const grid = document.getElementById('product-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        const productosFiltrados = filtro === 'Todas' 
+            ? initialProducts 
+            : initialProducts.filter(p => p.categoria === filtro);
+
+        productosFiltrados.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <div class="product-img">
+                    <img src="/static/uploads/${p.imagen}" style="width:100%; height:100%; object-fit:contain;" onerror="this.src='/static/images/default_product.png'">
+                </div>
+                <div class="product-info">
+                    <div class="product-title">${p.nombre}</div>
+                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                        <div class="product-price">${formatoCOP(p.precio_final)}</div>
+                        <div class="product-stock">Stock: ${p.cantidad_stock}</div>
+                    </div>
+                </div>
+            `;
+            card.addEventListener('click', () => {
+                document.getElementById('sku_input').value = p.sku;
+                buscarYAgregarProducto();
+            });
+            grid.appendChild(card);
+        });
+    }
+
+    // Listeners para filtros de categoría
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.cat-btn').forEach(b => {
+                b.classList.remove('btn-tekfix', 'active');
+                b.classList.add('btn-outline-secondary');
+            });
+            this.classList.remove('btn-outline-secondary');
+            this.classList.add('btn-tekfix', 'active');
+            renderizarCatalogo(this.dataset.category);
+        });
+    });
+
+    // Carga Inicial
+    window.addEventListener('DOMContentLoaded', () => {
+        renderizarCatalogo();
+        actualizarLabelFecha();
+    });
 
     function toggleFechaVenta() {
         const container = document.getElementById('fecha_venta_container');
@@ -303,32 +362,33 @@
         // Debounce para evitar saturar el servidor
         searchTimeout = setTimeout(async () => {
             try {
-                const res = await fetch(`/sales/api/search-stock?q=${encodeURIComponent(query)}`);
+                const res = await fetch(`/sales/api/pos/buscar?q=${encodeURIComponent(query)}`);
                 if (!res.ok) return;
                 const results = await res.json();
                 
                 searchDropdown.innerHTML = '';
                 
                 if (results.length === 0) {
-                    searchDropdown.innerHTML = `<li><span class="dropdown-item text-muted">No hay resultados para "${query}"</span></li>`;
+                    searchDropdown.innerHTML = `<li><span class="dropdown-item text-muted py-2 px-3">No hay resultados para "${query}"</span></li>`;
                 } else {
-                    // Usar un Set para evitar duplicados del mismo producto base
-                    const skusVistos = new Set();
                     results.forEach(item => {
-                        if (skusVistos.has(item.sku)) return;
-                        skusVistos.add(item.sku);
-
                         const li = document.createElement('li');
-                        const isOut = item.stock <= 0;
+                        const isOut = item.cantidad_stock <= 0;
                         li.innerHTML = `
-                            <a class="dropdown-item py-2 d-flex justify-content-between align-items-center ${isOut ? 'opacity-50' : ''}" href="#" style="cursor: pointer;">
+                            <a class="dropdown-item py-2 d-flex justify-content-between align-items-center ${isOut ? 'opacity-50' : ''}" href="#" style="cursor: pointer; border-bottom: 1px solid var(--tekfix-border);">
                                 <div>
-                                    <div class="fw-bold text-tekfix-main">${item.nombre}</div>
-                                    <small class="text-tekfix-sec">${item.sku}</small>
+                                    <div class="fw-bold text-white" style="font-size: 0.95rem;">${item.nombre}</div>
+                                    <div class="d-flex gap-2 align-items-center mt-1">
+                                        <span class="badge bg-secondary opacity-75" style="font-size: 0.65rem;">${item.sku}</span>
+                                        <span class="text-tekfix-primary small" style="font-size: 0.75rem;">${item.categoria}</span>
+                                    </div>
                                 </div>
-                                <span class="badge ${isOut ? 'bg-danger' : 'bg-tekfix-card text-tekfix-main border'} rounded-pill">
-                                    ${isOut ? 'Agotado' : 'Stock: ' + item.stock}
-                                </span>
+                                <div class="text-end">
+                                    <div class="fw-bold text-tekfix-primary">${formatoCOP(item.precio_final)}</div>
+                                    <span class="badge ${isOut ? 'bg-danger' : 'bg-success bg-opacity-25 text-success'} rounded-pill mt-1" style="font-size: 0.7rem;">
+                                        ${isOut ? 'Agotado' : 'Stock: ' + item.cantidad_stock}
+                                    </span>
+                                </div>
                             </a>
                         `;
                         li.addEventListener('click', (ev) => {

@@ -3,12 +3,20 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from datetime import datetime
 import pytz
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.mutable import MutableDict
 
 db = SQLAlchemy()
 
 def obtener_hora_bogota():
     """Inyecta el uso de red horario en Colombia a nivel de sistema operativo."""
     return datetime.now(pytz.timezone('America/Bogota')).replace(tzinfo=None)
+
+class Category(db.Model):
+    __tablename__ = 'categories'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False, unique=True)
+    descripcion = db.Column(db.String(255), nullable=True)
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -47,14 +55,36 @@ class Product(db.Model):
     nombre = db.Column(db.String(150), nullable=False)
     sku = db.Column(db.String(50), unique=True, nullable=False, index=True)
     tipo_inventario = db.Column(db.String(50), nullable=False, server_default='tienda') # 'tienda' o 'bodega'
-    cantidad_stock = db.Column(db.Integer, nullable=False, default=0)
-    precio_costo = db.Column(db.Numeric(14, 2), nullable=False, default=0.00) # El Costo de Bodega
-    precio_minimo = db.Column(db.Numeric(14, 2), nullable=False)
-    precio_sugerido = db.Column(db.Numeric(14, 2), nullable=False)
+    es_serializado = db.Column(db.Boolean, default=False)
+    _cantidad_stock_estatica = db.Column('cantidad_stock', db.Integer, nullable=False, default=0)
+    
+    # Precios
+    precio_costo = db.Column(db.Numeric(14, 2), nullable=False, default=0.00)
+    precio_minimo = db.Column(db.Numeric(14, 2), nullable=False, default=0.00)
+    precio_sugerido = db.Column(db.Numeric(14, 2), nullable=False, default=0.00)
+    
+    # Soporte Multitienda / Dinámico
+    categoria_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
+    atributos = db.Column(MutableDict.as_mutable(JSONB), nullable=True, server_default='{}')
+
+    @property
+    def cantidad_stock(self):
+        # Si el producto es serializado, contamos los seriales disponibles en la tabla relacionada
+        if self.es_serializado:
+            # Importación tardía para evitar circularidad si fuera necesario
+            return ProductSeries.query.filter_by(product_id=self.id, estado='disponible').count()
+        return self._cantidad_stock_estatica
+    
+    @cantidad_stock.setter
+    def cantidad_stock(self, value):
+        self._cantidad_stock_estatica = value
+
+    
     imagen = db.Column(db.String(255), nullable=True) # Nombre de la foto subida
     observacion = db.Column(db.Text, nullable=True) # Nota descriptiva
     fecha_creacion = db.Column(db.DateTime, default=obtener_hora_bogota)
     
+    categoria = db.relationship('Category', backref='productos', lazy=True)
     detalles_venta = db.relationship('SaleDetail', backref='producto', lazy=True)
     ajustes_stock = db.relationship('StockAdjustment', backref='producto_rel', lazy=True)
     variantes = db.relationship('ProductVariant', backref='producto', lazy=True, cascade="all, delete-orphan")
@@ -77,6 +107,18 @@ class Product(db.Model):
         if min_p == max_p:
             return min_p
         return (min_p, max_p)
+
+class ProductSeries(db.Model):
+    """Tabla para gestionar seriales/IMEIs individuales."""
+    __tablename__ = 'product_series'
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    serial = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    estado = db.Column(db.String(20), default='disponible', index=True) # 'disponible', 'vendido'
+    sale_detail_id = db.Column(db.Integer, db.ForeignKey('sale_details.id'), nullable=True)
+    
+    producto = db.relationship('Product', backref=db.backref('series', lazy=True, cascade="all, delete-orphan"))
+
 
 class ProductVariant(db.Model):
     __tablename__ = 'product_variants'
@@ -115,7 +157,11 @@ class Sale(db.Model):
     fecha_venta = db.Column(db.DateTime, default=obtener_hora_bogota)
     monto_total = db.Column(db.Numeric(14, 2), nullable=False, default=0.0)
     metodo_pago = db.Column(db.String(50), nullable=False, default='efectivo')
+    factura_fisica = db.Column(db.String(50), nullable=True) # Referencia a factura de talonario físico
+    cliente_id = db.Column(db.Integer, db.ForeignKey('pos_customers.id'), nullable=True)
+    categoria_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True) # Nicho de la venta (Celulares, Ropa, etc)
     
+    cliente = db.relationship('Customer', backref='compras', lazy=True)
     detalles = db.relationship('SaleDetail', backref='venta', lazy=True, cascade="all, delete-orphan")
     pagos = db.relationship('SalePayment', backref='venta', lazy=True, cascade="all, delete-orphan")
 
@@ -151,9 +197,17 @@ class SaleDetail(db.Model):
     variant_id = db.Column(db.Integer, db.ForeignKey('product_variants.id'), nullable=True)
     cantidad_vendida = db.Column(db.Integer, nullable=False)
     precio_venta_final = db.Column(db.Numeric(14, 2), nullable=False)
+    # Serial específico vendido (IMEI)
+    serial_vendido = db.Column(db.String(100), nullable=True)
+    # Nuevos campos para celulares/seriales
+    bateria = db.Column(db.String(50), nullable=True)
+    estado_producto = db.Column(db.String(100), nullable=True) # Nuevo, Seminuevo, Exhibición
+    tiempo_garantia = db.Column(db.String(100), nullable=True)
+    
     # Campos para productos manuales (prestados de otros locales)
     nombre_manual = db.Column(db.String(200), nullable=True)
     precio_costo_manual = db.Column(db.Numeric(14, 2), nullable=True)
+
 
     variante = db.relationship('ProductVariant', backref='ventas_rel', lazy=True)
 
@@ -175,10 +229,13 @@ class ArqueoCaja(db.Model):
     vendedor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     fecha_arqueo = db.Column(db.Date, nullable=False)
     base_inicial = db.Column(db.Numeric(14, 2), nullable=False, default=0.0)
+    total_ventas = db.Column(db.Numeric(14, 2), nullable=False, default=0.0)
     gastos_del_dia = db.Column(db.Numeric(14, 2), nullable=False, default=0.0)
     observaciones_gastos = db.Column(db.String(255), nullable=True)
     total_efectivo_sistema = db.Column(db.Numeric(14, 2), nullable=False, default=0.0)
     total_transferencia_sistema = db.Column(db.Numeric(14, 2), nullable=False, default=0.0)
+    desglose_categorias = db.Column(JSONB, nullable=True, server_default='{}')
+    desglose_pagos = db.Column(JSONB, nullable=True, server_default='{}')
     fecha_creacion = db.Column(db.DateTime, default=obtener_hora_bogota)
 
 class Maneo(db.Model):
@@ -197,15 +254,15 @@ class Maneo(db.Model):
     variante = db.relationship('ProductVariant', backref='maneos_rel', lazy=True)
 
 class Expense(db.Model):
-    __tablename__ = 'expenses'
+    __tablename__ = 'gastos'
     
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    tipo_gasto = db.Column(db.String(50), nullable=False) # 'Gasto Diario' o 'Costo Indirecto'
+    tipo = db.Column(db.String(50), nullable=False) # 'Gasto Diario' o 'Costo Indirecto'
     categoria = db.Column(db.String(100), nullable=False)
     descripcion = db.Column(db.String(255), nullable=True)
     monto = db.Column(db.Numeric(14, 2), nullable=False)
-    fecha_gasto = db.Column(db.DateTime, default=obtener_hora_bogota)
+    fecha = db.Column(db.DateTime, default=obtener_hora_bogota)
 
     usuario = db.relationship('User', backref='gastos', lazy=True)
 
@@ -277,37 +334,37 @@ class AbonoBodega(db.Model):
 
 # ====== MÓDULO PROVEEDORES (CUENTAS POR PAGAR) ======
 class Provider(db.Model):
-    __tablename__ = 'providers'
+    __tablename__ = 'proveedores'
 
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(150), nullable=False)
     empresa = db.Column(db.String(150), nullable=True)
     telefono = db.Column(db.String(50), nullable=True)
-    fecha_creacion = db.Column(db.DateTime, default=obtener_hora_bogota)
+    fecha_registro = db.Column(db.DateTime, default=obtener_hora_bogota)
 
     # Relaciones nativas con facturas y abonos
     facturas = db.relationship('ProviderInvoice', backref='provider', lazy=True, cascade='all, delete-orphan')
     abonos = db.relationship('ProviderPayment', backref='provider', lazy=True, cascade='all, delete-orphan')
 
 class ProviderInvoice(db.Model):
-    __tablename__ = 'provider_invoices'
+    __tablename__ = 'facturas_proveedor'
 
     id = db.Column(db.Integer, primary_key=True)
-    provider_id = db.Column(db.Integer, db.ForeignKey('providers.id'), nullable=False)
-    monto_total = db.Column(db.Numeric(14, 2), nullable=False)
+    proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedores.id'), nullable=False)
     numero_factura = db.Column(db.String(100), nullable=True)
     descripcion = db.Column(db.String(255), nullable=True)
-    comprobante = db.Column(db.String(255), nullable=True) # Archivo subido
-    fecha_factura = db.Column(db.DateTime, default=obtener_hora_bogota)
+    monto = db.Column(db.Numeric(14, 2), nullable=False)
+    comprobante_url = db.Column(db.String(255), nullable=True) # Archivo subido
+    fecha = db.Column(db.DateTime, default=obtener_hora_bogota)
 
 class ProviderPayment(db.Model):
-    __tablename__ = 'provider_payments'
+    __tablename__ = 'abonos_proveedor'
 
     id = db.Column(db.Integer, primary_key=True)
-    provider_id = db.Column(db.Integer, db.ForeignKey('providers.id'), nullable=False)
-    monto_abonado = db.Column(db.Numeric(14, 2), nullable=False)
+    proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedores.id'), nullable=False)
+    monto = db.Column(db.Numeric(14, 2), nullable=False)
     observacion = db.Column(db.String(255), nullable=True)
-    fecha_pago = db.Column(db.DateTime, default=obtener_hora_bogota)
+    fecha = db.Column(db.DateTime, default=obtener_hora_bogota)
 
 # ====== MÓDULO GARANTÍAS ======
 class Warranty(db.Model):
@@ -378,7 +435,7 @@ class Importacion(db.Model):
     __tablename__ = 'importaciones'
 
     id = db.Column(db.Integer, primary_key=True)
-    proveedor_id = db.Column(db.Integer, db.ForeignKey('providers.id'), nullable=False)
+    proveedor_id = db.Column(db.Integer, db.ForeignKey('proveedores.id'), nullable=False)
     numero_contenedor = db.Column(db.String(100), nullable=False)
     valor_contenedor = db.Column(db.Numeric(14, 2), nullable=False, default=0.00)
     valor_flete = db.Column(db.Numeric(14, 2), nullable=False, default=0.00)
@@ -526,3 +583,13 @@ class MovimientoCajaCartera(db.Model):
     concepto = db.Column(db.String(255), nullable=False)
     fecha_movimiento = db.Column(db.DateTime, default=obtener_hora_bogota)
     abono_id = db.Column(db.Integer, db.ForeignKey('abono_credito.id'), nullable=False)
+
+class Customer(db.Model):
+    __tablename__ = 'pos_customers'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    cedula = db.Column(db.String(20), unique=True, nullable=False, index=True)
+    nombre = db.Column(db.String(150), nullable=False)
+    telefono = db.Column(db.String(20), nullable=True)
+    correo = db.Column(db.String(120), nullable=True)
+    fecha_registro = db.Column(db.DateTime, default=obtener_hora_bogota)

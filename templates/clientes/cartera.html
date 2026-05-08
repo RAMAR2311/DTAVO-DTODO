@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h2 class="fw-bold text-tekfix-main m-0"><i class="fa-solid fa-wallet me-2 text-tekfix-primary"></i>Gestión de Cartera (Créditos)</h2>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('clientes_bp.index') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">
+            <i class="fa-solid fa-arrow-left me-2"></i>Volver al Directorio
+        </a>
+        <button class="btn btn-tekfix rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevoCliente">
+            <i class="fa-solid fa-user-plus me-2"></i>Nuevo Cliente Crédito
+        </a>
+    </div>
+</div>
+
+<div class="card card-custom border-0 shadow-sm overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-custom table-hover m-0">
+            <thead>
+                <tr>
+                    <th>Nombre Completo</th>
+                    <th>Teléfono</th>
+                    <th>Saldo Pendiente</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td class="fw-bold text-white">{{ cliente.nombre_completo }}</td>
+                    <td>{{ cliente.telefono }}</td>
+                    <td class="fw-bold text-tekfix-primary">${{ cliente.saldo_total | cop }}</td>
+                    <td>
+                        {% if cliente.estado_cartera == 'Al día' %}
+                        <span class="badge bg-success rounded-pill px-3">Al día</span>
+                        {% elif cliente.estado_cartera == 'Pendiente' %}
+                        <span class="badge bg-warning text-dark rounded-pill px-3">Pendiente</span>
+                        {% else %}
+                        <span class="badge bg-danger rounded-pill px-3">En mora</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <a href="{{ url_for('clientes_bp.perfil', id=cliente.id) }}" class="btn btn-sm btn-tekfix rounded-pill px-3">
+                            <i class="fa-solid fa-eye me-1"></i> Ver Perfil
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-tekfix-sec">
+                        <p class="m-0">No hay clientes con crédito registrados.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Nuevo Cliente Crédito -->
+<div class="modal fade" id="modalNuevoCliente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <form action="{{ url_for('clientes_bp.crear_cliente') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-header border-0 bg-tekfix-card pb-0">
+                    <h5 class="modal-title fw-bold text-tekfix-main">Nuevo Cliente Crédito</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-tekfix-sec">Nombre Completo</label>
+                        <input type="text" name="nombre_completo" class="form-control bg-tekfix-input border-0 text-white" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-tekfix-sec">Teléfono</label>
+                        <input type="text" name="telefono" class="form-control bg-tekfix-input border-0 text-white" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-tekfix rounded-pill px-4 fw-bold">Crear Cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

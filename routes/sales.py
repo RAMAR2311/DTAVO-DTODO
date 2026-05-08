@@ -1,6 +1,6 @@
-from flask import Blueprint, request, jsonify, flash, redirect, render_template, abort, url_for
+from flask import Blueprint, request, jsonify, flash, redirect, render_template, abort, url_for, session
 from flask_login import login_required, current_user
-from models import db, Product, ProductVariant, Sale, SaleDetail, SalePayment, Expense, DynamicKey, ProductExchange, obtener_hora_bogota
+from models import db, Product, ProductVariant, Sale, User, Maneo, SaleDetail, SalePayment, StockAdjustment, Expense, Loss, Provider, ProviderInvoice, ProviderPayment, Warranty, DynamicKey, Importacion, ClienteCartera, FacturaCredito, AbonoCredito, Category, ProductSeries, obtener_hora_bogota, Category, Customer
 from decorators import admin_required
 from decimal import Decimal
 from datetime import datetime, timedelta
@@ -15,7 +15,7 @@ sales_bp = Blueprint('sales_bp', __name__)
 @login_required # Importante: Te bloqueará el acceso si no hay current_user logeado (Flask-Login)
 def procesar_venta():
     if request.method == 'GET':
-        return render_template('sales/nueva.html')
+        return redirect(url_for('sales_bp.pos_visual'))
 
     """
     Se espera que los datos vengan en el cuerpo de la petición (JSON)
@@ -57,14 +57,41 @@ def procesar_venta():
         ultimo_consecutivo = db.session.query(func.max(Sale.consecutivo)).scalar() or 0
         siguiente_consecutivo = ultimo_consecutivo + 1
 
-        nueva_venta = Sale(
-            vendedor_id=current_user.id,
-            consecutivo=siguiente_consecutivo,
-            cliente_nombre=cliente_nombre,
-            monto_total=Decimal('0.00'),
-            metodo_pago=metodo_pago_principal,
-            fecha_venta=fecha_venta_obj
-        )
+        nueva_venta = Sale()
+        nueva_venta.vendedor_id = current_user.id
+        nueva_venta.consecutivo = siguiente_consecutivo
+        nueva_venta.cliente_nombre = cliente_nombre
+        nueva_venta.monto_total = Decimal('0.00')
+        nueva_venta.metodo_pago = metodo_pago_principal
+        nueva_venta.factura_fisica = data.get('factura_fisica')
+        nueva_venta.categoria_id = session.get('categoria_actual')
+        nueva_venta.fecha_venta = fecha_venta_obj
+        
+        # Procesar datos del cliente
+        cliente_data = data.get('cliente_data')
+        if cliente_data and cliente_data.get('cedula'):
+            cedula = str(cliente_data.get('cedula')).strip()
+            cliente = Customer.query.filter_by(cedula=cedula).first()
+            if not cliente:
+                cliente = Customer()
+                cliente.cedula = cedula
+                cliente.nombre = cliente_data.get('nombre', 'Consumidor Final')
+                cliente.telefono = cliente_data.get('telefono')
+                cliente.correo = cliente_data.get('correo')
+                
+                db.session.add(cliente)
+                db.session.flush()
+            else:
+                # Actualizar datos si han cambiado (opcional, pero útil)
+                cliente.nombre = cliente_data.get('nombre', cliente.nombre)
+                cliente.telefono = cliente_data.get('telefono', cliente.telefono)
+                cliente.correo = cliente_data.get('correo', cliente.correo)
+            
+            nueva_venta.cliente_id = cliente.id
+            nueva_venta.cliente_nombre = cliente.nombre
+        else:
+            nueva_venta.cliente_nombre = cliente_nombre
+
         db.session.add(nueva_venta)
         db.session.flush()
 
@@ -85,28 +112,26 @@ def procesar_venta():
                 nombre_manual = item.get('nombre_manual', 'Producto Externo')
                 precio_costo_manual = Decimal(str(item.get('precio_costo', '0.00')))
 
-                detalle = SaleDetail(
-                    sale_id=nueva_venta.id,
-                    product_id=None,
-                    variant_id=None,
-                    cantidad_vendida=cantidad_vendida,
-                    precio_venta_final=precio_venta_final,
-                    nombre_manual=nombre_manual,
-                    precio_costo_manual=precio_costo_manual
-                )
+                detalle = SaleDetail()
+                detalle.sale_id = nueva_venta.id
+                detalle.product_id = None
+                detalle.variant_id = None
+                detalle.cantidad_vendida = cantidad_vendida
+                detalle.precio_venta_final = precio_venta_final
+                detalle.nombre_manual = nombre_manual
+                detalle.precio_costo_manual = precio_costo_manual
                 db.session.add(detalle)
                 monto_total += (precio_venta_final * cantidad_vendida)
 
                 # Crear el gasto automático para descontar el ingreso prestado del balance final
                 if precio_costo_manual > 0:
-                    gasto_externo = Expense(
-                        usuario_id=current_user.id,
-                        tipo_gasto='Gasto Diario',
-                        categoria='Pago Prod. Externo',
-                        descripcion=f"Pago por producto manual prestado: {nombre_manual}",
-                        monto=(precio_costo_manual * cantidad_vendida),
-                        fecha_gasto=fecha_venta_obj
-                    )
+                    gasto_externo = Expense()
+                    gasto_externo.usuario_id = current_user.id
+                    gasto_externo.tipo = 'Gasto Diario'
+                    gasto_externo.categoria = 'Pago Prod. Externo'
+                    gasto_externo.descripcion = f"Pago por producto manual prestado: {nombre_manual}"
+                    gasto_externo.monto = (precio_costo_manual * cantidad_vendida)
+                    gasto_externo.fecha = fecha_venta_obj
                     db.session.add(gasto_externo)
             else:
                 # Producto del inventario propio
@@ -124,21 +149,46 @@ def procesar_venta():
                     variante.cantidad_stock -= cantidad_vendida
                     precio_limite_autorizado = variante.precio_costo if current_user.rol == 'admin' else variante.precio_minimo
                 else:
-                    if cantidad_vendida > producto.cantidad_stock:
-                        raise ValueError(f"Stock insuficiente para el producto '{producto.nombre}'. Solicitado: {cantidad_vendida}, Disponible: {producto.cantidad_stock}.")
-                    producto.cantidad_stock -= cantidad_vendida
+                    if producto.es_serializado:
+                        # Para productos serializados, el stock se maneja por la tabla de series
+                        if cantidad_vendida > producto.cantidad_stock:
+                             raise ValueError(f"Stock insuficiente de seriales para '{producto.nombre}'. Disponible: {producto.cantidad_stock}.")
+                    else:
+                        if cantidad_vendida > producto.cantidad_stock:
+                            raise ValueError(f"Stock insuficiente para '{producto.nombre}'. Solicitado: {cantidad_vendida}, Disponible: {producto.cantidad_stock}.")
+                        producto.cantidad_stock -= cantidad_vendida
+                    
                     precio_limite_autorizado = producto.precio_costo if current_user.rol == 'admin' else producto.precio_minimo
 
+                if not current_user.rol == 'admin' and precio_venta_final < precio_limite_autorizado:
+                    raise ValueError(f"Precio de venta para '{producto.nombre}' está por debajo del mínimo permitido.")
 
-                detalle = SaleDetail(
-                    sale_id=nueva_venta.id,
-                    product_id=producto.id,
-                    variant_id=variant_id,
-                    cantidad_vendida=cantidad_vendida,
-                    precio_venta_final=precio_venta_final
-                )
-                db.session.add(detalle)
+                detalle = SaleDetail()
+                detalle.sale_id = nueva_venta.id
+                detalle.product_id = producto.id
+                detalle.variant_id = variant_id
+                detalle.cantidad_vendida = cantidad_vendida
+                detalle.precio_venta_final = precio_venta_final
                 
+                # Manejo de Serial (IMEI) vinculado si viene del POS
+                serial_vinculado = item.get('serial_vinculado')
+                if serial_vinculado:
+                    ser = ProductSeries.query.filter_by(serial=serial_vinculado, product_id=product_id, estado='disponible').first()
+                    if ser:
+                        ser.estado = 'vendido'
+                        detalle.serial_vendido = serial_vinculado
+                        # Vincular detalles técnicos capturados en el POS
+                        detalle.bateria = item.get('bateria')
+                        detalle.estado_producto = item.get('condicion')
+                        detalle.tiempo_garantia = item.get('garantia')
+                        
+                        db.session.add(ser)
+                        db.session.flush() # Para obtener ID del detalle
+                        ser.sale_detail_id = detalle.id
+                    else:
+                        raise ValueError(f"El serial/IMEI '{serial_vinculado}' no está disponible o no pertenece a este producto.")
+                
+                db.session.add(detalle)
                 monto_total += (precio_venta_final * cantidad_vendida)
 
         nueva_venta.monto_total = monto_total
@@ -158,11 +208,10 @@ def procesar_venta():
             if monto_pago <= 0:
                 raise ValueError(f"El monto del pago por '{metodo}' debe ser mayor a 0.")
             
-            pago = SalePayment(
-                sale_id=nueva_venta.id,
-                metodo_pago=metodo,
-                monto=monto_pago
-            )
+            pago = SalePayment()
+            pago.sale_id = nueva_venta.id
+            pago.metodo_pago = metodo
+            pago.monto = monto_pago
             db.session.add(pago)
             total_pagos += monto_pago
 
@@ -187,15 +236,45 @@ def procesar_venta():
         db.session.rollback()
         return jsonify({'error': 'Ocurrió un error interno al procesar la venta.'}), 500
 
+@sales_bp.route('/api/clientes/buscar/<cedula>', methods=['GET'])
+@login_required
+def api_buscar_cliente(cedula):
+    cliente = Customer.query.filter_by(cedula=cedula).first()
+    if not cliente:
+        return jsonify({'error': 'Cliente no encontrado'}), 404
+    
+    return jsonify({
+        'id': cliente.id,
+        'cedula': cliente.cedula,
+        'nombre': cliente.nombre,
+        'telefono': cliente.telefono,
+        'correo': cliente.correo
+    })
+
 # Endpoint API asíncrono para el escáner del Punto de Venta
 @sales_bp.route('/api/producto/<path:sku>', methods=['GET'])
 @login_required
 def api_buscar_producto(sku):
-    producto = Product.query.filter_by(sku=sku, tipo_inventario='tienda').first()
+    # Búsqueda por SKU exacto o dentro de Atributos JSONB (IMEI, Serial, etc)
+    search_term = f"%{sku}%"
+    producto = Product.query.filter(
+        Product.tipo_inventario == 'tienda',
+        Product.categoria_id == session.get('categoria_actual'),
+        db.or_(
+            Product.sku == sku,
+            db.text("EXISTS (SELECT 1 FROM jsonb_each_text(products.atributos) WHERE value = :sku)").bindparams(sku=sku)
+        )
+    ).first()
     
     if not producto:
-        return jsonify({'error': 'Código SKU no encontrado en el sistema'}), 404
+        return jsonify({'error': 'Código SKU o IMEI no encontrado en el sistema'}), 404
         
+    # Lógica de banderas para el frontend
+    seriales_disponibles = [s for s in producto.series if s.estado == 'disponible'] if producto.series else []
+    tiene_seriales = len(seriales_disponibles) > 0
+    es_serializado = producto.es_serializado or tiene_seriales
+    requiere_imei = producto.categoria_id in [1, 6] or es_serializado
+
     return jsonify({
         'id': producto.id,
         'nombre': producto.nombre,
@@ -204,6 +283,8 @@ def api_buscar_producto(sku):
         'precio_minimo': float(producto.precio_minimo),
         'precio_limite': float(producto.precio_costo) if current_user.rol == 'admin' else float(producto.precio_minimo),
         'precio_sugerido': float(producto.precio_sugerido),
+        'es_serializado': es_serializado,
+        'requiere_imei': requiere_imei,
         'variantes': [{"id": v.id, "nombre": v.nombre_variante, "stock": v.cantidad_stock, "precio_minimo": float(v.precio_minimo or producto.precio_minimo), "precio_limite": float(v.precio_costo or producto.precio_costo) if current_user.rol == 'admin' else float(v.precio_minimo or producto.precio_minimo), "precio_sugerido": float(v.precio_sugerido or producto.precio_sugerido)} for v in producto.variantes]
     })
 
@@ -226,6 +307,7 @@ def historial():
     # Si existen los args, los usa, de lo contrario colapsa a HOY por defecto
     fecha_inicio = request.args.get('fecha_inicio', hoy_bogota)
     fecha_fin = request.args.get('fecha_fin', hoy_bogota)
+    categoria_id = request.args.get('categoria_id')
     
     # Optimización: eager loading (evita N+1 con joinedload)
     query = Sale.query.options(joinedload(Sale.vendedor))
@@ -239,8 +321,12 @@ def historial():
         fin_dt = datetime.strptime(fecha_fin, '%Y-%m-%d')
         # Sumar 1 día matemáticamente para incluir los registros hasta las 23:59:59 del último día
         query = query.filter(Sale.fecha_venta < fin_dt + timedelta(days=1))
+
+    if categoria_id:
+        query = query.filter(Sale.categoria_id == categoria_id)
         
     ventas = query.order_by(Sale.fecha_venta.desc()).all()
+    categorias = Category.query.all()
     
     # Auditar y cruzar sumatorios de métricas de pago
     # Sistema híbrido: usa SalePayment si existe, caso contrario cae al metodo_pago legacy
@@ -300,7 +386,9 @@ def historial():
                            total_transferencia_legacy=total_transferencia_legacy,
                            total_mixto=total_mixto,
                            fecha_inicio=fecha_inicio,
-                           fecha_fin=fecha_fin)
+                           fecha_fin=fecha_fin,
+                           categorias=categorias,
+                           categoria_id=categoria_id)
 
 
 # Endpoint para Anular/Eliminar Venta Histórica
@@ -361,217 +449,158 @@ def catalogo():
 @sales_bp.route('/pos_visual', methods=['GET'])
 @login_required
 def pos_visual():
-    # Obtener todos los productos de la tienda con stock > 0 para agilizar la venta visual
-    # Usamos joinedload para traer las variantes en la misma consulta
-    productos = Product.query.options(joinedload(Product.variantes)).filter_by(tipo_inventario='tienda').all()
+    # Obtener todos los productos de la tienda con relaciones cargadas
+    productos = Product.query.options(
+        joinedload(Product.variantes),
+        joinedload(Product.series)
+    ).filter_by(tipo_inventario='tienda').all()
     
-    # Dado que no hay un campo formal de categoría en el modelo actual, 
-    # inferimos las categorías a partir de la primera palabra del nombre del producto (ej: Saco, Buzo, Pantalón)
-    categorias_set = set()
-    for p in productos:
-        if p.nombre:
-            primera_palabra = p.nombre.strip().split(' ')[0].capitalize()
-            # Filtro básico para no llenar de categorías basura (palabras muy cortas)
-            if len(primera_palabra) > 2:
-                categorias_set.add(primera_palabra)
-                
-    categorias = sorted(list(categorias_set))
+    # Usar las categorías formales del modelo
+    categorias_obj = Category.query.order_by(Category.nombre).all()
+    categorias = [c.nombre for c in categorias_obj]
     
-    # Pre-estructurar los datos para enviarlos fácilmente como JSON al frontend
+    # Pre-estructurar los datos para enviarlos como JSON al frontend
     productos_data = []
     for p in productos:
-        cat_inferida = p.nombre.strip().split(' ')[0].capitalize() if p.nombre else 'Otros'
+        cat_nombre = p.categoria.nombre if p.categoria else 'Otros'
         
-        # Agregar el producto base
+        # Contar seriales disponibles reales
+        seriales_disponibles = [s for s in p.series if s.estado == 'disponible'] if p.series else []
+        tiene_variantes = len(p.variantes) > 0
+        tiene_seriales = len(seriales_disponibles) > 0
+        
+        # Lógica de banderas para el frontend
+        es_serializado = p.es_serializado or tiene_seriales
+        requiere_imei = p.categoria_id in [1, 6] or es_serializado
+        
         item = {
             'id': p.id,
             'sku': p.sku,
             'nombre': p.nombre,
-            'categoria': cat_inferida,
+            'categoria': cat_nombre,
             'precio_final': float(p.precio_sugerido),
+            'precio_minimo': float(p.precio_minimo),
             'cantidad_stock': p.cantidad_stock,
             'imagen': p.imagen,
-            'es_variante': False,
-            'variantes': []
-        }
-        
-        # Agregar variantes si tiene
-        if p.variantes:
-            for v in p.variantes:
-                item['variantes'].append({
+            'es_serializado': es_serializado,
+            'requiere_imei': requiere_imei,
+            'tiene_variantes': tiene_variantes,
+            'atributos': p.atributos or {},
+            'requiere_seleccion': tiene_variantes or tiene_seriales,
+            'variantes': [
+                {
                     'id': v.id,
                     'nombre_variante': v.nombre_variante,
-                    'precio_final': float(v.precio_sugerido or p.precio_sugerido),
-                    'cantidad_stock': v.cantidad_stock
-                })
-                
+                    'cantidad_stock': v.cantidad_stock,
+                    'precio_minimo': float(v.precio_minimo or p.precio_minimo),
+                    'precio_final': float(v.precio_sugerido or p.precio_sugerido)
+                } for v in p.variantes
+            ]
+        }
+        
         productos_data.append(item)
 
     return render_template('sales/pos_visual.html', categorias=categorias, productos_data=productos_data)
 
-# ========================================================
-# ====== API ENDPOINTS PARA GESTIÓN DE CAMBIOS ======
-# ========================================================
-
-@sales_bp.route('/api/search-invoices', methods=['GET'])
+@sales_bp.route('/pos')
+@sales_bp.route('/Pos')
 @login_required
-def search_invoices():
+def pos_alias():
+    return redirect(url_for('sales_bp.pos_visual'))
+
+@sales_bp.route('/api/pos/buscar', methods=['GET'])
+@login_required
+def pos_buscar_api():
     q = request.args.get('q', '').strip()
     if not q:
-        return jsonify([])
+        return jsonify({'tipo': 'lista', 'productos': []})
     
-    # Buscar por Consecutivo (Ticket #) o cliente
-    invoices = Sale.query.filter(
-        or_(
-            cast(Sale.consecutivo, String).ilike(f"%{q}%"),
-            Sale.cliente_nombre.ilike(f"%{q}%")
-        )
-    ).order_by(Sale.fecha_venta.desc()).limit(10).all()
+    tipo_inv = 'tienda'
     
-    return jsonify([{
-        'id': inv.id,
-        'factura': f"{inv.consecutivo:05d}" if inv.consecutivo else f"{inv.id:05d}",
-        'cliente': inv.cliente_nombre or 'Consumidor Final',
-        'fecha': inv.fecha_venta.strftime('%d/%m/%Y'),
-        'total': float(inv.monto_total) 
-    } for inv in invoices])
-
-@sales_bp.route('/api/invoice-details/<int:id>', methods=['GET'])
-@login_required
-def invoice_details(id):
-    sale = Sale.query.get_or_404(id)
-    details = []
-    for d in sale.detalles:
-        # Manejar nombre para productos normales y manuales
-        nombre_item = d.producto.nombre if d.producto else d.nombre_manual
-        
-        details.append({
-            'id': d.id,
-            'product_id': d.product_id,
-            'variant_id': d.variant_id,
-            'nombre': nombre_item or 'Producto sin nombre',
-            'variante': d.variante.nombre_variante if d.variante else 'Base',
-            'cantidad': d.cantidad_vendida,
-            'precio_final': float(d.precio_venta_final)
-        })
-    return jsonify(details)
-
-@sales_bp.route('/api/search-stock', methods=['GET'])
-@login_required
-def search_stock():
-    q = request.args.get('q', '').strip()
-    if not q:
-        return jsonify([])
-    
-    search_term = f"%{q}%"
-    
-    # Buscar productos base que no tienen variantes
-    products_base = Product.query.filter_by(tipo_inventario='tienda').filter(
-        or_(Product.sku.ilike(search_term), Product.nombre.ilike(search_term))
-    ).all()
-    
-    results = []
-    for p in products_base:
-        if not p.variantes:
-            results.append({
+    # 1. Búsqueda por SERIAL exacto disponible (Escáner de código de barras)
+    serial_match = ProductSeries.query.filter_by(serial=q, estado='disponible').first()
+    if serial_match:
+        p = serial_match.producto
+        # Para serial_exacto, devolvemos un objeto específico para agregarlo directo al carrito
+        return jsonify({
+            'tipo': 'serial_exacto',
+            'producto': {
                 'id': p.id,
-                'variant_id': None,
                 'sku': p.sku,
                 'nombre': p.nombre,
-                'variante': None,
-                'precio': float(p.precio_sugerido),
-                'stock': p.cantidad_stock
-            })
-        else:
-            for v in p.variantes:
-                # Búsqueda más flexible
-                if q.lower() in v.nombre_variante.lower() or q.lower() in p.nombre.lower() or q.lower() in p.sku.lower():
-                    results.append({
-                        'id': p.id,
-                        'variant_id': v.id,
-                        'sku': p.sku,
-                        'nombre': p.nombre,
-                        'variante': v.nombre_variante,
-                        'precio': float(v.precio_sugerido or p.precio_sugerido),
-                        'stock': v.cantidad_stock
-                    })
-    
-    return jsonify(results[:20])
-
-@sales_bp.route('/api/process-exchange', methods=['POST'])
-@login_required
-def process_exchange():
-    data = request.json
-    try:
-        sale_id = data.get('sale_id')
-        returned = data.get('returned_item')
-        new = data.get('new_item')
-        reason = data.get('reason')
-        perfect_state = data.get('perfect_state')
-        excedente = Decimal(str(data.get('excedente', 0)).replace(',', ''))
-        metodo_pago = data.get('metodo_pago')
-
-        # 1. Reversar Stock del producto que regresa (si está OK)
-        if perfect_state:
-            if returned.get('variant_id'):
-                var_ret = ProductVariant.query.get(returned['variant_id'])
-                if var_ret: var_ret.cantidad_stock += 1
-            else:
-                prod_ret = Product.query.get(returned['product_id'])
-                if prod_ret: prod_ret.cantidad_stock += 1
-
-        # 2. Disminuir Stock del producto nuevo que sale
-        if new.get('variant_id'):
-            var_new = ProductVariant.query.get(new['variant_id'])
-            if var_new: 
-                if var_new.cantidad_stock < 1:
-                    return jsonify({'error': 'No hay stock suficiente de la prenda nueva.'}), 400
-                var_new.cantidad_stock -= 1
-        else:
-            prod_new = Product.query.get(new['id'])
-            if prod_new:
-                if prod_new.cantidad_stock < 1:
-                    return jsonify({'error': 'No hay stock suficiente de la prenda nueva.'}), 400
-                prod_new.cantidad_stock -= 1
-
-        # 3. Registrar el Cambio en la base de datos
-        exchange = ProductExchange(
-            sale_id=sale_id,
-            admin_id=current_user.id,
-            product_returned_id=returned['product_id'],
-            variant_returned_id=returned['variant_id'],
-            product_new_id=new['id'],
-            variant_new_id=new['variant_id'],
-            reason=reason,
-            excedente_pagado=excedente,
-            metodo_pago_excedente=metodo_pago if excedente > 0 else None
-        )
-        db.session.add(exchange)
-        
-        db.session.commit()
-        return jsonify({'success': True})
-
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
-
-@sales_bp.route('/api/exchanges-history', methods=['GET'])
-@login_required
-def exchanges_history():
-    exchanges = ProductExchange.query.order_by(ProductExchange.created_at.desc()).all()
-    results = []
-    for ex in exchanges:
-        results.append({
-            'fecha': ex.created_at.strftime('%d/%m/%Y %H:%M'),
-            'sale_consecutivo': f"{ex.venta.consecutivo:05d}" if ex.venta.consecutivo else f"{ex.venta.id:05d}",
-            'admin': ex.admin.nombre,
-            'devuelto_nombre': ex.producto_devuelto.nombre if ex.producto_devuelto else 'Producto Externo',
-            'devuelto_variante': ex.variante_devuelta.nombre_variante if ex.variante_devuelta else 'Base',
-            'nuevo_nombre': ex.producto_nuevo.nombre if ex.producto_nuevo else 'Producto Externo',
-            'nuevo_variante': ex.variante_nueva.nombre_variante if ex.variante_nueva else 'Base',
-            'motivo': ex.reason,
-            'excedente': float(ex.excedente_pagado)
+                'precio_final': float(p.precio_sugerido),
+                'precio_minimo': float(p.precio_minimo),
+                'serial_vinculado': serial_match.serial,
+                'serie_id': serial_match.id,
+                'es_serializado': True,
+                'requiere_imei': True # Siempre abre el modal de detalles (batería, etc)
+            }
         })
-    return jsonify(results)
+
+    # 2. Búsqueda normal por Nombre o SKU
+    search_term = f"%{q}%"
+    productos = Product.query.filter(
+        Product.tipo_inventario == tipo_inv,
+        db.or_(
+            Product.nombre.ilike(search_term),
+            Product.sku.ilike(search_term),
+            db.text("EXISTS (SELECT 1 FROM jsonb_each_text(products.atributos) WHERE value ILIKE :q)").bindparams(q=search_term)
+        )
+    ).limit(20).all()
+
+    resultados = []
+    for p in productos:
+        cat_nombre = p.categoria.nombre if p.categoria else 'Otros'
+        
+        # Contar seriales disponibles reales
+        seriales_disponibles = [s for s in p.series if s.estado == 'disponible'] if p.series else []
+        tiene_seriales = len(seriales_disponibles) > 0
+        tiene_variantes = len(p.variantes) > 0
+        
+        # Lógica estricta de banderas para el Modal
+        es_serializado = p.es_serializado or tiene_seriales
+        requiere_imei = p.categoria_id in [1, 6] or es_serializado
+        
+        resultados.append({
+            'id': p.id,
+            'sku': p.sku,
+            'nombre': p.nombre,
+            'categoria': cat_nombre,
+            'precio_final': float(p.precio_sugerido),
+            'precio_minimo': float(p.precio_minimo),
+            'cantidad_stock': p.cantidad_stock,
+            'imagen': p.imagen or 'default_product.png',
+            'requiere_imei': requiere_imei,
+            'tiene_variantes': tiene_variantes,
+            'es_serializado': es_serializado,
+            'atributos': p.atributos or {},
+            'variantes': [
+                {
+                    'id': v.id,
+                    'nombre_variante': v.nombre_variante,
+                    'cantidad_stock': v.cantidad_stock,
+                    'precio_minimo': float(v.precio_minimo or p.precio_minimo),
+                    'precio_final': float(v.precio_sugerido or p.precio_sugerido)
+                } for v in p.variantes
+            ]
+        })
+
+    return jsonify({
+        'tipo': 'lista',
+        'productos': resultados
+    })
+
+# ========================================================
+# ====== API ENDPOINTS (DESACTIVADOS PARA ESQUELETO) ======
+# ========================================================
+
+@sales_bp.route('/api/search-invoices')
+@sales_bp.route('/api/invoice-details/<int:id>')
+@sales_bp.route('/api/search-stock')
+@sales_bp.route('/api/process-exchange', methods=['POST'])
+@sales_bp.route('/api/exchanges-history')
+@login_required
+def sales_modulo_desactivado(*args, **kwargs):
+    return jsonify({'error': 'Este módulo no está disponible en la versión simplificada.'}), 403
 
 

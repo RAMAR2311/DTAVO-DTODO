@@ -1,100 +1,134 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="fw-bold text-tekfix-main mb-0"><i class="fa-solid fa-address-book text-tekfix-primary me-2"></i> Directorio de Proveedores</h2>
-        <p class="text-tekfix-sec">Gestión de facturas y cuentas por pagar consolidadas.</p>
-    </div>
-    <div>
-        <button class="btn btn-tekfix fw-bold rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor">
+<div class="container-fluid py-4 animate__animated animate__fadeIn">
+    <!-- Cabecera -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-tekfix-main mb-1">Gestión de Proveedores</h2>
+            <p class="text-tekfix-sec mb-0">Administra tus cuentas por pagar y relaciones comerciales.</p>
+        </div>
+        <button class="btn btn-tekfix-primary rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor">
             <i class="fa-solid fa-plus me-2"></i>Nuevo Proveedor
         </button>
     </div>
-</div>
 
-<div class="card card-custom overflow-hidden border-0 shadow-sm p-0">
-    <div class="table-responsive p-0">
-        <table class="table table-hover table-custom align-middle m-0">
-            <thead>
-                <tr>
-                    <th class="ps-4">Compañía / Proveedor</th>
-                    <th>Teléfono</th>
-                    <th>Registrado</th>
-                    <th class="text-center pe-4">ACCIONES</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for prov in proveedores %}
-                <tr>
-                    <td class="ps-4 py-3">
-                        <span class="fw-bold text-tekfix-main">{{ prov.nombre }}</span>
-                        {% if prov.empresa %}
-                        <br><small class="text-tekfix-sec opacity-75"><i class="fa-solid fa-building me-1"></i>{{ prov.empresa }}</small>
-                        {% endif %}
-                    </td>
-                    <td>{{ prov.telefono or 'No registrado' }}</td>
-                    <td>{{ prov.fecha_creacion.strftime('%d/%m/%Y') }}</td>
-                    <td class="text-center pe-4">
-                        <div class="d-flex justify-content-center align-items-center gap-3">
-                            <a href="{{ url_for('providers_bp.cuenta', id=prov.id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold" style="border-color: var(--tekfix-border); color: var(--tekfix-text-main);">
-                                Ver Cuenta <i class="fa-solid fa-arrow-right ms-1"></i>
+    <!-- Tabla de Proveedores -->
+    <div class="card card-custom border-0 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 text-tekfix-main fw-bold small">NOMBRE</th>
+                        <th class="py-3 text-tekfix-main fw-bold small">EMPRESA</th>
+                        <th class="py-3 text-tekfix-main fw-bold small">TELÉFONO</th>
+                        <th class="py-3 text-tekfix-main fw-bold small text-center">REGISTRO</th>
+                        <th class="pe-4 py-3 text-tekfix-main fw-bold small text-end">ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in proveedores %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle bg-tekfix-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px; font-weight: 700;">
+                                    {{ p.nombre[0] | upper }}
+                                </div>
+                                <span class="fw-bold text-tekfix-main">{{ p.nombre }}</span>
+                            </div>
+                        </td>
+                        <td class="text-tekfix-sec">{{ p.empresa or 'N/A' }}</td>
+                        <td>
+                            <a href="tel:{{ p.telefono }}" class="text-decoration-none text-tekfix-primary fw-semibold">
+                                {{ p.telefono or '---' }}
                             </a>
-                            
-                            {% if current_user.rol == 'admin' %}
-                            <form action="{{ url_for('providers_bp.eliminar_proveedor', id=prov.id) }}" method="POST" onsubmit="return confirm('ATENCIÓN: Se eliminará este proveedor y TODO su historial de facturas y pagos. ¿Continuar?')" class="m-0">
-                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                <button type="submit" class="btn btn-sm text-danger hover-danger border-0 bg-transparent p-0" title="Eliminar Proveedor">
-                                    <i class="fa-solid fa-trash-can fs-5"></i>
+                        </td>
+                        <td class="text-center text-tekfix-sec small">
+                            {{ p.fecha_registro.strftime('%d/%m/%Y') }}
+                        </td>
+                        <td class="pe-4 text-end">
+                            <div class="btn-group">
+                                <a href="{{ url_for('providers_bp.cuenta', id=p.id) }}" class="btn btn-sm btn-outline-tekfix px-3 rounded-pill me-2">
+                                    <i class="fa-solid fa-file-invoice-dollar me-1"></i> Ver Cuenta
+                                </a>
+                                <button class="btn btn-sm btn-light text-danger rounded-circle" onclick="confirmDelete('{{ p.id }}', '{{ p.nombre }}')" title="Eliminar">
+                                    <i class="fa-solid fa-trash"></i>
                                 </button>
-                            </form>
-                            {% endif %}
-                        </div>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="4" class="text-center py-5">
-                        <i class="fa-solid fa-folder-open fs-1 mb-3 text-secondary opacity-50"></i>
-                        <p class="mb-0 text-tekfix-sec">El directorio está vacío. Comienza agregando un proveedor.</p>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                                <form id="delete-form-{{ p.id }}" action="{{ url_for('providers_bp.eliminar_proveedor', id=p.id) }}" method="POST" style="display: none;"></form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="fa-solid fa-truck-ramp-box fa-3x text-tekfix-border mb-3"></i>
+                            <p class="text-tekfix-sec">No hay proveedores registrados aún.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <!-- Modal Nuevo Proveedor -->
 <div class="modal fade" id="modalNuevoProveedor" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4 bg-tekfix-card">
-            <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="fw-bold text-white"><i class="fa-solid fa-user-plus me-2 text-tekfix-primary"></i>Alta de Proveedor</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-bold text-tekfix-main">Registrar Nuevo Proveedor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ url_for('providers_bp.crear') }}" method="POST">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                <div class="modal-body">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body py-4">
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-tekfix-main small">Nombre o Referencia</label>
-                        <input type="text" name="nombre" class="form-control form-control-lg bg-tekfix-card border-0 text-tekfix-main" placeholder="Ej: Juan Pérez" required>
+                        <label class="form-label small fw-bold text-tekfix-sec">Nombre del Contacto</label>
+                        <input type="text" name="nombre" class="form-control rounded-3" placeholder="Ej: Juan Pérez" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-tekfix-main small">Empresa (Opcional)</label>
-                        <input type="text" name="empresa" class="form-control form-control-lg bg-tekfix-card border-0 text-tekfix-main" placeholder="Ej: Tech Suplidor SAS">
+                        <label class="form-label small fw-bold text-tekfix-sec">Empresa / Distribuidora</label>
+                        <input type="text" name="empresa" class="form-control rounded-3" placeholder="Ej: Importadora Global S.A.S">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-tekfix-main small">Teléfono</label>
-                        <input type="text" name="telefono" class="form-control form-control-lg bg-tekfix-card border-0 text-tekfix-main" placeholder="Ej: 3001234567">
+                    <div class="mb-0">
+                        <label class="form-label small fw-bold text-tekfix-sec">Teléfono de Contacto</label>
+                        <input type="text" name="telefono" class="form-control rounded-3" placeholder="Ej: 300 123 4567">
                     </div>
                 </div>
-                <div class="modal-footer border-top-0 pt-0">
+                <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-tekfix rounded-pill px-4 fw-bold text-tekfix-main">Crear y Guardar</button>
+                    <button type="submit" class="btn btn-tekfix-primary rounded-pill px-4 fw-bold">Guardar Proveedor</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+function confirmDelete(id, nombre) {
+    if (confirm(`¿Estás seguro de eliminar al proveedor "${nombre}"? Se borrará todo su historial de facturas y abonos.`)) {
+        document.getElementById(`delete-form-${id}`).submit();
+    }
+}
+</script>
+
+<style>
+    .btn-outline-tekfix {
+        color: var(--tekfix-primary);
+        border-color: var(--tekfix-primary);
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    .btn-outline-tekfix:hover {
+        background-color: var(--tekfix-primary);
+        color: white;
+    }
+    .hover-lift {
+        transition: transform 0.2s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-5px);
+    }
+</style>
 {% endblock %}
