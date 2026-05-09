@@ -172,28 +172,6 @@
     </div>
 </div>
 
-<script>
-const modalEditar = new bootstrap.Modal(document.getElementById('modalEditar'));
-
-function openEditModal(id, nombre, email, telefono, rol) {
-    document.getElementById('edit-nombre').value = nombre;
-    document.getElementById('edit-email').value = email;
-    document.getElementById('edit-telefono').value = telefono;
-    document.getElementById('edit-rol').value = rol;
-    
-    // Ajustar el action del formulario dinámicamente
-    document.getElementById('edit-form').action = `/personal/editar/${id}`;
-    
-    modalEditar.show();
-}
-
-function confirmDelete(id, nombre) {
-    if (confirm(`¿Estás seguro de revocar el acceso a "${nombre}"? Esta acción no se puede deshacer.`)) {
-        document.getElementById(`delete-form-${id}`).submit();
-    }
-}
-</script>
-
 <style>
     .btn-outline-tekfix {
         color: var(--tekfix-primary);
@@ -211,4 +189,32 @@ function confirmDelete(id, nombre) {
         transform: translateY(-5px);
     }
 </style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Inicializar el modal cuando el DOM esté listo y Bootstrap cargado
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalEl = document.getElementById('modalEditar');
+        const modalEditar = new bootstrap.Modal(modalEl);
+
+        window.openEditModal = function(id, nombre, email, telefono, rol) {
+            document.getElementById('edit-nombre').value = nombre;
+            document.getElementById('edit-email').value = email;
+            document.getElementById('edit-telefono').value = telefono;
+            document.getElementById('edit-rol').value = rol;
+            
+            // Ajustar el action del formulario dinámicamente
+            document.getElementById('edit-form').action = `/personal/editar/${id}`;
+            
+            modalEditar.show();
+        };
+    });
+
+    function confirmDelete(id, nombre) {
+        if (confirm(`¿Estás seguro de revocar el acceso a "${nombre}"? Esta acción no se puede deshacer.`)) {
+            document.getElementById(`delete-form-${id}`).submit();
+        }
+    }
+</script>
 {% endblock %}
