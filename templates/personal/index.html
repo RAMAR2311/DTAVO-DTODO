@@ -99,13 +99,18 @@
                                     </td>
                                     <td class="pe-4 text-end">
                                         <div class="btn-group">
-                                            <button class="btn btn-sm btn-light rounded-circle me-1" 
-                                                    onclick='openEditModal({{ u.id | tojson }}, {{ u.nombre | tojson }}, {{ u.email | tojson }}, {{ (u.telefono or "") | tojson }}, {{ u.rol | tojson }})' 
+                                            <button class="btn btn-sm btn-light rounded-circle me-1 btn-edit-user" 
+                                                    data-id="{{ u.id }}"
+                                                    data-nombre="{{ u.nombre }}"
+                                                    data-email="{{ u.email }}"
+                                                    data-telefono="{{ u.telefono or '' }}"
+                                                    data-rol="{{ u.rol }}"
                                                     title="Editar">
                                                 <i class="fa-solid fa-pen-to-square text-tekfix-sec"></i>
                                             </button>
-                                            <button class="btn btn-sm btn-light rounded-circle" 
-                                                    onclick='confirmDelete({{ u.id | tojson }}, {{ u.nombre | tojson }})' 
+                                            <button class="btn btn-sm btn-light rounded-circle btn-delete-user" 
+                                                    data-id="{{ u.id }}"
+                                                    data-nombre="{{ u.nombre }}"
                                                     title="Eliminar">
                                                 <i class="fa-solid fa-trash-can text-danger"></i>
                                             </button>
@@ -195,28 +200,41 @@
 
 {% block scripts %}
 <script>
-    // Inicializar el modal cuando el DOM esté listo y Bootstrap cargado
     document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar el modal
         const modalEl = document.getElementById('modalEditar');
         const modalEditar = new bootstrap.Modal(modalEl);
 
-        window.openEditModal = function(id, nombre, email, telefono, rol) {
-            document.getElementById('edit-nombre').value = nombre;
-            document.getElementById('edit-email').value = email;
-            document.getElementById('edit-telefono').value = telefono;
-            document.getElementById('edit-rol').value = rol;
-            
-            // Ajustar el action del formulario dinámicamente
-            document.getElementById('edit-form').action = `/personal/editar/${id}`;
-            
-            modalEditar.show();
-        };
-    });
+        // Manejar clics en botones de editar
+        document.querySelectorAll('.btn-edit-user').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const nombre = this.getAttribute('data-nombre');
+                const email = this.getAttribute('data-email');
+                const telefono = this.getAttribute('data-telefono');
+                const rol = this.getAttribute('data-rol');
 
-    function confirmDelete(id, nombre) {
-        if (confirm(`¿Estás seguro de revocar el acceso a "${nombre}"? Esta acción no se puede deshacer.`)) {
-            document.getElementById(`delete-form-${id}`).submit();
-        }
-    }
+                document.getElementById('edit-nombre').value = nombre;
+                document.getElementById('edit-email').value = email;
+                document.getElementById('edit-telefono').value = telefono;
+                document.getElementById('edit-rol').value = rol;
+                
+                document.getElementById('edit-form').action = `/personal/editar/${id}`;
+                modalEditar.show();
+            });
+        });
+
+        // Manejar clics en botones de eliminar
+        document.querySelectorAll('.btn-delete-user').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const nombre = this.getAttribute('data-nombre');
+                
+                if (confirm(`¿Estás seguro de revocar el acceso a "${nombre}"? Esta acción no se puede deshacer.`)) {
+                    document.getElementById(`delete-form-${id}`).submit();
+                }
+            });
+        });
+    });
 </script>
 {% endblock %}
