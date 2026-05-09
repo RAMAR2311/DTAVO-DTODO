@@ -19,11 +19,12 @@
     .cart-header { padding: 12px 20px; border-bottom: 1px solid var(--tekfix-border); flex-shrink: 0; }
     
     .cart-items { 
-        flex: 1 1 auto; 
+        flex: 1 1 150px; 
         overflow-y: auto; 
-        padding: 10px 15px; 
+        padding: 5px 15px; 
         scrollbar-width: thin;
         scrollbar-color: var(--tekfix-border) transparent;
+        min-height: 120px;
     }
     .cart-items::-webkit-scrollbar { width: 6px; }
     .cart-items::-webkit-scrollbar-thumb { background: var(--tekfix-border); border-radius: 10px; }
@@ -36,12 +37,14 @@
     .cart-footer { 
         flex: 0 0 auto;
         margin-top: auto;
-        padding: 15px 20px; 
+        padding: 10px 15px; 
         background: var(--tekfix-card-bg); 
         border-top: 1px solid var(--tekfix-border); 
+        overflow-y: auto;
+        max-height: 75%;
     }
-    .cart-total-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.85rem; }
-    .cart-total-final { font-size: 1.6rem; font-weight: 900; color: var(--tekfix-primary); text-shadow: 0 0 15px rgba(197, 159, 96, 0.15); }
+    .cart-total-row { display: flex; justify-content: space-between; margin-bottom: 2px; font-size: 0.8rem; }
+    .cart-total-final { font-size: 1.4rem; font-weight: 900; color: var(--tekfix-primary); text-shadow: 0 0 15px rgba(197, 159, 96, 0.15); }
 
     .category-scroll { display: flex; overflow-x: auto; padding-bottom: 10px; gap: 10px; flex-shrink: 0; }
     .category-scroll::-webkit-scrollbar { height: 6px; }
@@ -144,46 +147,35 @@
                     <span class="cart-total-final" id="total-val">$0</span>
                 </div>
 
-                <!-- Factura Física (Independiente) -->
-                <div class="mb-2">
-                    <label class="form-label fw-bold small text-tekfix-primary mb-1"><i class="fa-solid fa-file-invoice me-1"></i>N° Factura Física:</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-tekfix-input border-0 text-tekfix-sec"><i class="fa-solid fa-hashtag"></i></span>
-                        <input type="text" id="factura-fisica" class="form-control border-0 shadow-sm bg-tekfix-input text-tekfix-main" placeholder="Ej: TAL-001" autocomplete="off">
-                    </div>
-                </div>
-
-                <!-- Datos del Cliente -->
+                <!-- Factura Física y Datos del Cliente Compactos -->
                 <div class="card bg-tekfix-input border-0 shadow-sm rounded-4 mb-2">
                     <div class="card-body p-2">
-                        <h6 class="fw-bold text-tekfix-primary mb-2 small"><i class="fa-solid fa-user-tag me-2"></i>Datos del Cliente</h6>
-                        <div class="row g-1">
-                            <div class="col-6">
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text bg-tekfix-input border-0 text-tekfix-sec p-1"><i class="fa-solid fa-id-card"></i></span>
-                                    <input type="text" id="cliente-cedula" class="form-control bg-tekfix-input border-0 text-tekfix-main p-1" placeholder="Cédula/NIT" autocomplete="off" style="font-size: 0.75rem;">
-                                </div>
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-5">
+                                <label class="form-label fw-bold small text-tekfix-primary mb-0" style="font-size: 0.65rem;">N° FACTURA</label>
+                                <input type="text" id="factura-fisica" class="form-control form-control-sm border-0 bg-tekfix-bg text-tekfix-main fw-bold" placeholder="#" autocomplete="off" style="font-size: 0.75rem;">
                             </div>
-                            <div class="col-6">
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text bg-tekfix-input border-0 text-tekfix-sec p-1"><i class="fa-solid fa-phone"></i></span>
-                                    <input type="text" id="cliente-telefono" class="form-control bg-tekfix-input border-0 text-tekfix-main p-1" placeholder="Teléfono" style="font-size: 0.75rem;">
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="input-group input-group-sm" id="cliente-nombre-wrapper">
-                                    <span class="input-group-text bg-tekfix-input border-0 text-tekfix-sec p-1"><i class="fa-solid fa-user"></i></span>
-                                    <input type="text" id="cliente-nombre" class="form-control bg-tekfix-input border-0 text-tekfix-main p-1" placeholder="Nombre Completo" style="font-size: 0.75rem;">
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text bg-tekfix-input border-0 text-tekfix-sec p-1"><i class="fa-solid fa-envelope"></i></span>
-                                    <input type="email" id="cliente-correo" class="form-control bg-tekfix-input border-0 text-tekfix-main p-1" placeholder="Correo" style="font-size: 0.75rem;">
-                                </div>
+                            <div class="col-7">
+                                <label class="form-label fw-bold small text-tekfix-primary mb-0" style="font-size: 0.65rem;">CÉDULA / NIT</label>
+                                <input type="text" id="cliente-cedula" class="form-control form-control-sm border-0 bg-tekfix-bg text-tekfix-main" placeholder="Buscar cliente..." autocomplete="off" style="font-size: 0.75rem;">
                             </div>
                         </div>
-                        <div id="cliente-status" class="small mt-2" style="display:none;"></div>
+
+                        <div class="row g-2 mb-1">
+                            <div class="col-12">
+                                <input type="text" id="cliente-nombre" class="form-control form-control-sm border-0 bg-tekfix-bg text-tekfix-main" placeholder="Nombre del Cliente" style="font-size: 0.75rem;">
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mb-0">
+                            <div class="col-6">
+                                <input type="text" id="cliente-telefono" class="form-control form-control-sm border-0 bg-tekfix-bg text-tekfix-main" placeholder="Teléfono" style="font-size: 0.7rem;">
+                            </div>
+                            <div class="col-6">
+                                <input type="email" id="cliente-correo" class="form-control form-control-sm border-0 bg-tekfix-bg text-tekfix-main" placeholder="Correo" style="font-size: 0.7rem;">
+                            </div>
+                        </div>
+                        <div id="cliente-status" class="small mt-1" style="display:none; font-size: 0.65rem;"></div>
                     </div>
                 </div>
 
@@ -215,25 +207,24 @@
                 </div>
 
                 <!-- Modo 2: Pago Dividido/Mixto (oculto por defecto) -->
-                <div id="pago_mixto_section" style="display: none;" class="mb-3">
+                <div id="pago_mixto_section" style="display: none;" class="mb-2">
                     <!-- Indicador visual del saldo restante -->
-                    <div class="alert border border-secondary shadow-sm py-2 px-3 mb-2 bg-tekfix-input">
+                    <div class="alert border border-secondary py-1 px-2 mb-2 bg-tekfix-input">
                         <div class="d-flex justify-content-between align-items-center">
-                            <small class="fw-bold text-tekfix-sec text-uppercase" id="saldo_label"><i class="fa-solid fa-scale-balanced me-1"></i> Saldo por cubrir:</small>
-                            <span class="fw-bolder fs-5 text-tekfix-primary" id="saldo_restante">$0</span>
+                            <small class="fw-bold text-tekfix-sec" id="saldo_label" style="font-size: 0.65rem;">SALDO:</small>
+                            <span class="fw-bolder text-tekfix-primary" id="saldo_restante" style="font-size: 1rem;">$0</span>
                         </div>
-                        <!-- Barra de progreso visual -->
-                        <div class="progress mt-2" style="height: 6px; border-radius: 10px; background-color: var(--tekfix-border);">
-                            <div class="progress-bar" id="barra_progreso_pago" role="progressbar" style="width: 0%; background: linear-gradient(90deg, var(--tekfix-primary), var(--tekfix-hover)); border-radius: 10px;"></div>
+                        <div class="progress mt-1" style="height: 4px; border-radius: 10px; background-color: var(--tekfix-border);">
+                            <div class="progress-bar" id="barra_progreso_pago" role="progressbar" style="width: 0%; background: var(--tekfix-primary); border-radius: 10px;"></div>
                         </div>
                     </div>
 
                     <!-- Lista dinámica de pagos parciales -->
-                    <div id="pagos_list" class="d-flex flex-column gap-2 mb-2">
+                    <div id="pagos_list" class="d-flex flex-column gap-1 mb-2">
                         <!-- Se inyecta dinámicamente -->
                     </div>
 
-                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold w-100" id="btn_agregar_pago">
+                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold w-100 py-1" id="btn_agregar_pago" style="font-size: 0.7rem;">
                         <i class="fa-solid fa-plus me-1"></i> Agregar otro pago
                     </button>
                 </div>
@@ -374,7 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         filtrados.forEach(p => {
-            const imgPath = p.imagen && p.imagen !== 'default_product.png' ? `/static/uploads/productos/${p.imagen}` : 'https://placehold.co/300x300/f8f9fa/a3a3a3?text=Sin+Imagen';
+            const imgPath = p.imagen && p.imagen !== 'default_product.png' ? `/static/uploads/${p.imagen}` : 'https://placehold.co/300x300/f8f9fa/a3a3a3?text=Sin+Imagen';
             const totalStock = (p.cantidad_stock || 0) + (p.variantes ? p.variantes.reduce((sum, v) => sum + (v.cantidad_stock || 0), 0) : 0);
             const precio = p.precio_final || 0;
             
