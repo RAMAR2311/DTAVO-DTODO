@@ -100,11 +100,13 @@
                                     <td class="pe-4 text-end">
                                         <div class="btn-group">
                                             <button class="btn btn-sm btn-light rounded-circle me-1" 
-                                                    onclick="openEditModal('{{ u.id }}', '{{ u.nombre }}', '{{ u.email }}', '{{ u.telefono or '' }}', '{{ u.rol }}')" 
+                                                    onclick='openEditModal({{ u.id | tojson }}, {{ u.nombre | tojson }}, {{ u.email | tojson }}, {{ (u.telefono or "") | tojson }}, {{ u.rol | tojson }})' 
                                                     title="Editar">
                                                 <i class="fa-solid fa-pen-to-square text-tekfix-sec"></i>
                                             </button>
-                                            <button class="btn btn-sm btn-light rounded-circle" onclick="confirmDelete('{{ u.id }}', '{{ u.nombre }}')" title="Eliminar">
+                                            <button class="btn btn-sm btn-light rounded-circle" 
+                                                    onclick='confirmDelete({{ u.id | tojson }}, {{ u.nombre | tojson }})' 
+                                                    title="Eliminar">
                                                 <i class="fa-solid fa-trash-can text-danger"></i>
                                             </button>
                                             <form id="delete-form-{{ u.id }}" action="{{ url_for('personal_bp.eliminar', id=u.id) }}" method="POST" style="display: none;">
