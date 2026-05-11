@@ -48,9 +48,9 @@
                     <td>{{ cliente.correo or '---' }}</td>
                     <td class="small text-tekfix-sec">{{ cliente.fecha_registro.strftime('%d/%m/%Y') }}</td>
                     <td class="text-center">
-                        <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" disabled>
+                        <a href="{{ url_for('clientes_bp.ver_compras', id=cliente.id) }}" class="btn btn-sm btn-outline-tekfix rounded-pill px-3">
                             <i class="fa-solid fa-eye me-1"></i> Ver Compras
-                        </button>
+                        </a>
                     </td>
                 </tr>
                 {% else %}
@@ -65,4 +65,16 @@
         </table>
     </div>
 </div>
+
+<style>
+    .btn-outline-tekfix {
+        color: var(--tekfix-primary);
+        border: 2px solid var(--tekfix-primary);
+        transition: all 0.3s ease;
+    }
+    .btn-outline-tekfix:hover {
+        background-color: var(--tekfix-primary);
+        color: white;
+    }
+</style>
 {% endblock %}

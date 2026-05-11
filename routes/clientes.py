@@ -597,3 +597,12 @@ def buscar_productos():
                 'stock': p.cantidad_stock
             })
     return jsonify(results[:15])
+
+@clientes_bp.route('/<int:id>/compras', methods=['GET'])
+@login_required
+def ver_compras(id):
+    cliente = Customer.query.get_or_404(id)
+    # Todas las ventas asociadas a este cliente
+    compras = Sale.query.filter_by(cliente_id=id).order_by(Sale.fecha_venta.desc()).all()
+    
+    return render_template('clientes/compras.html', cliente=cliente, compras=compras)

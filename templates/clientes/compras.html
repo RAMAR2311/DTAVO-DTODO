@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bolder text-tekfix-main m-0">
+                <i class="fa-solid fa-cart-shopping me-2 text-tekfix-primary"></i>Historial de Compras
+            </h2>
+            <p class="text-tekfix-sec mb-0 mt-1">Cliente: <strong class="text-white">{{ cliente.nombre }}</strong> | C.C: {{ cliente.cedula }}</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ url_for('clientes_bp.index') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">
+                <i class="fa-solid fa-arrow-left me-1"></i> Volver al Directorio 
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card card-custom p-0 overflow-hidden border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover table-custom mb-0">
+            <thead class="bg-tekfix-card">
+                <tr>
+                    <th width="120">N° TICKET</th>
+                    <th>FECHA DE COMPRA</th>
+                    <th>VENDEDOR</th>
+                    <th class="text-center">VÍA DE PAGO</th>
+                    <th class="text-end">TOTAL DE COMPRA</th>
+                    <th class="text-center" width="160">ACCIONES</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venta in compras %}
+                <tr>
+                    <td class="fw-bold text-tekfix-main align-middle">#{{ "%05d"|format(venta.consecutivo or venta.id) }}</td>
+                    <td class="align-middle text-tekfix-sec"><i class="fa-regular fa-calendar text-tekfix-primary me-1"></i> {{ venta.fecha_venta.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td class="align-middle fw-semibold text-tekfix-main">
+                        <i class="fa-solid fa-user-circle text-tekfix-sec me-1"></i> {{ venta.vendedor.nombre }}
+                    </td>
+                    <td class="text-center align-middle">
+                        {% if venta.metodo_pago_display == 'Pago Mixto' %}
+                            <span class="badge bg-tekfix-card text-tekfix-main border border-warning border-opacity-50 rounded-pill px-3 py-2" 
+                                  data-bs-toggle="tooltip" data-bs-html="true" title="{% for p in venta.pagos %}{{ p.metodo_pago|capitalize }}: ${{ (p.monto)|cop }}{% if not loop.last %}<br>{% endif %}{% endfor %}"
+                                  style="cursor: help;">
+                                <i class="fa-solid fa-arrows-split-up-and-left me-1" style="color: #fd7e14;"></i> Pago Mixto
+                            </span>
+                        {% elif venta.metodo_pago == 'efectivo' %}
+                            <span class="badge bg-tekfix-card text-success border border-success border-opacity-25 rounded-pill px-3 py-2"><i class="fa-solid fa-money-bills me-1"></i> Efectivo</span>
+                        {% else %}
+                            <span class="badge bg-tekfix-card text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2"><i class="fa-solid fa-building-columns me-1"></i> {{ venta.metodo_pago_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end align-middle fw-bolder text-tekfix-primary fs-5">
+                        ${{ (venta.monto_total)|cop }}
+                    </td>
+                    <td class="text-center align-middle">
+                        <a href="{{ url_for('sales_bp.imprimir_ticket', sale_id=venta.id) }}" target="_blank" class="btn btn-tekfix btn-sm rounded-pill px-3 fw-bold shadow-sm w-100">
+                            <i class="fa-solid fa-receipt me-1"></i> Ver Recibo
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <i class="fa-solid fa-box-open fs-1 mb-3 text-tekfix-sec opacity-50"></i>
+                        <h4 class="text-tekfix-main fw-bold">Sin Compras Registradas</h4>
+                        <p class="text-tekfix-sec mb-0">Este cliente aún no tiene un historial de facturación asociado.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (el) {
+            return new bootstrap.Tooltip(el);
+        });
+    });
+</script>
+{% endblock %}
