@@ -28,7 +28,7 @@
                 </thead>
                 <tbody>
                     {% for p in proveedores %}
-                    <tr>
+                    <tr id="row-proveedor-{{ p.id }}">
                         <td class="ps-4">
                             <div class="d-flex align-items-center">
                                 <div class="rounded-circle bg-tekfix-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px; font-weight: 700;">
@@ -48,13 +48,12 @@
                         </td>
                         <td class="pe-4 text-end">
                             <div class="btn-group">
-                                <a href="{{ url_for('providers_bp.cuenta', id=p.id) }}" class="btn btn-sm btn-outline-tekfix px-3 rounded-pill me-2">
+                                <button type="button" onclick="handleVerCuenta('{{ p.id }}')" class="btn btn-sm btn-outline-tekfix px-3 rounded-pill me-2">
                                     <i class="fa-solid fa-file-invoice-dollar me-1"></i> Ver Cuenta
-                                </a>
-                                <button class="btn btn-sm btn-light text-danger rounded-circle" onclick="confirmDelete('{{ p.id }}', '{{ p.nombre }}')" title="Eliminar">
+                                </button>
+                                <button type="button" class="btn btn-sm btn-light text-danger rounded-circle" onclick="handleEliminar('{{ p.id }}', '{{ p.nombre }}')" title="Eliminar">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
-                                <form id="delete-form-{{ p.id }}" action="{{ url_for('providers_bp.eliminar_proveedor', id=p.id) }}" method="POST" style="display: none;"></form>
                             </div>
                         </td>
                     </tr>
@@ -106,9 +105,48 @@
 </div>
 
 <script>
-function confirmDelete(id, nombre) {
-    if (confirm(`¿Estás seguro de eliminar al proveedor "${nombre}"? Se borrará todo su historial de facturas y abonos.`)) {
-        document.getElementById(`delete-form-${id}`).submit();
+// CSRF Token para peticiones Fetch
+const csrfToken = "{{ csrf_token() }}";
+
+function handleVerCuenta(proveedorId) {
+    // Redirección directa a la vista de detalles
+    window.location.href = `/proveedores/${proveedorId}`;
+}
+
+async function handleEliminar(proveedorId, nombre) {
+    // Confirmación nativa
+    if (!confirm(`¿Estás seguro de que deseas eliminar al proveedor "${nombre}"? Esta acción no se puede deshacer.`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/proveedores/api/proveedores/${proveedorId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            // Eliminar la fila del DOM dinámicamente
+            const fila = document.getElementById(`row-proveedor-${proveedorId}`);
+            if (fila) {
+                // Animación de salida (opcional)
+                fila.style.transition = 'opacity 0.3s ease';
+                fila.style.opacity = '0';
+                setTimeout(() => fila.remove(), 300);
+            }
+            alert(data.message || 'Proveedor eliminado correctamente.');
+        } else {
+            // Manejo de Soft Delete o error por integridad referencial
+            alert(data.message || 'No se pudo eliminar el proveedor por motivos de integridad.');
+        }
+    } catch (error) {
+        console.error('Error en la petición DELETE:', error);
+        alert('Ocurrió un error al intentar comunicar con el servidor.');
     }
 }
 </script>

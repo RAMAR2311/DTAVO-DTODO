@@ -215,6 +215,46 @@ def procesar_venta():
             db.session.add(pago)
             total_pagos += monto_pago
 
+        # Procesar Retoma si existe en el payload
+        retoma_data = data.get('retoma')
+        if retoma_data:
+            valor_retoma = Decimal(str(retoma_data.get('valor', '0.00')))
+            if valor_retoma > 0:
+                pago_retoma = SalePayment()
+                pago_retoma.sale_id = nueva_venta.id
+                pago_retoma.metodo_pago = 'retoma'
+                pago_retoma.monto = valor_retoma
+                db.session.add(pago_retoma)
+                total_pagos += valor_retoma
+
+                # Ingresar celular de retoma al inventario (Cuarentena / En Evaluación)
+                imei_retoma = retoma_data.get('imei', 'N/A').strip()
+                modelo_retoma = retoma_data.get('modelo', 'Retoma Genérica').strip()
+                estado_inv = retoma_data.get('estado_inventario', 'En Evaluación')
+
+                prod_retoma = Product.query.filter_by(nombre=modelo_retoma, tipo_inventario='tienda').first()
+                if not prod_retoma:
+                    import uuid
+                    prod_retoma = Product(
+                        nombre=modelo_retoma,
+                        sku=f"RET-{uuid.uuid4().hex[:6].upper()}",
+                        tipo_inventario='tienda',
+                        es_serializado=True,
+                        precio_costo=valor_retoma,
+                        precio_minimo=valor_retoma,
+                        precio_sugerido=valor_retoma * Decimal('1.2')
+                    )
+                    db.session.add(prod_retoma)
+                    db.session.flush()
+
+                if imei_retoma:
+                    nueva_serie = ProductSeries(
+                        product_id=prod_retoma.id,
+                        serial=imei_retoma,
+                        estado=estado_inv
+                    )
+                    db.session.add(nueva_serie)
+
         # Validar que la suma de pagos cubra el total de la venta
         if total_pagos != monto_total:
             raise ValueError(f"La suma de los pagos (${total_pagos}) no coincide con el total de la venta (${monto_total}). Diferencia: ${monto_total - total_pagos}.")
@@ -399,7 +439,7 @@ def eliminar_venta(sale_id):
     venta = Sale.query.get_or_404(sale_id)
     
     try:
-        # Revertir Stock
+        # Revertir Stock y Series (IMEIs)
         for detalle in venta.detalles:
             if detalle.variant_id:
                 variante = ProductVariant.query.with_for_update().get(detalle.variant_id)
@@ -408,12 +448,30 @@ def eliminar_venta(sale_id):
             else:
                 producto = Product.query.with_for_update().get(detalle.product_id)
                 if producto:
-                    producto.cantidad_stock += detalle.cantidad_vendida
+                    # Si el producto NO es serializado, devolvemos el stock al contador estático
+                    if not producto.es_serializado:
+                        producto.cantidad_stock += detalle.cantidad_vendida
+            
+            # LIBERAR IMEI/SERIAL (Búsqueda Robusta)
+            serie = None
+            # 1. Intentar buscar por el ID del detalle (el vínculo más fuerte)
+            serie = ProductSeries.query.filter_by(sale_detail_id=detalle.id).with_for_update().first()
+            
+            # 2. Si no lo encuentra, intentar por el texto del serial guardado
+            if not serie and detalle.serial_vendido:
+                serie = ProductSeries.query.filter_by(
+                    product_id=detalle.product_id, 
+                    serial=detalle.serial_vendido.strip()
+                ).with_for_update().first()
+            
+            if serie:
+                serie.estado = 'disponible'
+                serie.sale_detail_id = None
                     
         # Eliminar Venta y Detalles (Cascada)
         db.session.delete(venta)
         db.session.commit()
-        flash('Venta anulada y stock devuelto exitosamente.', 'success')
+        flash('Venta anulada: Stock devuelto e IMEIs liberados exitosamente.', 'success')
         
     except Exception as e:
         db.session.rollback()

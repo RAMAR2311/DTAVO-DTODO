@@ -13,12 +13,16 @@ def obtener_hora_bogota():
     return datetime.now(pytz.timezone('America/Bogota')).replace(tzinfo=None)
 
 class Category(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'categories'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False, unique=True)
     descripcion = db.Column(db.String(255), nullable=True)
 
 class User(UserMixin, db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'users'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -33,6 +37,8 @@ class User(UserMixin, db.Model):
     arqueos = db.relationship('ArqueoCaja', backref='cajero', lazy=True)
 
 class DynamicKey(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'dynamic_keys'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -49,6 +55,8 @@ class DynamicKey(db.Model):
         return not self.is_used and self.expires_at > ahora
 
 class Product(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'products'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -110,10 +118,12 @@ class Product(db.Model):
 
 class ProductSeries(db.Model):
     """Tabla para gestionar seriales/IMEIs individuales."""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'product_series'
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
-    serial = db.Column(db.String(100), unique=True, nullable=False, index=True)
+    serial = db.Column(db.String(100), nullable=False, index=True)
     estado = db.Column(db.String(20), default='disponible', index=True) # 'disponible', 'vendido'
     sale_detail_id = db.Column(db.Integer, db.ForeignKey('sale_details.id'), nullable=True)
     
@@ -121,6 +131,8 @@ class ProductSeries(db.Model):
 
 
 class ProductVariant(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'product_variants'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -134,6 +146,8 @@ class ProductVariant(db.Model):
     precio_sugerido = db.Column(db.Numeric(14, 2), nullable=True)
 
 class Loss(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'losses'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -148,6 +162,8 @@ class Loss(db.Model):
     usuario = db.relationship('User', backref='perdidas_registradas', lazy=True)
 
 class Sale(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'sales'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -181,6 +197,8 @@ class SalePayment(db.Model):
     """Modelo para soportar pagos mixtos/parciales por venta.
     Permite registrar múltiples métodos de pago en una sola venta.
     Ej: $50.000 en efectivo + $30.000 por Nequi = $80.000 total."""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'sale_payments'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -189,6 +207,8 @@ class SalePayment(db.Model):
     monto = db.Column(db.Numeric(14, 2), nullable=False)
 
 class SaleDetail(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'sale_details'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -212,6 +232,8 @@ class SaleDetail(db.Model):
     variante = db.relationship('ProductVariant', backref='ventas_rel', lazy=True)
 
 class StockAdjustment(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'stock_adjustments'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -223,6 +245,8 @@ class StockAdjustment(db.Model):
     fecha_ajuste = db.Column(db.DateTime, default=obtener_hora_bogota)
 
 class ArqueoCaja(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'arqueo_caja'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -239,6 +263,8 @@ class ArqueoCaja(db.Model):
     fecha_creacion = db.Column(db.DateTime, default=obtener_hora_bogota)
 
 class Maneo(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'maneos'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -254,6 +280,8 @@ class Maneo(db.Model):
     variante = db.relationship('ProductVariant', backref='maneos_rel', lazy=True)
 
 class Expense(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'gastos'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -267,6 +295,8 @@ class Expense(db.Model):
     usuario = db.relationship('User', backref='gastos', lazy=True)
 
 class Cliente(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'clientes'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -288,6 +318,8 @@ class Cliente(db.Model):
         return "Con Deuda" if self.deuda_total > 0 else "Al Día"
 
 class FacturaBodega(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'facturas_bodega'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -309,6 +341,8 @@ class FacturaBodega(db.Model):
         return float(self.monto_total) - float(total_abonado)
 
 class FacturaBodegaDetalle(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'facturas_bodega_detalles'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -320,6 +354,8 @@ class FacturaBodegaDetalle(db.Model):
     producto = db.relationship('Product', backref='detalles_factura_bodega', lazy=True)
 
 class AbonoBodega(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'abonos_bodega'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -334,6 +370,8 @@ class AbonoBodega(db.Model):
 
 # ====== MÓDULO PROVEEDORES (CUENTAS POR PAGAR) ======
 class Provider(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'proveedores'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -347,6 +385,8 @@ class Provider(db.Model):
     abonos = db.relationship('ProviderPayment', backref='provider', lazy=True, cascade='all, delete-orphan')
 
 class ProviderInvoice(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'facturas_proveedor'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -358,6 +398,8 @@ class ProviderInvoice(db.Model):
     fecha = db.Column(db.DateTime, default=obtener_hora_bogota)
 
 class ProviderPayment(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'abonos_proveedor'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -368,6 +410,8 @@ class ProviderPayment(db.Model):
 
 # ====== MÓDULO GARANTÍAS ======
 class Warranty(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'warranties'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -404,6 +448,8 @@ class Warranty(db.Model):
 
 # ====== MÓDULO CAMBIOS ======
 class ProductExchange(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'product_exchanges'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -432,6 +478,8 @@ class ProductExchange(db.Model):
     variante_nueva = db.relationship('ProductVariant', foreign_keys=[variant_new_id], lazy=True)
 
 class Importacion(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'importaciones'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -454,6 +502,8 @@ class SaldoImportacion(db.Model):
     Se abona manualmente (capital inicial) y automáticamente (ganancias de ventas).
     Se descuenta al registrar cada importación (valor_contenedor + valor_flete).
     """
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'saldo_importacion'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -472,6 +522,8 @@ class SaldoImportacion(db.Model):
 
 # ====== MÓDULO CARTERA / CLIENTES CRÉDITO POS ======
 class ClienteCartera(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'cliente_cartera'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -519,6 +571,8 @@ class ClienteCartera(db.Model):
         return False
 
 class FacturaCredito(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'factura_credito'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -539,6 +593,8 @@ class FacturaCredito(db.Model):
         return (ahora - fecha_referencia).days
 
 class DetalleFacturaCredito(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'detalle_factura_credito'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -554,6 +610,8 @@ class DetalleFacturaCredito(db.Model):
     variante = db.relationship('ProductVariant', backref='detalles_factura_cartera', lazy=True)
 
 class AbonoCredito(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'abono_credito'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -565,6 +623,8 @@ class AbonoCredito(db.Model):
     movimiento_caja = db.relationship('MovimientoCajaCartera', backref='abono', uselist=False, lazy=True, cascade="all, delete-orphan")
 
 class AcuerdoPago(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'acuerdo_pago'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -575,6 +635,8 @@ class AcuerdoPago(db.Model):
 
 class MovimientoCajaCartera(db.Model):
     """Integra los abonos de cartera con el flujo de caja diario."""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'movimiento_caja_cartera'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -585,6 +647,8 @@ class MovimientoCajaCartera(db.Model):
     abono_id = db.Column(db.Integer, db.ForeignKey('abono_credito.id'), nullable=False)
 
 class Customer(db.Model):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
     __tablename__ = 'pos_customers'
     
     id = db.Column(db.Integer, primary_key=True)

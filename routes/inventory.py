@@ -727,3 +727,79 @@ def eliminar_serial(id):
         db.session.rollback()
         return jsonify({"success": False, "error": str(e)}), 500
 
+@inventory_bp.route('/retomas', methods=['GET'])
+@login_required
+@admin_or_bodega_required
+def retomas_index():
+    retomas = ProductSeries.query.filter_by(estado='En Evaluación').all()
+    productos = Product.query.filter_by(es_serializado=True, tipo_inventario='tienda').all()
+    return render_template('inventory/retomas.html', retomas=retomas, productos=productos)
+
+@inventory_bp.route('/retomas/aprobar/<int:serie_id>', methods=['POST'])
+@login_required
+@admin_or_bodega_required
+def aprobar_retoma(serie_id):
+    serie = ProductSeries.query.get_or_404(serie_id)
+    if serie.estado != 'En Evaluación':
+        flash('Esta unidad no está en evaluación.', 'warning')
+        return redirect(url_for('inventory_bp.retomas_index'))
+        
+    accion = request.form.get('accion')
+    
+    try:
+        if accion == 'existente':
+            nuevo_prod_id = request.form.get('product_id')
+            if not nuevo_prod_id:
+                flash('Debe seleccionar un producto.', 'danger')
+                return redirect(url_for('inventory_bp.retomas_index'))
+                
+            viejo_prod_id = serie.product_id
+            serie.product_id = int(nuevo_prod_id)
+            serie.estado = 'disponible'
+            
+            viejo_prod = Product.query.get(viejo_prod_id)
+            if viejo_prod and viejo_prod.sku.startswith('RET-'):
+                db.session.flush()
+                if not viejo_prod.series:
+                    db.session.delete(viejo_prod)
+                
+        elif accion == 'nuevo':
+            serie.estado = 'disponible'
+            prod = serie.producto
+            prod.nombre = request.form.get('nuevo_nombre', prod.nombre)
+            prod.precio_sugerido = float(request.form.get('nuevo_precio', prod.precio_sugerido))
+            
+        else:
+            flash('Acción no válida.', 'danger')
+            return redirect(url_for('inventory_bp.retomas_index'))
+            
+        db.session.commit()
+        flash('Retoma aprobada y movida al inventario disponible.', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al aprobar retoma: {str(e)}', 'danger')
+        
+    return redirect(url_for('inventory_bp.retomas_index'))
+
+@inventory_bp.route('/retomas/rechazar/<int:serie_id>', methods=['POST'])
+@login_required
+@admin_or_bodega_required
+def rechazar_retoma(serie_id):
+    serie = ProductSeries.query.get_or_404(serie_id)
+    try:
+        prod_id = serie.product_id
+        db.session.delete(serie)
+        
+        db.session.flush()
+        prod = Product.query.get(prod_id)
+        if prod and prod.sku.startswith('RET-') and not prod.series:
+            db.session.delete(prod)
+            
+        db.session.commit()
+        flash('Retoma eliminada/rechazada.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error al eliminar retoma.', 'danger')
+    return redirect(url_for('inventory_bp.retomas_index'))
+

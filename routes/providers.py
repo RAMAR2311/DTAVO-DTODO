@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from models import db, Provider, ProviderInvoice, ProviderPayment, Expense, obtener_hora_bogota
 from decorators import admin_required
@@ -146,19 +146,17 @@ def imprimir_abono(id):
     abono = ProviderPayment.query.get_or_404(id)
     return render_template('providers/imprimir_abono.html', abono=abono, proveedor=abono.provider)
 
-@providers_bp.route('/eliminar/<int:id>', methods=['POST'])
+@providers_bp.route('/api/proveedores/<int:id>', methods=['DELETE'])
 @login_required
 @admin_required
-def eliminar_proveedor(id):
+def api_eliminar_proveedor(id):
     proveedor = Provider.query.get_or_404(id)
     nombre = proveedor.nombre
     
     try:
         db.session.delete(proveedor)
         db.session.commit()
-        flash(f'Proveedor "{nombre}" y todo su historial eliminados correctamente.', 'success')
+        return jsonify({'success': True, 'message': f'Proveedor "{nombre}" eliminado correctamente.'}), 200
     except Exception as e:
         db.session.rollback()
-        flash(f'Error al intentar eliminar el proveedor: {str(e)}', 'danger')
-        
-    return redirect(url_for('providers_bp.index'))
+        return jsonify({'success': False, 'message': f'Error de integridad: el proveedor {nombre} tiene registros vinculados que impiden su eliminación directa.'}), 400

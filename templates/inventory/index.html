@@ -15,6 +15,9 @@
         </div>
     {% endif %}
     <div class="d-flex gap-2">
+        <a href="{{ url_for('inventory_bp.retomas_index') }}" class="btn btn-outline-warning rounded-pill px-4 fw-bold shadow-sm">
+            <i class="fa-solid fa-mobile-retro me-1"></i> Ver Retomas
+        </a>
         <button type="button" class="btn btn-outline-success rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#importarModal">
             <i class="fa-solid fa-file-excel me-1"></i> Importar Masivo
         </button>

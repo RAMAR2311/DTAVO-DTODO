@@ -142,6 +142,21 @@
                     <span class="text-tekfix-main">$0</span>
                 </div>
                 <hr class="my-2 border-secondary opacity-25">
+                
+                <!-- Boton Retoma -->
+                <button type="button" class="btn btn-outline-warning w-100 py-1 rounded-pill fw-bold small mb-2" id="btn-abrir-retoma" style="font-size: 0.75rem;">
+                    <i class="fa-solid fa-mobile-retro me-1"></i> Añadir Retoma / Celular como Pago
+                </button>
+
+                <!-- UI Retoma Activa -->
+                <div id="retoma-info" class="cart-total-row text-danger fw-semibold mb-2" style="display: none; justify-content: space-between;">
+                    <span><i class="fa-solid fa-mobile-retro me-1"></i> Retoma:</span>
+                    <div class="d-flex align-items-center">
+                        <span id="retoma-val-display" class="text-danger">-$0</span>
+                        <button class="btn btn-sm text-danger p-0 ms-2" id="btn-quitar-retoma" title="Quitar Retoma"><i class="fa-solid fa-circle-xmark"></i></button>
+                    </div>
+                </div>
+
                 <div class="cart-total-row mb-2">
                     <span class="fw-bold fs-5 align-self-end text-tekfix-main">Total a Cobrar:</span>
                     <span class="cart-total-final" id="total-val">$0</span>
@@ -239,6 +254,35 @@
     </div>
 </div>
 
+<!-- MODAL RETOMA -->
+<div class="modal fade" id="modalRetoma" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="background: var(--tekfix-card-bg);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-tekfix-primary"><i class="fa-solid fa-mobile-retro me-2"></i>Añadir Retoma</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-tekfix-sec">IMEI del Equipo</label>
+                    <input type="text" id="input-retoma-imei" class="form-control bg-tekfix-input border-0 text-tekfix-main" placeholder="Ej: 35123...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-tekfix-sec">Marca / Modelo</label>
+                    <input type="text" id="input-retoma-modelo" class="form-control bg-tekfix-input border-0 text-tekfix-main" placeholder="Ej: iPhone 12 Pro">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold text-tekfix-sec">Valor Acordado ($)</label>
+                    <input type="text" id="input-retoma-valor" class="form-control bg-tekfix-input border-0 text-tekfix-main money-input" placeholder="Ej: 500,000">
+                </div>
+                <button class="btn btn-tekfix w-100 py-3 rounded-pill fw-bold mt-3" id="btn-confirm-retoma">
+                    Aplicar Retoma <i class="fa-solid fa-check ms-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL VARIANTES -->
 <div class="modal fade" id="modalVariantes" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -287,6 +331,14 @@
                 </div>
 
                 <div class="mb-3">
+                    <label class="form-label small fw-bold text-tekfix-sec">Color</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-tekfix-input border-0 text-tekfix-primary"><i class="fa-solid fa-palette"></i></span>
+                        <input type="text" id="input-color" class="form-control bg-tekfix-input border-0 text-tekfix-main" placeholder="Ej: Azul Sierra">
+                    </div>
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label small fw-bold text-tekfix-sec">Tiempo de Garantía</label>
                     <div class="input-group">
                         <span class="input-group-text bg-tekfix-input border-0 text-tekfix-primary"><i class="fa-solid fa-shield-halved"></i></span>
@@ -319,6 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let productosActuales = [...initialData];
     let currentCategory = 'Todas';
     let pagosMixtos = [];
+    let retoma = null;
 
     const METODOS_DISPONIBLES = [
         { value: 'efectivo', label: '💵 Efectivo' },
@@ -486,6 +539,36 @@ document.addEventListener('DOMContentLoaded', () => {
     // Carrito
     const modalVariantes = new bootstrap.Modal(document.getElementById('modalVariantes'));
     const modalDetallesSerial = new bootstrap.Modal(document.getElementById('modalDetallesSerial'));
+    const modalRetomaObj = new bootstrap.Modal(document.getElementById('modalRetoma'));
+
+    document.getElementById('btn-abrir-retoma')?.addEventListener('click', () => {
+        modalRetomaObj.show();
+    });
+
+    document.getElementById('btn-confirm-retoma')?.addEventListener('click', () => {
+        const imei = document.getElementById('input-retoma-imei').value.trim();
+        const modelo = document.getElementById('input-retoma-modelo').value.trim();
+        const valorRaw = document.getElementById('input-retoma-valor').value;
+        const valor = parseFloat(valorRaw.replace(/,/g, ''));
+
+        if (!imei || !modelo || !valor || isNaN(valor)) {
+            alert("Complete todos los campos de retoma con un valor válido.");
+            return;
+        }
+
+        retoma = { imei, modelo, valor, estado_inventario: 'En Evaluación' };
+        modalRetomaObj.hide();
+        renderCart();
+    });
+
+    document.getElementById('btn-quitar-retoma')?.addEventListener('click', () => {
+        retoma = null;
+        document.getElementById('input-retoma-imei').value = '';
+        document.getElementById('input-retoma-modelo').value = '';
+        document.getElementById('input-retoma-valor').value = '';
+        renderCart();
+    });
+
     let pendingSerialItem = null;
 
     async function handleProductClick(p) {
@@ -596,6 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const bat = document.getElementById('input-bateria').value;
         const cond = document.getElementById('input-condicion').value;
+        const color = document.getElementById('input-color').value;
         const gar = document.getElementById('input-garantia').value;
 
         addToCart(
@@ -607,17 +691,18 @@ document.addEventListener('DOMContentLoaded', () => {
             1, 
             pendingSerialItem.serial, 
             pendingSerialItem.serieId,
-            bat, cond, gar
+            bat, cond, color, gar
         );
 
         // Limpiar
         document.getElementById('input-bateria').value = '';
+        document.getElementById('input-color').value = '';
         document.getElementById('input-garantia').value = '';
         pendingSerialItem = null;
         modalDetallesSerial.hide();
     });
 
-    function addToCart(pid, pnom, vid, vnom, price, pmin, stock, serial = null, serieId = null, bat = null, cond = null, gar = null) {
+    function addToCart(pid, pnom, vid, vnom, price, pmin, stock, serial = null, serieId = null, bat = null, cond = null, color = null, gar = null) {
         console.log("Añadiendo al carrito:", pnom, "Precio:", price, "Mínimo:", pmin);
         // Si hay serial, cada unidad es un ítem único e intransferible
         const existing = serial 
@@ -641,6 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 serie_id: serieId,
                 bateria: bat,
                 condicion: cond,
+                color: color,
                 garantia: gar
             });
         }
@@ -704,6 +790,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <div class="text-tekfix-sec" style="font-size: 0.68rem;">
                                     <span class="me-2"><i class="fa-solid fa-battery-half me-1"></i>${item.bateria || 'N/A'}%</span>
                                     <span class="me-2"><i class="fa-solid fa-star me-1"></i>${item.condicion || 'N/A'}</span>
+                                    ${item.color ? `<span class="me-2"><i class="fa-solid fa-palette me-1"></i>${item.color}</span>` : ''}
                                     <span><i class="fa-solid fa-shield me-1"></i>${item.garantia || 'N/A'}</span>
                                 </div>
                             </div>
@@ -730,13 +817,32 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         document.getElementById('cart-count').innerText = `${items} ítems`;
-        document.getElementById('subtotal-val').innerText = formatoCOP(total);
+        
+        let subtotal = total;
+        document.getElementById('subtotal-val').innerText = formatoCOP(subtotal);
+        
+        if (retoma) {
+            document.getElementById('retoma-info').style.display = 'flex';
+            document.getElementById('retoma-val-display').innerText = '-' + formatoCOP(retoma.valor);
+            total -= retoma.valor;
+            if (total < 0) total = 0;
+        } else {
+            document.getElementById('retoma-info').style.display = 'none';
+        }
+
         document.getElementById('total-val').innerText = formatoCOP(total);
         if (document.getElementById('toggle_pago_mixto').checked) actualizarSaldoRestante();
     }
 
     // Lógica de Pago
-    function obtenerGranTotal() { return carrito.reduce((s, i) => s + (i.cantidad * i.precio_final), 0); }
+    function obtenerGranTotal() { 
+        let t = carrito.reduce((s, i) => s + (i.cantidad * i.precio_final), 0);
+        if (retoma) {
+            t -= retoma.valor;
+            if (t < 0) t = 0;
+        }
+        return t;
+    }
 
     function actualizarSaldoRestante() {
         const total = obtenerGranTotal();
@@ -823,6 +929,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ 
                     items: carrito, 
                     pagos: pagos, 
+                    retoma: retoma,
                     factura_fisica: facturaFisica,
                     cliente_data: clienteData.cedula ? clienteData : null,
                     cliente: clienteData.nombre || "Consumidor Final" 
@@ -831,7 +938,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
             if (res.ok) {
                 alert('Venta procesada con éxito!');
-                carrito = []; renderCart();
+                carrito = []; 
+                retoma = null;
+                document.getElementById('input-retoma-imei').value = '';
+                document.getElementById('input-retoma-modelo').value = '';
+                document.getElementById('input-retoma-valor').value = '';
+                renderCart();
                 
                 // Limpiar campos de cliente y factura física
                 document.getElementById('factura-fisica').value = '';
