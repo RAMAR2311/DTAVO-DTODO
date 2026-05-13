@@ -731,9 +731,23 @@ def eliminar_serial(id):
 @login_required
 @admin_or_bodega_required
 def retomas_index():
-    retomas = ProductSeries.query.filter_by(estado='En Evaluación').all()
+    retomas = ProductSeries.query.filter_by(estado='En Evaluación', origen='retoma').all()
+    if not retomas:
+        retomas = ProductSeries.query.filter_by(estado='En Evaluación').all()
     productos = Product.query.filter_by(es_serializado=True, tipo_inventario='tienda').all()
-    return render_template('inventory/retomas.html', retomas=retomas, productos=productos)
+    categorias = Category.query.order_by(Category.nombre).all()
+    return render_template('inventory/retomas.html', retomas=retomas, productos=productos, categorias=categorias)
+
+@inventory_bp.route('/retomas/aprobadas', methods=['GET'])
+@login_required
+@admin_or_bodega_required
+def retomas_aprobadas():
+    # Obtener retomas que ya pasaron la cuarentena (estado != 'En Evaluación')
+    retomas = ProductSeries.query.filter(
+        ProductSeries.origen == 'retoma',
+        ProductSeries.estado != 'En Evaluación'
+    ).all()
+    return render_template('inventory/retomas_aprobadas.html', retomas=retomas)
 
 @inventory_bp.route('/retomas/aprobar/<int:serie_id>', methods=['POST'])
 @login_required
@@ -757,6 +771,39 @@ def aprobar_retoma(serie_id):
             serie.product_id = int(nuevo_prod_id)
             serie.estado = 'disponible'
             
+            # Actualizar atributos comerciales del Producto General Destino
+            prod_destino = Product.query.get(serie.product_id)
+            if prod_destino:
+                costo_compra = request.form.get('costo_compra')
+                precio_sugerido = request.form.get('precio_sugerido')
+                observacion = request.form.get('observacion')
+                condicion = request.form.get('atributo_condicion')
+                color = request.form.get('atributo_color')
+                
+                if costo_compra:
+                    prod_destino.precio_costo = Decimal(str(costo_compra))
+                    prod_destino.precio_minimo = Decimal(str(costo_compra))
+                if precio_sugerido:
+                    prod_destino.precio_sugerido = Decimal(str(precio_sugerido))
+                if observacion:
+                    prod_destino.observacion = observacion
+                    
+                # Update attributes JSONB
+                attrs = prod_destino.atributos or {}
+                if condicion:
+                    attrs['Condición'] = condicion
+                if color:
+                    attrs['Color'] = color
+                
+                from sqlalchemy.orm.attributes import flag_modified
+                prod_destino.atributos = attrs
+                flag_modified(prod_destino, "atributos")
+
+                # Categoría (solo actualiza el prod_destino si no tenía una)
+                categoria_id = request.form.get('categoria_id')
+                if categoria_id:
+                    prod_destino.categoria_id = int(categoria_id)
+            
             viejo_prod = Product.query.get(viejo_prod_id)
             if viejo_prod and viejo_prod.sku.startswith('RET-'):
                 db.session.flush()
@@ -768,6 +815,9 @@ def aprobar_retoma(serie_id):
             prod = serie.producto
             prod.nombre = request.form.get('nuevo_nombre', prod.nombre)
             prod.precio_sugerido = float(request.form.get('nuevo_precio', prod.precio_sugerido))
+            nueva_categoria_id = request.form.get('nueva_categoria_id')
+            if nueva_categoria_id:
+                prod.categoria_id = int(nueva_categoria_id)
             
         else:
             flash('Acción no válida.', 'danger')
@@ -803,3 +853,31 @@ def rechazar_retoma(serie_id):
         flash('Error al eliminar retoma.', 'danger')
     return redirect(url_for('inventory_bp.retomas_index'))
 
+@inventory_bp.route('/retomas/aprobadas/eliminar/<int:serie_id>', methods=['POST'])
+@login_required
+@admin_or_bodega_required
+def eliminar_retoma_aprobada(serie_id):
+    serie = ProductSeries.query.get_or_404(serie_id)
+
+    if serie.estado == 'vendido':
+        flash('No se puede eliminar un IMEI que ya fue vendido.', 'danger')
+        return redirect(url_for('inventory_bp.retomas_aprobadas'))
+
+    try:
+        prod_id = serie.product_id
+        db.session.delete(serie)
+        db.session.flush()
+
+        prod = Product.query.get(prod_id)
+        if prod and prod.sku.startswith('RET-') and not prod.series:
+            # Producto provisional sin más seriales → se borra completo
+            db.session.delete(prod)
+        # Si es producto oficial, solo se eliminó el serial; el producto queda
+
+        db.session.commit()
+        flash('Retoma eliminada del inventario correctamente.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al eliminar: {str(e)}', 'danger')
+
+    return redirect(url_for('inventory_bp.retomas_aprobadas'))

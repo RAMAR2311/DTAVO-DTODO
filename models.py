@@ -125,6 +125,7 @@ class ProductSeries(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     serial = db.Column(db.String(100), nullable=False, index=True)
     estado = db.Column(db.String(20), default='disponible', index=True) # 'disponible', 'vendido'
+    origen = db.Column(db.String(50), default='sistema') # 'sistema' o 'retoma'
     sale_detail_id = db.Column(db.Integer, db.ForeignKey('sale_details.id'), nullable=True)
     
     producto = db.relationship('Product', backref=db.backref('series', lazy=True, cascade="all, delete-orphan"))

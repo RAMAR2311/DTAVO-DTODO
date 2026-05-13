@@ -251,7 +251,8 @@ def procesar_venta():
                     nueva_serie = ProductSeries(
                         product_id=prod_retoma.id,
                         serial=imei_retoma,
-                        estado=estado_inv
+                        estado=estado_inv,
+                        origen='retoma'
                     )
                     db.session.add(nueva_serie)
 

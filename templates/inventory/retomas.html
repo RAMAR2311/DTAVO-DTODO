@@ -6,7 +6,10 @@
         <h2 class="fw-bold text-tekfix-main m-0">Revisión de Retomas</h2>
         <p class="text-tekfix-sec small mb-0"><i class="fa-solid fa-mobile-retro me-1"></i> Cuarentena Técnica y Aprobaciones</p>
     </div>
-    <div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('inventory_bp.retomas_aprobadas') }}" class="btn btn-outline-success rounded-pill px-4 fw-bold shadow-sm">
+            <i class="fa-solid fa-list-check me-1"></i> Historial Aprobadas
+        </a>
         <a href="{{ url_for('inventory_bp.index') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-sm">
             <i class="fa-solid fa-arrow-left me-1"></i> Volver al Inventario
         </a>
@@ -78,13 +81,58 @@
                                         <div class="tab-pane fade show active" id="panel-existente-{{ r.id }}">
                                             <div class="mb-3">
                                                 <label class="form-label small fw-bold text-tekfix-sec">Seleccionar Producto Destino</label>
-                                                <select name="product_id" class="form-select bg-tekfix-input border-0 text-tekfix-main">
+                                                <select name="product_id" class="form-select bg-tekfix-input border-0 text-tekfix-main" onchange="document.getElementById('detalle-existente-{{ r.id }}').classList.remove('d-none')">
                                                     <option value="" selected disabled>Selecciona el modelo oficial...</option>
                                                     {% for p in productos %}
                                                         <option value="{{ p.id }}">{{ p.nombre }} (SKU: {{ p.sku }})</option>
                                                     {% endfor %}
                                                 </select>
                                                 <small class="text-tekfix-sec mt-1 d-block">El IMEI se guardará dentro del catálogo de este producto.</small>
+                                            </div>
+                                            
+                                            <!-- Sección Desplegable -->
+                                            <div id="detalle-existente-{{ r.id }}" class="d-none border border-light rounded-3 p-3 bg-light mt-3 shadow-sm">
+                                                <h6 class="fw-bold text-tekfix-main small mb-3 border-bottom pb-2"><i class="fa-solid fa-tags text-tekfix-primary me-2"></i>Ajustes Comerciales y Atributos Técnicos</h6>
+                                                <div class="row g-2 mb-3">
+                                                    <div class="col-6">
+                                                        <label class="form-label small fw-bold text-tekfix-sec">Costo Compra ($)</label>
+                                                        <input type="number" name="costo_compra" class="form-control form-control-sm bg-white border-0" value="{{ r.producto.precio_costo }}">
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label class="form-label small fw-bold text-tekfix-sec">Precio Sugerido ($)</label>
+                                                        <input type="number" name="precio_sugerido" class="form-control form-control-sm bg-white border-0" placeholder="Ej. 1500000">
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row g-2 mb-3">
+                                                    <div class="col-6">
+                                                        <label class="form-label small fw-bold text-tekfix-sec">Condición Estética</label>
+                                                        <select name="atributo_condicion" class="form-select form-select-sm bg-white border-0">
+                                                            <option value="Usado - Excelente">Usado - Excelente</option>
+                                                            <option value="Usado - Buen Estado">Usado - Buen Estado</option>
+                                                            <option value="Usado - Detalles">Usado - Detalles</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label class="form-label small fw-bold text-tekfix-sec">Color</label>
+                                                        <input type="text" name="atributo_color" class="form-control form-control-sm bg-white border-0" placeholder="Ej. Azul Sierra">
+                                                    </div>
+                                                </div>
+
+                                                <div class="mb-0">
+                                                    <label class="form-label small fw-bold text-tekfix-sec">Observación Técnica (Opcional)</label>
+                                                    <textarea name="observacion" class="form-control form-control-sm bg-white border-0" rows="2" placeholder="Ej. Rayón superficial en pantalla"></textarea>
+                                                </div>
+
+                                                <div class="mt-3 pt-2 border-top">
+                                                    <label class="form-label small fw-bold text-tekfix-sec"><i class="fa-solid fa-tag me-1"></i>Categoría en Inventario</label>
+                                                    <select name="categoria_id" class="form-select form-select-sm bg-white border-0">
+                                                        <option value="">Sin categoría</option>
+                                                        {% for cat in categorias %}
+                                                            <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
                                         
@@ -97,6 +145,15 @@
                                             <div class="mb-3">
                                                 <label class="form-label small fw-bold text-tekfix-sec">Precio Sugerido Venta</label>
                                                 <input type="number" name="nuevo_precio" class="form-control bg-tekfix-input border-0 text-tekfix-main" value="{{ r.producto.precio_sugerido }}">
+                                            </div>
+                                            <div class="mb-0">
+                                                <label class="form-label small fw-bold text-tekfix-sec"><i class="fa-solid fa-tag me-1"></i>Categoría en Inventario</label>
+                                                <select name="nueva_categoria_id" class="form-select bg-tekfix-input border-0 text-tekfix-main">
+                                                    <option value="">Sin categoría</option>
+                                                    {% for cat in categorias %}
+                                                        <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                                                    {% endfor %}
+                                                </select>
                                             </div>
                                         </div>
                                     </div>

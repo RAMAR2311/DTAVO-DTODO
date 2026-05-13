@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="mb-4">
+        <h2 class="fw-bold text-tekfix-main m-0">Historial de Retomas Aprobadas</h2>
+        <p class="text-tekfix-sec small mb-0"><i class="fa-solid fa-list-check me-1"></i> Equipos que ya pasaron a inventario general</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('inventory_bp.retomas_index') }}" class="btn btn-outline-warning rounded-pill px-4 fw-bold shadow-sm">
+            <i class="fa-solid fa-mobile-retro me-1"></i> Cuarentena
+        </a>
+        <a href="{{ url_for('inventory_bp.index') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i> Volver
+        </a>
+    </div>
+</div>
+
+<div class="card card-custom p-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover table-custom mb-0">
+            <thead class="bg-tekfix-card">
+                <tr>
+                    <th width="180" class="ps-4">IMEI</th>
+                    <th>MODELO VINCULADO</th>
+                    <th width="150" class="text-end">COSTO REAL</th>
+                    <th width="150" class="text-end">PRECIO VENTA</th>
+                    <th width="180" class="text-center">ESTADO ACTUAL</th>
+                    <th width="120" class="text-center">ACCIONES</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in retomas %}
+                <tr>
+                    <td class="text-tekfix-sec ps-4"><small><strong>{{ r.serial }}</strong></small></td>
+                    <td class="fw-semibold text-tekfix-main">
+                        {{ r.producto.nombre }}
+                        {% if r.producto.atributos %}
+                            <div class="mt-1 d-flex flex-wrap gap-1">
+                                {% for k, v in r.producto.atributos.items() %}
+                                    <span class="badge bg-tekfix-card text-tekfix-sec border fw-normal" style="font-size: 0.65rem;">{{ k }}: {{ v }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td class="text-end fw-bold" style="color: var(--tekfix-hover);">${{ (r.producto.precio_costo)|cop }}</td>
+                    <td class="text-end text-tekfix-sec fw-bold">${{ (r.producto.precio_sugerido)|cop }}</td>
+                    <td class="text-center">
+                        {% if r.estado == 'disponible' %}
+                            <span class="badge border border-tekfix-primary text-tekfix-main rounded-pill px-3 py-2"><i class="fa-solid fa-store me-1"></i> En Venta</span>
+                        {% elif r.estado == 'vendido' %}
+                            <span class="badge bg-success rounded-pill px-3 py-2"><i class="fa-solid fa-check-double me-1"></i> Vendido</span>
+                        {% else %}
+                            <span class="badge bg-secondary rounded-pill px-3 py-2">{{ r.estado }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if r.estado != 'vendido' %}
+                        <form method="POST" action="{{ url_for('inventory_bp.eliminar_retoma_aprobada', serie_id=r.id) }}" 
+                              onsubmit="return confirm('¿Eliminar este IMEI y su producto del inventario? Esta acción no se puede deshacer.')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-danger rounded-circle shadow-sm" title="Eliminar del inventario">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="text-tekfix-sec small">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-tekfix-sec">
+                        <i class="fa-solid fa-box-open fs-1 mb-3 text-tekfix-primary opacity-50"></i>
+                        <p class="mb-0">No hay historial de retomas aprobadas.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
