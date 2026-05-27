@@ -1,76 +1,346 @@
-
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    /* PREMIUM DESIGN STYLES FOR ARQUEO DE CAJA */
+    .glass-card {
+        background: rgba(17, 17, 17, 0.75) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(197, 159, 96, 0.15) !important;
+        border-radius: 24px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    [data-theme="light"] .glass-card {
+        background: rgba(255, 255, 255, 0.8) !important;
+        border: 1px solid rgba(197, 159, 96, 0.25) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+    }
+    
+    .glow-header-container {
+        border-left: 4px solid var(--tekfix-primary);
+        padding-left: 15px;
+    }
+
+    .form-control-premium {
+        background-color: rgba(26, 26, 26, 0.6) !important;
+        border: 1px solid rgba(197, 159, 96, 0.25) !important;
+        color: #fff !important;
+        border-radius: 16px !important;
+        padding: 0.8rem 1.2rem !important;
+        font-size: 1.05rem !important;
+        transition: all 0.3s ease !important;
+    }
+    [data-theme="light"] .form-control-premium {
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        border: 1px solid rgba(197, 159, 96, 0.3) !important;
+        color: #1a1a1a !important;
+    }
+    .form-control-premium:focus {
+        border-color: var(--tekfix-primary) !important;
+        box-shadow: 0 0 15px rgba(197, 159, 96, 0.3) !important;
+        background-color: rgba(30, 30, 30, 0.8) !important;
+    }
+    [data-theme="light"] .form-control-premium:focus {
+        background-color: #fff !important;
+    }
+    .form-control-premium:disabled {
+        background-color: rgba(40, 40, 40, 0.3) !important;
+        border-color: rgba(255, 255, 255, 0.05) !important;
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+    [data-theme="light"] .form-control-premium:disabled {
+        background-color: rgba(0, 0, 0, 0.05) !important;
+        color: rgba(0, 0, 0, 0.6) !important;
+    }
+
+    .textarea-premium {
+        background-color: rgba(26, 26, 26, 0.6) !important;
+        border: 1px solid rgba(197, 159, 96, 0.2) !important;
+        color: #fff !important;
+        border-radius: 16px !important;
+        padding: 0.8rem 1.2rem !important;
+        transition: all 0.3s ease !important;
+    }
+    [data-theme="light"] .textarea-premium {
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        border: 1px solid rgba(197, 159, 96, 0.25) !important;
+        color: #1a1a1a !important;
+    }
+    .textarea-premium:focus {
+        border-color: var(--tekfix-primary) !important;
+        box-shadow: 0 0 12px rgba(197, 159, 96, 0.25) !important;
+    }
+    .textarea-premium:disabled {
+        background-color: rgba(40, 40, 40, 0.3) !important;
+        border-color: rgba(255, 255, 255, 0.05) !important;
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+    [data-theme="light"] .textarea-premium:disabled {
+        background-color: rgba(0, 0, 0, 0.05) !important;
+        color: rgba(0, 0, 0, 0.6) !important;
+    }
+
+    /* STAT CARD STYLES */
+    .stat-card-gold {
+        background: linear-gradient(135deg, rgba(197, 159, 96, 0.12) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
+        border: 1px solid rgba(197, 159, 96, 0.25) !important;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .stat-card-green {
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.12) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
+        border: 1px solid rgba(46, 204, 113, 0.25) !important;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .stat-card-blue {
+        background: linear-gradient(135deg, rgba(52, 152, 219, 0.12) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
+        border: 1px solid rgba(52, 152, 219, 0.25) !important;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .stat-card-red {
+        background: linear-gradient(135deg, rgba(231, 76, 60, 0.12) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
+        border: 1px solid rgba(231, 76, 60, 0.25) !important;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .bg-gradient-gold {
+        background: linear-gradient(90deg, #A6824D 0%, #C59F60 100%) !important;
+    }
+    .bg-gradient-blue {
+        background: linear-gradient(90deg, #0d6efd 0%, #0dcaf0 100%) !important;
+    }
+
+    /* DIFFERENCE CARDS (DYNAMIC THEMES) */
+    .diff-neutral {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+        transition: all 0.3s ease;
+    }
+    .diff-sobrante {
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.18) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
+        border: 2px solid #2ecc71 !important;
+        box-shadow: 0 10px 30px rgba(46, 204, 113, 0.2) !important;
+        transition: all 0.3s ease;
+    }
+    .diff-faltante {
+        background: linear-gradient(135deg, rgba(231, 76, 60, 0.18) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
+        border: 2px solid #e74c3c !important;
+        box-shadow: 0 10px 30px rgba(231, 76, 60, 0.2) !important;
+        transition: all 0.3s ease;
+    }
+
+    /* BUTTONS LEGIBILITY */
+    .btn-outline-tekfix {
+        background-color: transparent !important;
+        color: var(--tekfix-primary) !important;
+        border: 1.5px solid var(--tekfix-primary) !important;
+        transition: all 0.3s ease !important;
+    }
+    .btn-outline-tekfix:hover {
+        background-color: var(--tekfix-primary) !important;
+        color: #000 !important;
+        box-shadow: 0 4px 12px rgba(197, 159, 96, 0.25) !important;
+    }
+    [data-theme="light"] .btn-outline-tekfix {
+        color: #8b6830 !important; /* Darker gold for higher contrast in day mode */
+        border-color: #8b6830 !important;
+    }
+    [data-theme="light"] .btn-outline-tekfix:hover {
+        background-color: #8b6830 !important;
+        color: #fff !important;
+    }
+
+    .btn-cerrar-premium {
+        background: linear-gradient(90deg, #A6824D 0%, #C59F60 100%) !important;
+        color: #000 !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.8px;
+        border: none !important;
+        padding: 1.1rem !important;
+        border-radius: 18px !important;
+        box-shadow: 0 5px 20px rgba(197, 159, 96, 0.3) !important;
+        transition: all 0.3s ease !important;
+    }
+    .btn-cerrar-premium:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 10px 30px rgba(197, 159, 96, 0.5) !important;
+    }
+
+    /* LIGHT THEME EXPLICIT ADJUSTMENTS */
+    [data-theme="light"] .stat-card-gold {
+        background: linear-gradient(135deg, rgba(197, 159, 96, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+        border-color: rgba(197, 159, 96, 0.4) !important;
+    }
+    [data-theme="light"] .stat-card-green {
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+        border-color: rgba(46, 204, 113, 0.4) !important;
+    }
+    [data-theme="light"] .stat-card-blue {
+        background: linear-gradient(135deg, rgba(52, 152, 219, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+        border-color: rgba(52, 152, 219, 0.4) !important;
+    }
+    [data-theme="light"] .stat-card-red {
+        background: linear-gradient(135deg, rgba(231, 76, 60, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+        border-color: rgba(231, 76, 60, 0.4) !important;
+    }
+
+    [data-theme="light"] .diff-neutral {
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+        border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    }
+    [data-theme="light"] .diff-sobrante {
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+        border-color: #2ecc71 !important;
+    }
+    [data-theme="light"] .diff-faltante {
+        background: linear-gradient(135deg, rgba(231, 76, 60, 0.1) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+        border-color: #e74c3c !important;
+    }
+</style>
+
 <div class="container py-4">
-    <div class="d-flex align-items-center mb-4">
-        <h2 class="fw-bold text-tekfix-main m-0"><i class="fa-solid fa-cash-register me-3 text-tekfix-primary"></i>Cierre de Caja Consolidado</h2>
-        <div class="ms-auto d-flex align-items-center gap-3">
-            <a href="{{ url_for('arqueo_bp.historial') }}" class="btn btn-outline-tekfix rounded-pill px-3 shadow-sm">
-                <i class="fa-solid fa-clock-rotate-left me-2"></i> Ver Historial de Cierres
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row align-items-md-center gap-3 mb-5">
+        <div class="glow-header-container">
+            <h2 class="fw-black text-tekfix-main m-0"><i class="fa-solid fa-cash-register me-3 text-tekfix-primary"></i>Conciliación y Arqueo de Caja</h2>
+            <p class="text-tekfix-sec m-0 mt-1">Recalcula arqueos por día contable para auditoría de sobrantes y faltantes.</p>
+        </div>
+        <div class="ms-md-auto d-flex flex-wrap align-items-center gap-3">
+            <a href="{{ url_for('arqueo_bp.reporte') }}" class="btn btn-outline-tekfix rounded-pill px-4 py-2 shadow-sm fw-bold">
+                <i class="fa-solid fa-scale-balanced me-2"></i> Reporte y Auditoría
             </a>
-            <span class="badge bg-tekfix-primary text-dark fw-bold px-3 py-2 rounded-pill shadow-sm">
-                Admin: {{ current_user.nombre }}
-            </span>
+            <a href="{{ url_for('arqueo_bp.historial') }}" class="btn btn-tekfix-secondary rounded-pill px-4 py-2 shadow-sm fw-bold">
+                <i class="fa-solid fa-clock-rotate-left me-2"></i> Ver Historial
+            </a>
+        </div>
+    </div>
+
+    <!-- Date selector -->
+    <div class="card glass-card mb-4 border-0">
+        <div class="card-body p-4 d-flex flex-column flex-md-row align-items-md-center gap-3">
+            <div>
+                <h5 class="fw-bold text-tekfix-primary m-0"><i class="fa-solid fa-calendar-check me-2"></i>Selección del Día Contable</h5>
+                <p class="text-tekfix-sec small m-0">Selecciona el día específico para auditar y cuadrar la caja.</p>
+            </div>
+            <div class="ms-md-auto col-md-4">
+                <input type="date" id="fecha-arqueo-select" class="form-control form-control-premium text-center fw-bold" value="{{ hoy }}">
+            </div>
+        </div>
+    </div>
+
+    <!-- Closed Alert banner -->
+    <div id="cierre-banner" style="display: none;">
+        <div class="alert bg-success bg-opacity-10 border border-success border-opacity-25 text-success rounded-4 p-4 mb-4 d-flex align-items-center">
+            <i class="fa-solid fa-circle-check me-3 fa-2x"></i>
+            <div>
+                <h6 class="fw-bold m-0 mb-1">Día Contable Conciliado y Cerrado</h6>
+                <p class="m-0 small">Esta fecha ya cuenta con un arqueo registrado de forma oficial. Se ha bloqueado la edición por seguridad y los datos se muestran en modo lectura.</p>
+            </div>
         </div>
     </div>
 
     <div class="row g-4">
         <!-- Panel Izquierdo: Resumen y Cálculo -->
         <div class="col-lg-8">
-            <div class="card bg-tekfix-card border-0 shadow-lg rounded-4 mb-4">
+            <div class="card glass-card">
                 <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="fw-bold text-tekfix-primary m-0">Movimientos Detectados</h5>
-                        <button class="btn btn-sm btn-outline-tekfix rounded-pill px-3" id="btn-refrescar">
-                            <i class="fa-solid fa-rotate me-1"></i> Recalcular
-                        </button>
-                    </div>
-                    
-                    <div class="alert bg-tekfix-input border-0 text-tekfix-sec rounded-4 mb-4">
-                        <i class="fa-solid fa-info-circle me-2 text-tekfix-primary"></i>
-                        Ventas calculadas desde el: <strong class="text-tekfix-main" id="fecha-inicio-display">{{ fecha_inicio.strftime('%d/%m/%Y %H:%M') }}</strong>
-                    </div>
+                    <h4 class="fw-bold text-tekfix-primary mb-4"><i class="fa-solid fa-chart-line me-2"></i>Valores Calculados por el Sistema</h4>
 
-                    <div class="row g-3 mb-4" id="stats-container">
-                        <!-- Se llena con JS -->
-                        <div class="col-md-6">
-                            <div class="p-3 bg-tekfix-input rounded-4 text-center">
-                                <small class="text-tekfix-sec text-uppercase fw-bold">Total Bruto en Ventas</small>
-                                <h3 class="fw-black text-tekfix-primary m-0" id="val-total-bruto">$0</h3>
+                    <!-- 4-Card Stats Grid -->
+                    <div class="row g-3 mb-5">
+                        <!-- Total Bruto -->
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="p-3 stat-card-gold text-center">
+                                <div class="mb-2">
+                                    <span class="p-2 rounded-circle bg-tekfix-primary bg-opacity-10 text-tekfix-primary">
+                                        <i class="fa-solid fa-sack-dollar fa-lg"></i>
+                                    </span>
+                                </div>
+                                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Ventas Brutas</small>
+                                <h4 class="fw-black text-tekfix-primary m-0" id="val-total-bruto">$0</h4>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="p-3 bg-tekfix-input rounded-4 text-center">
-                                <small class="text-tekfix-sec text-uppercase fw-bold">Egresos / Gastos</small>
-                                <h3 class="fw-black text-danger m-0" id="val-gastos">$0</h3>
+                        <!-- Efectivo Recibido -->
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="p-3 stat-card-green text-center">
+                                <div class="mb-2">
+                                    <span class="p-2 rounded-circle bg-success bg-opacity-10 text-success">
+                                        <i class="fa-solid fa-money-bill-wave fa-lg"></i>
+                                    </span>
+                                </div>
+                                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Ventas Efectivo (+)</small>
+                                <h4 class="fw-black text-success m-0" id="val-total-efectivo">$0</h4>
+                            </div>
+                        </div>
+                        <!-- Digitales / Retomas -->
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="p-3 stat-card-blue text-center">
+                                <div class="mb-2">
+                                    <span class="p-2 rounded-circle bg-info bg-opacity-10 text-info">
+                                        <i class="fa-solid fa-mobile-screen-button fa-lg"></i>
+                                    </span>
+                                </div>
+                                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Transf. & Digitales</small>
+                                <h4 class="fw-black text-info m-0" id="val-total-digitales">$0</h4>
+                            </div>
+                        </div>
+                        <!-- Gastos -->
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="p-3 stat-card-red text-center">
+                                <div class="mb-2">
+                                    <span class="p-2 rounded-circle bg-danger bg-opacity-10 text-danger">
+                                        <i class="fa-solid fa-receipt fa-lg"></i>
+                                    </span>
+                                </div>
+                                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Gastos / Egresos (-)</small>
+                                <h4 class="fw-black text-danger m-0" id="val-gastos">$0</h4>
                             </div>
                         </div>
                     </div>
 
-                    <h6 class="fw-bold text-tekfix-main mb-3">Ventas por Nicho de Negocio</h6>
-                    <div id="nicho-breakdown" class="mb-4">
-                        <!-- Listado de nichos -->
+                    <!-- Nicho Section -->
+                    <div class="border-bottom border-tekfix-border border-opacity-50 pb-4 mb-4">
+                        <h5 class="fw-bold text-tekfix-main mb-3"><i class="fa-solid fa-tags text-tekfix-primary me-2"></i>Desglose por Nicho de Negocio</h5>
+                        <div id="nicho-breakdown">
+                            <!-- Listado de nichos se llena con JS -->
+                        </div>
                     </div>
 
-                    <h6 class="fw-bold text-tekfix-main mb-3">Desglose por Métodos de Pago</h6>
-                    <div class="table-responsive mb-4">
-                        <table class="table table-custom table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Método</th>
-                                    <th class="text-end">Total Percibido</th>
-                                </tr>
-                            </thead>
-                            <tbody id="pago-breakdown">
-                                <!-- Listado de pagos -->
-                            </tbody>
-                        </table>
+                    <!-- Payment Breakdown Section -->
+                    <div class="pb-4 mb-4">
+                        <h5 class="fw-bold text-tekfix-main mb-3"><i class="fa-solid fa-wallet text-tekfix-primary me-2"></i>Desglose por Métodos de Pago</h5>
+                        <div class="table-responsive">
+                            <table class="table table-custom table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Método de Pago</th>
+                                        <th class="text-end">Total Percibido</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pago-breakdown">
+                                    <!-- Listado de pagos se llena con JS -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
                     <!-- Detalle de Gastos para Auditoría -->
-                    <div id="gastos-detail-container" style="display: none;">
-                        <h6 class="fw-bold text-danger mb-3"><i class="fa-solid fa-receipt me-2"></i>Detalle de Gastos / Egresos</h6>
+                    <div id="gastos-detail-container" style="display: none;" class="p-3 bg-danger bg-opacity-5 rounded-4 border border-danger border-opacity-15">
+                        <h5 class="fw-bold text-danger mb-3"><i class="fa-solid fa-receipt me-2"></i>Egresos Registrados</h5>
                         <div class="table-responsive">
                             <table class="table table-custom table-sm">
                                 <thead class="small">
@@ -81,7 +351,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="gastos-breakdown" class="small">
-                                    <!-- Listado de gastos -->
+                                    <!-- Listado de gastos se llena con JS -->
                                 </tbody>
                             </table>
                         </div>
@@ -92,35 +362,49 @@
 
         <!-- Panel Derecho: Formulario de Cierre -->
         <div class="col-lg-4">
-            <div class="card bg-tekfix-card border-0 shadow-lg rounded-4 sticky-top" style="top: 100px;">
+            <div class="card glass-card sticky-top" style="top: 100px; z-index: 10;">
                 <div class="card-body p-4">
-                    <h5 class="fw-bold text-tekfix-primary mb-4">Confirmación de Cierre</h5>
-                    <form action="{{ url_for('arqueo_bp.confirmar') }}" method="POST" id="form-arqueo">
+                    <h4 class="fw-bold text-tekfix-primary mb-4" id="form-title"><i class="fa-solid fa-shield-halved me-2"></i>Arqueo Manual</h4>
+                    
+                    <form action="{{ url_for('arqueo_bp.guardar') }}" method="POST" id="form-arqueo">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <input type="hidden" name="total_efectivo" id="hidden-efectivo">
-                        <input type="hidden" name="total_transferencias" id="hidden-transferencias">
-                        <input type="hidden" name="total_gastos" id="hidden-gastos">
-                        <input type="hidden" name="total_ventas" id="hidden-ventas">
-                        <input type="hidden" name="desglose_categorias" id="hidden-desglose-cat">
-                        <input type="hidden" name="desglose_pagos" id="hidden-desglose-pag">
+                        <input type="hidden" name="fecha_arqueo" id="hidden-fecha-arqueo" value="{{ hoy }}">
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold small text-tekfix-sec">BASE INICIAL (Caja Menuda)</label>
-                            <input type="number" name="base_inicial" class="form-control form-control-lg bg-tekfix-input border-0" value="0" required>
+                            <label class="form-label fw-bold small text-tekfix-primary"><i class="fa-solid fa-vault me-1"></i>BASE INICIAL (Apertura)</label>
+                            <input type="number" name="base_inicial" id="base_inicial" class="form-control form-control-lg form-control-premium" value="0" required placeholder="0">
+                            <div class="form-text text-tekfix-sec small">Dinero de cambio inicial en caja.</div>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label fw-bold small text-tekfix-sec">OBSERVACIONES</label>
-                            <textarea name="observaciones" class="form-control bg-tekfix-input border-0" rows="3" placeholder="Notas sobre el cierre..."></textarea>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-success"><i class="fa-solid fa-money-bill-1-wave me-1"></i>EFECTIVO FÍSICO CONTADO</label>
+                            <input type="number" name="efectivo_fisico" id="efectivo_fisico" class="form-control form-control-lg form-control-premium text-success fw-bold" value="0" required placeholder="0">
+                            <div class="form-text text-tekfix-sec small">Dinero físico real contado en la gaveta.</div>
                         </div>
 
-                        <div class="p-3 bg-tekfix-primary text-dark rounded-4 mb-4 text-center shadow-sm">
-                            <small class="fw-bold text-uppercase opacity-75">Saldo Neto en Caja (Efectivo)</small>
-                            <h2 class="fw-black m-0" id="val-saldo-neto">$0</h2>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-tekfix-sec"><i class="fa-solid fa-receipt me-1"></i>OBSERVACIONES / GASTOS</label>
+                            <textarea name="observaciones_gastos" id="observaciones_gastos" class="form-control textarea-premium" rows="2" placeholder="Notas sobre novedades o egresos..."></textarea>
                         </div>
 
-                        <button type="submit" class="btn btn-tekfix w-100 py-3 rounded-pill fw-bold fs-5 shadow-sm text-uppercase" id="btn-cerrar-caja">
-                            <i class="fa-solid fa-lock me-2"></i> Confirmar y Cerrar
+                        <!-- DYNAMIC DIFFERENCE CONTAINER -->
+                        <div class="p-3 rounded-4 mb-4 text-center diff-neutral" id="diferencia-card">
+                            <small class="fw-bold text-uppercase d-block mb-1" id="diferencia-label" style="letter-spacing: 1px; font-size: 0.75rem;">EFECTIVO ESPERADO</small>
+                            <h2 class="fw-black text-tekfix-main m-0" id="val-efectivo-esperado" style="font-size: 1.8rem;">$0</h2>
+                            <hr class="my-2 border-tekfix-border">
+                            <small class="fw-bold text-uppercase d-block mb-1" style="letter-spacing: 1px; font-size: 0.75rem;">DIFERENCIA</small>
+                            <h2 class="fw-black text-tekfix-main m-0" id="val-diferencia" style="font-size: 1.8rem;">$0</h2>
+                            <small class="text-tekfix-sec small mt-1 d-block" id="diferencia-status">Caja Cuadrada</small>
+                        </div>
+
+                        <!-- OBLIGATORY JUSTIFICATION IF DIFF != 0 -->
+                        <div class="mb-4 animate__animated animate__fadeIn" id="diferencia-justificacion-container" style="display: none;">
+                            <label class="form-label fw-bold small text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i>JUSTIFICACIÓN DE LA DIFERENCIA (Obligatoria)</label>
+                            <textarea name="observacion_diferencia" id="observacion_diferencia" class="form-control textarea-premium border-danger" rows="3" placeholder="Explica las razones del sobrante o faltante detectado..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-cerrar-premium w-100 py-3 text-uppercase shadow d-flex align-items-center justify-content-center" id="btn-cerrar-caja">
+                            <i class="fa-solid fa-lock me-3 fa-lg"></i> Cerrar Caja y Guardar
                         </button>
                     </form>
                 </div>
@@ -133,89 +417,242 @@
 document.addEventListener('DOMContentLoaded', () => {
     const formatCOP = (num) => "$" + new Intl.NumberFormat('en-US').format(Math.round(num || 0));
 
-    async function cargarCalculos() {
+    // Elementos DOM
+    const fechaSelect = document.getElementById('fecha-arqueo-select');
+    const hiddenFecha = document.getElementById('hidden-fecha-arqueo');
+    const baseInicialInput = document.getElementById('base_inicial');
+    const efectivoFisicoInput = document.getElementById('efectivo_fisico');
+    const obsGastosInput = document.getElementById('observaciones_gastos');
+    const obsDiferenciaInput = document.getElementById('observacion_diferencia');
+    const obsDiferenciaContainer = document.getElementById('diferencia-justificacion-container');
+    const btnCerrar = document.getElementById('btn-cerrar-caja');
+    const bannerCerrado = document.getElementById('cierre-banner');
+    const formTitle = document.getElementById('form-title');
+
+    const valBruto = document.getElementById('val-total-bruto');
+    const valEfectivo = document.getElementById('val-total-efectivo');
+    const valDigital = document.getElementById('val-total-digitales');
+    const valGastos = document.getElementById('val-gastos');
+
+    const nichoEl = document.getElementById('nicho-breakdown');
+    const pagoEl = document.getElementById('pago-breakdown');
+    const gastosContainer = document.getElementById('gastos-detail-container');
+    const gastosEl = document.getElementById('gastos-breakdown');
+
+    const diferenciaCard = document.getElementById('diferencia-card');
+    const valEsperado = document.getElementById('val-efectivo-esperado');
+    const valDiferencia = document.getElementById('val-diferencia');
+    const diferenciaStatus = document.getElementById('diferencia-status');
+
+    let totalEfectivoSistema = 0;
+    let gastosDelDia = 0;
+    let yaCerrado = false;
+
+    // Cargar datos por Fecha
+    async function cargarDatosPorFecha() {
+        const fecha = fechaSelect.value;
+        hiddenFecha.value = fecha;
+        
         try {
-            const res = await fetch("{{ url_for('arqueo_bp.calcular') }}");
+            const res = await fetch(`/arqueo/datos-dia?fecha=${fecha}`);
             const data = await res.json();
             
-            // Llenar Stats
-            document.getElementById('val-total-bruto').innerText = formatCOP(data.total_bruto);
-            document.getElementById('val-gastos').innerText = formatCOP(data.gastos);
-            document.getElementById('hidden-gastos').value = data.gastos;
+            if (data.ya_cerrado) {
+                yaCerrado = true;
+                bannerCerrado.style.display = 'block';
+                formTitle.innerHTML = `<i class="fa-solid fa-eye me-2"></i>Consulta de Arqueo`;
+                btnCerrar.style.display = 'none';
 
-            // Llenar Nichos
-            const nichoEl = document.getElementById('nicho-breakdown');
-            nichoEl.innerHTML = '';
-            data.por_nicho.forEach(n => {
-                const perc = (n.total / data.total_bruto) * 100;
-                nichoEl.innerHTML += `
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="small fw-bold text-tekfix-sec">${n.nombre}</span>
-                            <span class="small fw-bold text-tekfix-main">${formatCOP(n.total)}</span>
-                        </div>
-                        <div class="progress" style="height: 6px; background: var(--tekfix-border); border-radius: 10px;">
-                            <div class="progress-bar bg-tekfix-primary" style="width: ${perc}%"></div>
-                        </div>
-                    </div>
-                `;
-            });
+                // Llenar inputs en modo lectura
+                const arqueo = data.arqueo_guardado;
+                baseInicialInput.value = arqueo.base_inicial;
+                baseInicialInput.disabled = true;
+                efectivoFisicoInput.value = arqueo.efectivo_fisico;
+                efectivoFisicoInput.disabled = true;
+                obsGastosInput.value = arqueo.observaciones_gastos;
+                obsGastosInput.disabled = true;
+                obsDiferenciaInput.value = arqueo.observacion_diferencia;
+                obsDiferenciaInput.disabled = true;
 
-            // Llenar Pagos
-            const pagoEl = document.getElementById('pago-breakdown');
-            pagoEl.innerHTML = '';
-            let totalEfectivo = 0;
-            let totalTrans = 0;
+                totalEfectivoSistema = arqueo.total_efectivo_sistema;
+                gastosDelDia = arqueo.gastos_del_dia;
 
-            data.por_metodo.forEach(m => {
-                if(m.metodo === 'efectivo') totalEfectivo = m.total;
-                else totalTrans += m.total;
+                // Llenar tarjetas de resumen del sistema
+                valBruto.innerText = formatCOP(arqueo.total_ventas);
+                valEfectivo.innerText = formatCOP(arqueo.total_efectivo_sistema);
+                valDigital.innerText = formatCOP(arqueo.total_transferencia_sistema);
+                valGastos.innerText = formatCOP(arqueo.gastos_del_dia);
 
-                pagoEl.innerHTML += `
-                    <tr>
-                        <td class="text-capitalize text-tekfix-sec">${m.metodo}</td>
-                        <td class="text-end fw-bold text-tekfix-main">${formatCOP(m.total)}</td>
-                    </tr>
-                `;
-            });
+                // Nichos & Pagos
+                renderNichos(arqueo.desglose_categorias, arqueo.total_ventas);
+                renderPagos(arqueo.desglose_pagos);
+                gastosContainer.style.display = 'none'; // No disponible detallado en consulta simple
 
-            document.getElementById('hidden-efectivo').value = totalEfectivo;
-            document.getElementById('hidden-transferencias').value = totalTrans;
-            document.getElementById('hidden-ventas').value = data.total_bruto;
-            document.getElementById('hidden-desglose-cat').value = JSON.stringify(data.por_nicho.reduce((acc, curr) => { acc[curr.nombre] = curr.total; return acc; }, {}));
-            document.getElementById('hidden-desglose-pag').value = JSON.stringify(data.por_metodo.reduce((acc, curr) => { acc[curr.metodo] = curr.total; return acc; }, {}));
-            
-            // Llenar Detalle de Gastos
-            const gastosContainer = document.getElementById('gastos-detail-container');
-            const gastosEl = document.getElementById('gastos-breakdown');
-            gastosEl.innerHTML = '';
-            
-            if (data.gastos_detalles && data.gastos_detalles.length > 0) {
-                gastosContainer.style.display = 'block';
-                data.gastos_detalles.forEach(g => {
-                    gastosEl.innerHTML += `
-                        <tr>
-                            <td class="fw-bold text-tekfix-main">${g.categoria}</td>
-                            <td class="text-tekfix-sec">${g.descripcion}</td>
-                            <td class="text-end fw-bold text-danger">-${formatCOP(g.monto)}</td>
-                        </tr>
-                    `;
-                });
             } else {
-                gastosContainer.style.display = 'none';
+                yaCerrado = false;
+                bannerCerrado.style.display = 'none';
+                formTitle.innerHTML = `<i class="fa-solid fa-shield-halved me-2"></i>Arqueo Manual`;
+                btnCerrar.style.display = 'flex';
+
+                // Habilitar y limpiar inputs
+                baseInicialInput.disabled = false;
+                baseInicialInput.value = 0;
+                efectivoFisicoInput.disabled = false;
+                efectivoFisicoInput.value = 0;
+                obsGastosInput.disabled = false;
+                obsGastosInput.value = '';
+                obsDiferenciaInput.disabled = false;
+                obsDiferenciaInput.value = '';
+
+                totalEfectivoSistema = data.total_efectivo_sistema;
+                gastosDelDia = data.gastos_del_dia;
+
+                // Llenar tarjetas
+                valBruto.innerText = formatCOP(data.total_bruto);
+                valEfectivo.innerText = formatCOP(data.total_efectivo_sistema);
+                valDigital.innerText = formatCOP(data.total_transferencia_sistema);
+                valGastos.innerText = formatCOP(data.gastos_del_dia);
+
+                // Nichos & Pagos
+                renderNichos(data.desglose_categorias, data.total_bruto);
+                renderPagos(data.desglose_pagos);
+                renderGastos(data.gastos_detalles);
             }
 
-            // Matemática del Cierre: (Efectivo Ventas) - (Gastos Registrados)
-            const saldoNeto = totalEfectivo - data.gastos;
-            document.getElementById('val-saldo-neto').innerText = formatCOP(saldoNeto);
+            actualizarMatematica();
 
         } catch (e) {
-            console.error(e);
+            console.error("Error cargando arqueo por fecha:", e);
         }
     }
 
-    document.getElementById('btn-refrescar').addEventListener('click', cargarCalculos);
-    cargarCalculos();
+    function renderNichos(categorias, totalBruto) {
+        nichoEl.innerHTML = '';
+        for (const [name, total] of Object.entries(categorias || {})) {
+            const perc = totalBruto > 0 ? (total / totalBruto) * 100 : 0;
+            
+            let progressColorClass = 'bg-tekfix-primary';
+            let iconClass = 'fa-solid fa-tag text-tekfix-primary';
+            
+            if (name.toLowerCase().includes('celular') || name.toLowerCase().includes('tecnologia') || name.toLowerCase().includes('imei')) {
+                progressColorClass = 'bg-gradient-gold';
+                iconClass = 'fa-solid fa-mobile-screen-button text-tekfix-primary';
+            } else if (name.toLowerCase().includes('ropa') || name.toLowerCase().includes('vestir') || name.toLowerCase().includes('prenda')) {
+                progressColorClass = 'bg-gradient-blue';
+                iconClass = 'fa-solid fa-shirt text-info';
+            }
+
+            nichoEl.innerHTML += `
+                <div class="mb-3 p-3 bg-tekfix-input bg-opacity-40 rounded-4 border border-tekfix-border border-opacity-50">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="small fw-bold text-tekfix-main"><i class="${iconClass} me-2"></i>${name}</span>
+                        <span class="small fw-black text-tekfix-primary">${formatCOP(total)} <span class="text-tekfix-sec fw-normal">(${perc.toFixed(1)}%)</span></span>
+                    </div>
+                    <div class="progress" style="height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                        <div class="progress-bar ${progressColorClass}" style="width: ${perc}%; border-radius: 10px; transition: width 0.8s ease-in-out;"></div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    function renderPagos(pagos) {
+        pagoEl.innerHTML = '';
+        for (const [metodo, total] of Object.entries(pagos || {})) {
+            let badgeHtml = '';
+            if(metodo === 'efectivo') {
+                badgeHtml = `<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 text-capitalize"><i class="fa-solid fa-money-bill-wave me-2"></i>${metodo}</span>`;
+            } else if(metodo === 'retoma') {
+                badgeHtml = `<span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3 py-2 text-capitalize"><i class="fa-solid fa-mobile-screen me-2"></i>${metodo}</span>`;
+            } else {
+                badgeHtml = `<span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 text-capitalize"><i class="fa-solid fa-money-bill-transfer me-2"></i>${metodo}</span>`;
+            }
+
+            pagoEl.innerHTML += `
+                <tr>
+                    <td class="align-middle">${badgeHtml}</td>
+                    <td class="text-end fw-black text-tekfix-main align-middle" style="font-size: 1.1rem;">${formatCOP(total)}</td>
+                </tr>
+            `;
+        }
+    }
+
+    function renderGastos(gastos) {
+        gastosEl.innerHTML = '';
+        if (gastos && gastos.length > 0) {
+            gastosContainer.style.display = 'block';
+            gastos.forEach(g => {
+                gastosEl.innerHTML += `
+                    <tr>
+                        <td class="fw-bold text-tekfix-main align-middle"><span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-1 text-capitalize">${g.categoria}</span></td>
+                        <td class="text-tekfix-sec align-middle">${g.descripcion}</td>
+                        <td class="text-end fw-black text-danger align-middle" style="font-size: 1.05rem;">-${formatCOP(g.monto)}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            gastosContainer.style.display = 'none';
+        }
+    }
+
+    // Matemática Contable Reactiva
+    function actualizarMatematica() {
+        const base = parseFloat(baseInicialInput.value) || 0;
+        const fisico = parseFloat(efectivoFisicoInput.value) || 0;
+
+        // 1. Efectivo Esperado = base_inicial + total_efectivo_sistema - gastos_del_dia
+        const esperado = base + totalEfectivoSistema - gastosDelDia;
+        valEsperado.innerText = formatCOP(esperado);
+
+        // 2. Diferencia = efectivo_fisico - Efectivo Esperado
+        const diferencia = fisico - esperado;
+        valDiferencia.innerText = (diferencia > 0 ? "+" : "") + formatCOP(diferencia);
+
+        // Actualizar visualizaciones y validación obligatoria
+        diferenciaCard.className = 'p-3 rounded-4 mb-4 text-center';
+        
+        if (diferencia === 0) {
+            diferenciaCard.classList.add('diff-neutral');
+            diferenciaStatus.innerText = "Caja Cuadrada";
+            diferenciaStatus.className = "text-tekfix-sec small mt-1 d-block";
+            
+            // Ocultar justificación
+            obsDiferenciaContainer.style.display = 'none';
+            obsDiferenciaInput.removeAttribute('required');
+        } else if (diferencia > 0) {
+            diferenciaCard.classList.add('diff-sobrante');
+            diferenciaStatus.innerText = `Sobrante de ${formatCOP(diferencia)}`;
+            diferenciaStatus.className = "text-success fw-bold small mt-1 d-block";
+            
+            // Mostrar justificación obligatoria si no está cerrado
+            if (!yaCerrado) {
+                obsDiferenciaContainer.style.display = 'block';
+                obsDiferenciaInput.setAttribute('required', 'true');
+            } else {
+                obsDiferenciaContainer.style.display = 'block';
+            }
+        } else {
+            diferenciaCard.classList.add('diff-faltante');
+            diferenciaStatus.innerText = `Faltante de ${formatCOP(Math.abs(diferencia))}`;
+            diferenciaStatus.className = "text-danger fw-bold small mt-1 d-block";
+            
+            // Mostrar justificación obligatoria si no está cerrado
+            if (!yaCerrado) {
+                obsDiferenciaContainer.style.display = 'block';
+                obsDiferenciaInput.setAttribute('required', 'true');
+            } else {
+                obsDiferenciaContainer.style.display = 'block';
+            }
+        }
+    }
+
+    // Listeners
+    fechaSelect.addEventListener('change', cargarDatosPorFecha);
+    baseInicialInput.addEventListener('input', actualizarMatematica);
+    efectivoFisicoInput.addEventListener('input', actualizarMatematica);
+
+    // Carga inicial
+    cargarDatosPorFecha();
 });
 </script>
 {% endblock %}

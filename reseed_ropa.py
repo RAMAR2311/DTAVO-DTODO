@@ -1,5 +1,5 @@
 from app import app
-from models import db, Product, ProductVariant, Category, StockAdjustment, SaleDetail, Sale
+from models import db, Product, ProductVariant, Category, StockAdjustment, SaleDetail
 
 with app.app_context():
     # 1. Identificar categoría

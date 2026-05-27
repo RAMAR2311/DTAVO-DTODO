@@ -1,10 +1,10 @@
-from flask import Blueprint, request, jsonify, flash, redirect, render_template, abort, url_for, session
+from flask import Blueprint, request, jsonify, flash, redirect, render_template, url_for, session
 from flask_login import login_required, current_user
-from models import db, Product, ProductVariant, Sale, User, Maneo, SaleDetail, SalePayment, StockAdjustment, Expense, Loss, Provider, ProviderInvoice, ProviderPayment, Warranty, DynamicKey, Importacion, ClienteCartera, FacturaCredito, AbonoCredito, Category, ProductSeries, obtener_hora_bogota, Category, Customer
+from models import db, Product, ProductVariant, Sale, SaleDetail, SalePayment, Expense, Category, ProductSeries, obtener_hora_bogota, Customer
 from decorators import admin_required
 from decimal import Decimal
 from datetime import datetime, timedelta
-from sqlalchemy import or_, cast, String, func
+from sqlalchemy import or_, func
 from sqlalchemy.orm import joinedload
 
 sales_bp = Blueprint('sales_bp', __name__)
@@ -273,7 +273,7 @@ def procesar_venta():
         db.session.rollback()
         return jsonify({'error': str(val_err)}), 400
         
-    except Exception as e:
+    except Exception:
         db.session.rollback()
         return jsonify({'error': 'Ocurrió un error interno al procesar la venta.'}), 500
 
@@ -297,7 +297,7 @@ def api_buscar_cliente(cedula):
 @login_required
 def api_buscar_producto(sku):
     # Búsqueda por SKU exacto o dentro de Atributos JSONB (IMEI, Serial, etc)
-    search_term = f"%{sku}%"
+
     producto = Product.query.filter(
         Product.tipo_inventario == 'tienda',
         Product.categoria_id == session.get('categoria_actual'),
@@ -377,6 +377,7 @@ def historial():
     total_daviplata = Decimal('0')
     total_tarjeta = Decimal('0')
     total_credito = Decimal('0')
+    total_retoma = Decimal('0')
     total_transferencia_legacy = Decimal('0')
     total_mixto = 0  # Contador de ventas con pago mixto
 
@@ -395,6 +396,8 @@ def historial():
                     total_tarjeta += pago.monto
                 elif pago.metodo_pago == 'credito':
                     total_credito += pago.monto
+                elif pago.metodo_pago == 'retoma':
+                    total_retoma += pago.monto
                 elif pago.metodo_pago == 'transferencia':
                     total_transferencia_legacy += pago.monto
             if len(v.pagos) > 1:
@@ -412,6 +415,8 @@ def historial():
                 total_tarjeta += v.monto_total
             elif v.metodo_pago == 'credito':
                 total_credito += v.monto_total
+            elif v.metodo_pago == 'retoma':
+                total_retoma += v.monto_total
             elif v.metodo_pago == 'transferencia':
                 total_transferencia_legacy += v.monto_total
 
@@ -424,6 +429,7 @@ def historial():
                            total_daviplata=total_daviplata,
                            total_tarjeta=total_tarjeta,
                            total_credito=total_credito,
+                           total_retoma=total_retoma,
                            total_transferencia_legacy=total_transferencia_legacy,
                            total_mixto=total_mixto,
                            fecha_inicio=fecha_inicio,
@@ -474,7 +480,7 @@ def eliminar_venta(sale_id):
         db.session.commit()
         flash('Venta anulada: Stock devuelto e IMEIs liberados exitosamente.', 'success')
         
-    except Exception as e:
+    except Exception:
         db.session.rollback()
         flash('Ocurrió un error al anular la venta.', 'danger')
         

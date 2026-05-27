@@ -64,9 +64,9 @@ def eliminar(id):
         db.session.delete(usuario)
         db.session.commit()
         flash(f'Usuario {nombre} eliminado correctamente.', 'success')
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        flash(f'No se puede eliminar el usuario porque tiene registros asociados (ventas, etc).', 'danger')
+        flash('No se puede eliminar el usuario porque tiene registros asociados (ventas, etc).', 'danger')
 
     return redirect(url_for('personal_bp.index'))
 

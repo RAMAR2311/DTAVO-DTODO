@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app, jsonify
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
 from flask_login import login_required, current_user
 from decorators import bodega_required
 from models import db, Cliente, FacturaBodega, AbonoBodega, Product, StockAdjustment, FacturaBodegaDetalle
@@ -51,7 +51,7 @@ def nuevo_cliente():
             db.session.commit()
             flash(f'Cliente {nombre} registrado exitosamente.', 'success')
             return redirect(url_for('bodega_bp.dashboard'))
-        except Exception as e:
+        except Exception:
             db.session.rollback()
             flash('Error al intentar registrar el cliente.', 'danger')
 
@@ -147,7 +147,7 @@ def nueva_factura():
                 flash('Factura guardada y stock de inventario descontado correctamente.', 'success')
                 return redirect(url_for('bodega_bp.dashboard'))
                 
-            except Exception as e:
+            except Exception:
                 db.session.rollback()
                 flash('Ocurrió un error en la base de datos al guardar la factura o afectar el stock.', 'danger')
         else:
@@ -227,7 +227,7 @@ def nuevo_abono(factura_id):
         db.session.commit()
 
         flash(f'Abono de ${monto_abono} registrado correctamente a la factura #{factura.numero_factura}.', 'success')
-    except Exception as e:
+    except Exception:
         db.session.rollback()
         flash('Hubo un error al registrar el abono.', 'danger')
 

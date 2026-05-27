@@ -6,3 +6,5 @@ instance/
 static/uploads/
 scratch/
 venv/
+.vscode/
+

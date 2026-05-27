@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 from flask import current_app, Blueprint, render_template, request, redirect, url_for, flash, abort, send_file, jsonify, session
 from flask_login import login_required, current_user
 from models import db, Product, StockAdjustment, ProductVariant, Category, ProductSeries
-from decorators import admin_required, admin_or_bodega_required
+from decorators import admin_or_bodega_required
 import pandas as pd
 from io import BytesIO
 
@@ -360,7 +360,7 @@ def agregar_variante(id):
         # Opcionalmente descontar o trackear en Kardex? La instrucción solo dice: "crea la ruta para añadir la subcategoría"
         db.session.commit()
         flash(f'Variante "{nombre_variante}" agregada con éxito.', 'success')
-    except Exception as e:
+    except Exception:
         db.session.rollback()
         flash('Error al agregar la variante.', 'danger')
 
@@ -394,7 +394,7 @@ def editar_variante(id):
     try:
         db.session.commit()
         flash('Variante editada con éxito.', 'success')
-    except Exception as e:
+    except Exception:
         db.session.rollback()
         flash('Error al editar la variante.', 'danger')
         
@@ -689,7 +689,7 @@ def obtener_variantes(id):
 @login_required
 @admin_or_bodega_required
 def agregar_serial(id):
-    producto = Product.query.get_or_404(id)
+    Product.query.get_or_404(id)
     serial_str = request.form.get('serial', '').strip()
     
     if not serial_str:
@@ -848,7 +848,7 @@ def rechazar_retoma(serie_id):
             
         db.session.commit()
         flash('Retoma eliminada/rechazada.', 'success')
-    except Exception as e:
+    except Exception:
         db.session.rollback()
         flash('Error al eliminar retoma.', 'danger')
     return redirect(url_for('inventory_bp.retomas_index'))

@@ -301,11 +301,14 @@
                         <i class="fa-solid fa-cash-register me-2" style="width:20px; text-align:center; color: #C59F60; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));"></i> Ventas
                     </a>
                 </li>
+                {% if current_user.rol == 'admin' %}
                 <li class="nav-item">
                     <a class="nav-link text-tekfix-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('admin_bp.dashboard') }}">
                         <i class="fa-solid fa-chart-pie me-2" style="width:20px; text-align:center; color: #4A90E2;"></i> Dashboard
                     </a>
                 </li>
+                {% endif %}
+                {% if current_user.rol in ['admin', 'bodega'] %}
                 <li class="nav-item">
                     <a class="nav-link text-tekfix-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('inventory_bp.index') }}">
                         <i class="fa-solid fa-boxes-stacked me-2" style="width:20px; text-align:center; color: #7ED321;"></i> Inventario
@@ -316,6 +319,7 @@
                         <i class="fa-solid fa-mobile-retro me-2" style="width:20px; text-align:center; color: #FF9F00;"></i> Retomas
                     </a>
                 </li>
+                {% endif %}
                 <li class="nav-item">
                     <a class="nav-link text-tekfix-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('clientes_bp.index') }}">
                         <i class="fa-solid fa-users me-2" style="width:20px; text-align:center; color: #50E3C2;"></i> Clientes

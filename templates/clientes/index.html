@@ -3,11 +3,13 @@
 {% block content %}
 <div class="d-flex align-items-center justify-content-between mb-4">
     <h2 class="fw-bold text-tekfix-main m-0"><i class="fa-solid fa-address-book me-2 text-tekfix-primary"></i>Directorio de Clientes</h2>
+    {% if current_user.rol == 'admin' %}
     <div class="d-flex gap-2">
         <a href="{{ url_for('clientes_bp.cartera_index') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">
             <i class="fa-solid fa-wallet me-2"></i>Ver Cartera (Créditos)
         </a>
     </div>
+    {% endif %}
 </div>
 
 <div class="card card-custom border-0 shadow-sm mb-4">

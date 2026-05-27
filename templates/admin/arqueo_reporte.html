@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* PREMIUM REPORT DESIGN */
+    .glass-card {
+        background: rgba(17, 17, 17, 0.75) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(197, 159, 96, 0.15) !important;
+        border-radius: 24px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    [data-theme="light"] .glass-card {
+        background: rgba(255, 255, 255, 0.8) !important;
+        border: 1px solid rgba(197, 159, 96, 0.25) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+    }
+    
+    .glow-header-container {
+        border-left: 4px solid var(--tekfix-primary);
+        padding-left: 15px;
+    }
+
+    .form-control-premium {
+        background-color: rgba(26, 26, 26, 0.6) !important;
+        border: 1px solid rgba(197, 159, 96, 0.2) !important;
+        color: #fff !important;
+        border-radius: 12px !important;
+        padding: 0.6rem 1rem !important;
+        transition: all 0.3s ease !important;
+    }
+    [data-theme="light"] .form-control-premium {
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        border: 1px solid rgba(197, 159, 96, 0.25) !important;
+        color: #1a1a1a !important;
+    }
+    .form-control-premium:focus {
+        border-color: var(--tekfix-primary) !important;
+        box-shadow: 0 0 12px rgba(197, 159, 96, 0.25) !important;
+    }
+
+    /* CARD GRID STYLES */
+    .stat-card-gold {
+        background: linear-gradient(135deg, rgba(197, 159, 96, 0.12) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
+        border: 1px solid rgba(197, 159, 96, 0.25) !important;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .stat-card-gold:hover {
+        transform: translateY(-3px);
+        border-color: rgba(197, 159, 96, 0.5) !important;
+        box-shadow: 0 8px 20px rgba(197, 159, 96, 0.15) !important;
+    }
+
+    .stat-card-green {
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.12) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
+        border: 1px solid rgba(46, 204, 113, 0.25) !important;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .stat-card-green:hover {
+        transform: translateY(-3px);
+        border-color: rgba(46, 204, 113, 0.5) !important;
+        box-shadow: 0 8px 20px rgba(46, 204, 113, 0.15) !important;
+    }
+
+    .stat-card-red {
+        background: linear-gradient(135deg, rgba(231, 76, 60, 0.12) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
+        border: 1px solid rgba(231, 76, 60, 0.25) !important;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .stat-card-red:hover {
+        transform: translateY(-3px);
+        border-color: rgba(231, 76, 60, 0.5) !important;
+        box-shadow: 0 8px 20px rgba(231, 76, 60, 0.15) !important;
+    }
+
+    .stat-card-blue {
+        background: linear-gradient(135deg, rgba(52, 152, 219, 0.12) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
+        border: 1px solid rgba(52, 152, 219, 0.25) !important;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .stat-card-blue:hover {
+        transform: translateY(-3px);
+        border-color: rgba(52, 152, 219, 0.5) !important;
+        box-shadow: 0 8px 20px rgba(52, 152, 219, 0.15) !important;
+    }
+
+    /* BUTTONS LEGIBILITY */
+    .btn-outline-tekfix {
+        background-color: transparent !important;
+        color: var(--tekfix-primary) !important;
+        border: 1.5px solid var(--tekfix-primary) !important;
+        transition: all 0.3s ease !important;
+    }
+    .btn-outline-tekfix:hover {
+        background-color: var(--tekfix-primary) !important;
+        color: #000 !important;
+        box-shadow: 0 4px 12px rgba(197, 159, 96, 0.25) !important;
+    }
+    [data-theme="light"] .btn-outline-tekfix {
+        color: #8b6830 !important; /* Darker gold for higher contrast in day mode */
+        border-color: #8b6830 !important;
+    }
+    [data-theme="light"] .btn-outline-tekfix:hover {
+        background-color: #8b6830 !important;
+        color: #fff !important;
+    }
+
+    /* LIGHT THEME EXPLICIT ADJUSTMENTS */
+    [data-theme="light"] .stat-card-gold {
+        background: linear-gradient(135deg, rgba(197, 159, 96, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+        border-color: rgba(197, 159, 96, 0.4) !important;
+    }
+    [data-theme="light"] .stat-card-green {
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+        border-color: rgba(46, 204, 113, 0.4) !important;
+    }
+    [data-theme="light"] .stat-card-red {
+        background: linear-gradient(135deg, rgba(231, 76, 60, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+        border-color: rgba(231, 76, 60, 0.4) !important;
+    }
+    [data-theme="light"] .stat-card-blue {
+        background: linear-gradient(135deg, rgba(52, 152, 219, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%) !important;
+        border-color: rgba(52, 152, 219, 0.4) !important;
+    }
+</style>
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row align-items-md-center gap-3 mb-5">
+        <div class="glow-header-container">
+            <h2 class="fw-black text-tekfix-main m-0"><i class="fa-solid fa-scale-balanced me-3 text-tekfix-primary"></i>Reporte Contable de Caja</h2>
+            <p class="text-tekfix-sec m-0 mt-1">Conciliación de arqueos de caja, sobrantes y faltantes de inventario financiero.</p>
+        </div>
+        <div class="ms-md-auto d-flex flex-wrap align-items-center gap-2">
+            <a href="{{ url_for('arqueo_bp.index') }}" class="btn btn-outline-tekfix rounded-pill px-4 py-2 shadow-sm fw-bold">
+                <i class="fa-solid fa-cash-register me-2"></i> Realizar Arqueo
+            </a>
+            <a href="{{ url_for('arqueo_bp.historial') }}" class="btn btn-tekfix-secondary rounded-pill px-4 py-2 shadow-sm fw-bold">
+                <i class="fa-solid fa-clock-rotate-left me-2"></i> Historial Completo
+            </a>
+        </div>
+    </div>
+
+    <!-- Date Filters Card -->
+    <div class="card glass-card mb-4 border-0">
+        <div class="card-body p-4">
+            <form method="GET" action="{{ url_for('arqueo_bp.reporte') }}" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-tekfix-primary"><i class="fa-solid fa-calendar-days me-1"></i>Fecha de Inicio</label>
+                    <input type="date" name="fecha_inicio" class="form-control form-control-premium" value="{{ fecha_inicio }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-tekfix-primary"><i class="fa-solid fa-calendar-days me-1"></i>Fecha de Finalización</label>
+                    <input type="date" name="fecha_fin" class="form-control form-control-premium" value="{{ fecha_fin }}" required>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-tekfix w-100 py-2 fw-bold rounded-pill text-uppercase shadow-sm">
+                        <i class="fa-solid fa-filter me-2"></i> Filtrar Arqueos
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4 Global Summary Cards -->
+    <div class="row g-3 mb-5">
+        <!-- Ventas Brutas Totales -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="p-3 stat-card-gold text-center">
+                <div class="mb-2">
+                    <span class="p-2 rounded-circle bg-tekfix-primary bg-opacity-10 text-tekfix-primary">
+                        <i class="fa-solid fa-sack-dollar fa-lg"></i>
+                    </span>
+                </div>
+                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Ventas en Periodo</small>
+                <h4 class="fw-black text-tekfix-primary m-0">${{ total_ventas_brutas|cop }}</h4>
+            </div>
+        </div>
+        <!-- Egresos de Caja -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="p-3 stat-card-red text-center">
+                <div class="mb-2">
+                    <span class="p-2 rounded-circle bg-danger bg-opacity-10 text-danger">
+                        <i class="fa-solid fa-receipt fa-lg"></i>
+                    </span>
+                </div>
+                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Egresos de Caja</small>
+                <h4 class="fw-black text-danger m-0">-${{ total_gastos|cop }}</h4>
+            </div>
+        </div>
+        <!-- Efectivo Físico Recibido -->
+        <div class="col-sm-6 col-lg-3">
+            <div class="p-3 stat-card-green text-center">
+                <div class="mb-2">
+                    <span class="p-2 rounded-circle bg-success bg-opacity-10 text-success">
+                        <i class="fa-solid fa-money-bill-1-wave fa-lg"></i>
+                    </span>
+                </div>
+                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Efectivo Contado</small>
+                <h4 class="fw-black text-success m-0">${{ total_efectivo_fisico|cop }}</h4>
+            </div>
+        </div>
+        <!-- Balance Diferencia Global -->
+        <div class="col-sm-6 col-lg-3">
+            {% if total_diferencia > 0 %}
+                {% set diff_class = 'text-info' %}
+                {% set icon_class = 'text-info bg-info' %}
+            {% elif total_diferencia < 0 %}
+                {% set diff_class = 'text-danger' %}
+                {% set icon_class = 'text-danger bg-danger' %}
+            {% else %}
+                {% set diff_class = 'text-tekfix-sec' %}
+                {% set icon_class = 'text-tekfix-sec bg-secondary' %}
+            {% endif %}
+            <div class="p-3 stat-card-blue text-center" style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.12) 0%, rgba(17, 17, 17, 0.95) 100%) !important;">
+                <div class="mb-2">
+                    <span class="p-2 rounded-circle bg-opacity-10 {{ icon_class }}">
+                        <i class="fa-solid fa-scale-unbalanced-flip fa-lg"></i>
+                    </span>
+                </div>
+                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Diferencia Neta</small>
+                <h4 class="fw-black {{ diff_class }} m-0">
+                    {% if total_diferencia > 0 %}+{% endif %}${{ total_diferencia|cop }}
+                </h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reconciliations Detailed Table -->
+    <div class="card glass-card border-0">
+        <div class="card-body p-0">
+            <h4 class="fw-bold text-tekfix-primary px-4 pt-4 mb-3"><i class="fa-solid fa-list-check me-2"></i>Auditoría de Arqueos Registrados</h4>
+            <div class="table-responsive">
+                <table class="table table-hover table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Fecha</th>
+                            <th>Cajero / Administrador</th>
+                            <th>Base Inicial</th>
+                            <th>Efectivo Sistema</th>
+                            <th>Gastos</th>
+                            <th>Efectivo Físico</th>
+                            <th>Diferencia</th>
+                            <th class="text-center">Detalles</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cierre in arqueos %}
+                        <tr>
+                            <td class="ps-4 align-middle">
+                                <div class="text-tekfix-main fw-bold">{{ cierre.fecha_arqueo.strftime('%d/%m/%Y') }}</div>
+                                <small class="text-tekfix-sec">{{ cierre.fecha_creacion.strftime('%I:%M %p') }}</small>
+                            </td>
+                            <td class="align-middle text-tekfix-main">
+                                <i class="fa-solid fa-user-circle me-1 text-tekfix-primary"></i> {{ cierre.cajero.nombre if cierre.cajero else 'Cajero' }}
+                            </td>
+                            <td class="align-middle text-tekfix-sec">${{ (cierre.base_inicial)|cop }}</td>
+                            <td class="align-middle text-tekfix-main fw-bold">${{ (cierre.total_efectivo_sistema)|cop }}</td>
+                            <td class="align-middle text-danger">-${{ (cierre.gastos_del_dia)|cop }}</td>
+                            <td class="align-middle text-success fw-black">${{ (cierre.efectivo_fisico)|cop }}</td>
+                            <td class="align-middle">
+                                {% if cierre.diferencia == 0 %}
+                                    <span class="badge bg-secondary bg-opacity-10 text-tekfix-sec border border-secondary border-opacity-25 rounded-pill px-3 py-2 fw-bold">
+                                        <i class="fa-solid fa-circle-check me-1"></i> Cuadrada
+                                    </span>
+                                {% elif cierre.diferencia > 0 %}
+                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill px-3 py-2 fw-bold">
+                                        <i class="fa-solid fa-circle-plus me-1"></i> +${{ (cierre.diferencia)|cop }} (Sobrante)
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-2 fw-bold">
+                                        <i class="fa-solid fa-circle-minus me-1"></i> -${{ (cierre.diferencia|abs)|cop }} (Faltante)
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center align-middle">
+                                <button class="btn btn-sm btn-outline-tekfix rounded-pill px-3 btn-detalle" 
+                                        data-cierre='{{ {
+                                            "id": cierre.id,
+                                            "fecha": cierre.fecha_arqueo.strftime("%d/%m/%Y"),
+                                            "obs_gastos": cierre.observaciones_gastos,
+                                            "obs_diferencia": cierre.observacion_diferencia,
+                                            "diferencia": cierre.diferencia,
+                                            "categorias": cierre.desglose_categorias,
+                                            "pagos": cierre.desglose_pagos
+                                        }|tojson }}'>
+                                    <i class="fa-solid fa-eye"></i> Audit
+                                </button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-tekfix-sec">
+                                <i class="fa-solid fa-folder-open fs-1 mb-3 d-block opacity-25"></i>
+                                No se encontraron arqueos registrados en el rango de fechas seleccionado.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalles de Auditoría -->
+<div class="modal fade" id="modalAudit" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-tekfix-card border border-tekfix-border shadow-lg rounded-4">
+            <div class="modal-header border-0 p-4 pb-0">
+                <h5 class="modal-title fw-bold text-tekfix-primary"><i class="fa-solid fa-shield-halved me-2"></i>Auditoría de Arqueo #<span id="modal-id"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- Observaciones Gastos -->
+                <div class="mb-3">
+                    <h6 class="small fw-bold text-tekfix-sec text-uppercase mb-2"><i class="fa-solid fa-receipt me-1"></i>Observaciones de Gastos del Turno</h6>
+                    <p class="text-tekfix-main mb-0 p-3 bg-tekfix-input rounded-3 border border-tekfix-border" id="modal-obs-gastos"></p>
+                </div>
+
+                <!-- Observaciones Diferencia -->
+                <div class="mb-4" id="modal-obs-diferencia-container">
+                    <h6 class="small fw-bold text-tekfix-sec text-uppercase mb-2"><i class="fa-solid fa-scale-balanced me-1"></i>Justificación de la Diferencia</h6>
+                    <p class="text-tekfix-main mb-0 p-3 bg-tekfix-input rounded-3 border" id="modal-obs-diferencia"></p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <h6 class="small fw-bold text-tekfix-sec text-uppercase mb-3"><i class="fa-solid fa-tags me-1 text-tekfix-primary"></i>Ventas por Nicho</h6>
+                        <div id="modal-cat-list" class="small">
+                            <!-- JS -->
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <h6 class="small fw-bold text-tekfix-sec text-uppercase mb-3"><i class="fa-solid fa-wallet me-1 text-tekfix-primary"></i>Ventas por Método</h6>
+                        <div id="modal-pag-list" class="small">
+                            <!-- JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0 gap-2">
+                <button type="button" class="btn btn-outline-tekfix rounded-pill fw-bold px-4" id="btn-imprimir-cierre">
+                    <i class="fa-solid fa-print me-2"></i>Imprimir Comprobante
+                </button>
+                <button type="button" class="btn btn-tekfix-secondary flex-grow-1 rounded-pill fw-bold" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const formatCOP = (num) => "$" + new Intl.NumberFormat('en-US').format(Math.round(num || 0));
+    const modal = new bootstrap.Modal(document.getElementById('modalAudit'));
+
+    document.querySelectorAll('.btn-detalle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const data = JSON.parse(btn.getAttribute('data-cierre'));
+            
+            document.getElementById('modal-id').innerText = data.id;
+            document.getElementById('modal-obs-gastos').innerText = data.obs_gastos || 'Sin observaciones de egresos';
+            
+            // Justificación Diferencia
+            const obsDiffContainer = document.getElementById('modal-obs-diferencia-container');
+            const obsDiffEl = document.getElementById('modal-obs-diferencia');
+            obsDiffEl.innerText = data.obs_diferencia || 'Caja cuadrada sin observaciones de diferencia.';
+            
+            if (data.diferencia == 0) {
+                obsDiffEl.className = 'text-tekfix-sec mb-0 p-3 bg-tekfix-input rounded-3 border border-tekfix-border';
+            } else if (data.diferencia > 0) {
+                obsDiffEl.className = 'text-info mb-0 p-3 bg-tekfix-input rounded-3 border border-info border-opacity-30';
+            } else {
+                obsDiffEl.className = 'text-danger mb-0 p-3 bg-tekfix-input rounded-3 border border-danger border-opacity-30';
+            }
+
+            // Configurar botón de impresión
+            const btnPrint = document.getElementById('btn-imprimir-cierre');
+            btnPrint.onclick = () => {
+                window.open(`/arqueo/recibo/${data.id}`, '_blank');
+            };
+            
+            // Llenar Categorías
+            const catList = document.getElementById('modal-cat-list');
+            catList.innerHTML = '';
+            for (const [name, total] of Object.entries(data.categorias || {})) {
+                catList.innerHTML += `
+                    <div class="d-flex justify-content-between border-bottom border-tekfix-border border-opacity-40 py-2">
+                        <span class="text-tekfix-sec">${name}</span>
+                        <span class="text-tekfix-main fw-bold">${formatCOP(total)}</span>
+                    </div>
+                `;
+            }
+
+            // Llenar Pagos
+            const pagList = document.getElementById('modal-pag-list');
+            pagList.innerHTML = '';
+            for (const [metodo, total] of Object.entries(data.pagos || {})) {
+                pagList.innerHTML += `
+                    <div class="d-flex justify-content-between border-bottom border-tekfix-border border-opacity-40 py-2">
+                        <span class="text-tekfix-sec text-capitalize">${metodo}</span>
+                        <span class="text-tekfix-main fw-bold">${formatCOP(total)}</span>
+                    </div>
+                `;
+            }
+
+            modal.show();
+        });
+    });
+});
+</script>
+{% endblock %}

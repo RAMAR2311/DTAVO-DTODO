@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from models import db, Expense, obtener_hora_bogota
-from decorators import admin_required
+
 from sqlalchemy import extract
 from datetime import datetime
 
@@ -44,7 +44,7 @@ def index():
             db.session.add(nuevo_gasto)
             db.session.commit()
             flash('Gasto registrado exitosamente.', 'success')
-        except Exception as e:
+        except Exception:
             db.session.rollback()
             flash('Error al intentar registrar el gasto en la base de datos.', 'danger')
         
@@ -89,7 +89,7 @@ def eliminar_gasto(id):
         db.session.delete(gasto)
         db.session.commit()
         flash('Gasto eliminado correctamente.', 'success')
-    except Exception as e:
+    except Exception:
         db.session.rollback()
         flash('Error al intentar eliminar el gasto.', 'danger')
         

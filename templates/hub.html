@@ -17,9 +17,8 @@
         'Ropa': 'fa-shirt',
         'Accesorios': 'fa-glasses'
     } %}
-    
+
     {% for cat in categorias %}
-    {% if cat.nombre in ['Celulares', 'Tecnología', 'Ropa', 'Accesorios'] %}
     <div class="col-sm-6 col-lg-3">
         <a href="{{ url_for('seleccionar_nicho', categoria_id=cat.id) }}" class="card hub-card h-100 border-0 shadow-lg p-5 text-center text-decoration-none bg-tekfix-card">
             <div class="hub-icon-container mb-4 mx-auto">
@@ -29,7 +28,6 @@
             <div class="mt-3 small text-tekfix-sec opacity-75">Gestionar inventario y ventas de {{ cat.nombre.lower() }}</div>
         </a>
     </div>
-    {% endif %}
     {% endfor %}
 </div>
 

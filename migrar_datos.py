@@ -50,7 +50,7 @@ def migrar_datos():
             
             if table.name not in meta_postgres.tables:
                 print(f"    [!] Alarma: La tabla '{table.name}' no existe en PostgreSQL.")
-                print(f"    -> Asegúrate de primero crear la BD con 'flask db upgrade'. Omitiendo...")
+                print("    -> Asegúrate de primero crear la BD con 'flask db upgrade'. Omitiendo...")
                 continue
                 
             table_pg = meta_postgres.tables[table.name]
@@ -59,7 +59,7 @@ def migrar_datos():
             conn_postgres.execute(table_pg.delete())
             
             if not result:
-                print(f"    -> Tabla vacía, omitiendo inserción.")
+                print("    -> Tabla vacía, omitiendo inserción.")
                 continue
                 
             # Extraer dicts y mapearlos directo al motor de PostgreSQL
@@ -78,8 +78,8 @@ def migrar_datos():
                 secuencia = f"{table.name}_id_seq"
                 query_seq = f"SELECT setval('{secuencia}', COALESCE((SELECT MAX(id)+1 FROM {table.name}), 1), false);"
                 conn_postgres.execute(text(query_seq))
-                print(f"    -> Secuencia (Autoincrementador) reiniciada para empalmar el backend.")
-            except Exception as e:
+                print("    -> Secuencia (Autoincrementador) reiniciada para empalmar el backend.")
+            except Exception:
                 pass # Tablas sin primary key id o con convenciones extrañas caerán acá silenciadas.
 
         # Restaurar la integridad estructural nativa (Muy importante)

@@ -8,14 +8,43 @@
         box-shadow: 0 0 0 0 rgba(239, 93, 137, 0.7);
     }
     @keyframes pulse-red {
-        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 93, 137, 0.7); }
-        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 93, 137, 0); }
+        0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 93, 137, 0.7); }
+        70%  { transform: scale(1);    box-shadow: 0 0 0 10px rgba(239, 93, 137, 0); }
         100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 93, 137, 0); }
+    }
+    .variacion-badge {
+        font-size: 0.72rem;
+        border-radius: 20px;
+        padding: 3px 10px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+    .variacion-up   { background: rgba(34,197,94,0.12); color: #16a34a; }
+    .variacion-down { background: rgba(239,68,68,0.12);  color: #dc2626; }
+    .variacion-flat { background: rgba(156,163,175,0.15); color: #6b7280; }
+    input[type="month"] {
+        color-scheme: dark;
+    }
+    .card-stat-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-weight: 600;
+    }
+    .mes-badge {
+        font-size: 0.78rem;
+        background: rgba(197,159,96,0.12);
+        color: var(--tekfix-primary);
+        border: 1px solid rgba(197,159,96,0.25);
+        border-radius: 20px;
+        padding: 3px 12px;
+        font-weight: 600;
     }
 </style>
 
+<!-- CABECERA -->
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <div class="">
+    <div>
         <h2 class="fw-bold text-tekfix-main m-0">Dashboard de Control</h2>
         {% if nicho_nombre %}
             <p class="text-tekfix-primary fw-bold small mb-0 animate__animated animate__fadeIn">
@@ -26,102 +55,160 @@
         {% endif %}
     </div>
     <div class="text-end d-none d-md-block">
-        <p class="text-tekfix-sec small m-0">Resumen operativo de DTAVO.</p>
+        <span class="mes-badge"><i class="fa-regular fa-calendar me-1"></i>{{ mes_nombre }}</span>
     </div>
 </div>
 
-<!-- FILTROS INTELIGENTES -->
-<div class="card card-custom border-0 shadow-sm p-3 mb-5" style="background: rgba(197, 159, 96, 0.03); border: 1px solid rgba(197, 159, 96, 0.1) !important;">
+<!-- PANEL DE FILTROS -->
+<div class="card card-custom border-0 shadow-sm p-3 mb-5"
+     style="background: rgba(197,159,96,0.03); border: 1px solid rgba(197,159,96,0.1) !important;">
     <form action="{{ url_for('admin_bp.dashboard') }}" method="GET" class="row g-3 align-items-end">
+
+        <!-- Filtro: Nicho / Categoría -->
         <div class="col-md-4">
-            <label class="form-label small fw-bold text-tekfix-main">Nicho / Categoría</label>
+            <label class="form-label small fw-bold text-tekfix-main">
+                <i class="fa-solid fa-store me-1 text-tekfix-primary"></i>Nicho / Categoría
+            </label>
             <select name="categoria_id" class="form-select border-0 shadow-sm">
                 <option value="todas">Todas las categorías (Global)</option>
                 {% for cat in categorias %}
-                    <option value="{{ cat.id }}" {% if filtro_actual|string == cat.id|string %}selected{% endif %}>{{ cat.nombre }}</option>
+                    <option value="{{ cat.id }}" {% if filtro_actual|string == cat.id|string %}selected{% endif %}>
+                        {{ cat.nombre }}
+                    </option>
                 {% endfor %}
             </select>
         </div>
+
+        <!-- Filtro: Mes -->
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-tekfix-main">
+                <i class="fa-regular fa-calendar me-1 text-tekfix-primary"></i>Mes a consultar
+            </label>
+            <input type="month" name="mes" id="filtro-mes"
+                   class="form-control border-0 shadow-sm"
+                   value="{{ mes_filtro_str }}"
+                   max="{{ mes_filtro_str }}"
+                   style="background: var(--bs-body-bg);">
+        </div>
+
+        <!-- Botón Aplicar -->
         <div class="col-md-2">
             <button type="submit" class="btn btn-tekfix w-100 shadow-sm">
-                <i class="fa-solid fa-filter me-2"></i>Aplicar Filtro
+                <i class="fa-solid fa-filter me-2"></i>Aplicar
             </button>
         </div>
-        {% if filtro_actual %}
+
+        <!-- Botón Limpiar -->
+        {% if filtro_actual or mes_filtro_str %}
         <div class="col-md-2">
             <a href="{{ url_for('admin_bp.dashboard') }}" class="btn btn-link text-tekfix-sec text-decoration-none small">
-                <i class="fa-solid fa-rotate-left me-1"></i>Limpiar
+                <i class="fa-solid fa-rotate-left me-1"></i>Hoy
             </a>
         </div>
         {% endif %}
+
     </form>
 </div>
 
-<!-- Layout de Tarjetas Principales -->
+<!-- ── TARJETAS DE ESTADÍSTICAS ─────────────────────────────────── -->
 <div class="row g-3 mb-4">
-    <!-- 1. Tarjeta: Ventas Totales (Histórico) -->
+
+    <!-- 1. Ventas del Mes Seleccionado -->
     <div class="col-md-3">
         <div class="card card-custom h-100 p-4 border-0 shadow-sm">
-            <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
                 <i class="fa-solid fa-sack-dollar fs-1" style="color: var(--tekfix-primary);"></i>
+                <!-- Badge variación vs mes anterior -->
+                {% set pct = variacion_pct|float %}
+                {% if pct > 0 %}
+                    <span class="variacion-badge variacion-up">
+                        <i class="fa-solid fa-arrow-trend-up me-1"></i>+{{ "%.1f"|format(pct) }}%
+                    </span>
+                {% elif pct < 0 %}
+                    <span class="variacion-badge variacion-down">
+                        <i class="fa-solid fa-arrow-trend-down me-1"></i>{{ "%.1f"|format(pct) }}%
+                    </span>
+                {% else %}
+                    <span class="variacion-badge variacion-flat">
+                        <i class="fa-solid fa-minus me-1"></i>0%
+                    </span>
+                {% endif %}
             </div>
-            <h5 class="text-tekfix-main fw-bold">Ventas Históricas</h5>
-            <h3 class="fw-bolder" style="color: var(--tekfix-primary);">${{ (total_ventas)|cop }}</h3>
+            <p class="card-stat-label text-tekfix-sec mb-1">Ventas — {{ mes_nombre }}</p>
+            <h3 class="fw-bolder" style="color: var(--tekfix-primary);">${{ (ventas_mes)|cop }}</h3>
+            <p class="text-tekfix-sec small m-0">
+                Mes anterior: <strong>${{ (ventas_mes_ant)|cop }}</strong>
+            </p>
             <div class="mt-auto pt-4">
-                <a href="{{ url_for('sales_bp.historial') }}" class="btn btn-tekfix-secondary w-100 rounded-pill"><i class="fa-solid fa-file-invoice-dollar me-2"></i> Ver Ventas</a>
+                <a href="{{ url_for('sales_bp.historial') }}" class="btn btn-tekfix-secondary w-100 rounded-pill">
+                    <i class="fa-solid fa-file-invoice-dollar me-2"></i>Ver Ventas
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- 2. Tarjeta: Ventas del Mes -->
+    <!-- 2. Número de Transacciones -->
     <div class="col-md-3">
         <div class="card card-custom h-100 p-4 border-0 shadow-sm">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <i class="fa-solid fa-calendar-check fs-1" style="color: var(--tekfix-primary);"></i>
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <i class="fa-solid fa-receipt fs-1" style="color: var(--tekfix-primary);"></i>
             </div>
-            <h5 class="text-tekfix-main fw-bold">Ventas del Mes</h5>
-            <h3 class="fw-bolder" style="color: var(--tekfix-primary);">${{ (ventas_mes_actual)|cop }}</h3>
-            <p class="text-tekfix-sec small m-0 mt-2">Monto facturado este mes.</p>
+            <p class="card-stat-label text-tekfix-sec mb-1">Transacciones — {{ mes_nombre }}</p>
+            <h3 class="fw-bolder" style="color: var(--tekfix-primary);">{{ num_ventas_mes }} ventas</h3>
+            <p class="text-tekfix-sec small m-0">
+                Ticket prom: <strong>${{ (ticket_promedio)|cop }}</strong>
+            </p>
         </div>
     </div>
 
-    <!-- 3. Tarjeta: Productos en Catálogo -->
+    <!-- 3. Catálogo de Productos -->
     <div class="col-md-3">
         <div class="card card-custom h-100 p-4 border-0 shadow-sm">
-            <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
                 <i class="fa-solid fa-cubes fs-1" style="color: var(--tekfix-primary);"></i>
             </div>
-            <h5 class="text-tekfix-main fw-bold">Catálogo de Productos</h5>
+            <p class="card-stat-label text-tekfix-sec mb-1">Catálogo de Productos</p>
             <h3 class="fw-bolder" style="color: var(--tekfix-primary);">{{ total_productos }} uds.</h3>
+            <p class="text-tekfix-sec small m-0">Referencias activas en tienda.</p>
             <div class="mt-auto pt-4">
-                <a href="/inventory/" class="btn btn-tekfix w-100 rounded-pill"><i class="fa-solid fa-sliders me-2"></i> Ir al Inventario</a>
+                <a href="/inventory/" class="btn btn-tekfix w-100 rounded-pill">
+                    <i class="fa-solid fa-sliders me-2"></i>Ir al Inventario
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- 4. Tarjeta: Alertas de Stock -->
+    <!-- 4. Alertas de Stock Bajo -->
     <div class="col-md-3">
         <div class="card card-custom h-100 p-4 border-0 shadow-sm">
-            <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
                 <i class="fa-solid fa-triangle-exclamation fs-1 {{ 'text-tekfix-hover' if productos_bajo_stock > 0 else 'text-tekfix-primary' }}"></i>
             </div>
-            <h5 class="text-tekfix-main fw-bold">Alertas Stock Bajo</h5>
-            <h3 class="fw-bolder {{ 'text-tekfix-hover' if productos_bajo_stock > 0 else 'text-tekfix-primary' }}">{{ productos_bajo_stock }} items</h3>
-            <p class="text-tekfix-sec small m-0 mb-3 text-truncate">Menos de 3 unidades en tienda.</p>
+            <p class="card-stat-label text-tekfix-sec mb-1">Alertas Stock Bajo</p>
+            <h3 class="fw-bolder {{ 'text-tekfix-hover' if productos_bajo_stock > 0 else 'text-tekfix-primary' }}">
+                {{ productos_bajo_stock }} items
+            </h3>
+            <p class="text-tekfix-sec small m-0 mb-3">Menos de 3 unidades en tienda.</p>
             <div class="mt-auto pt-2">
-                <a href="/inventory/" class="btn btn-tekfix-secondary w-100 rounded-pill fw-bold"><i class="fa-solid fa-eye me-2"></i> Ver Críticos</a>
+                <a href="/inventory/" class="btn btn-tekfix-secondary w-100 rounded-pill fw-bold">
+                    <i class="fa-solid fa-eye me-2"></i>Ver Críticos
+                </a>
             </div>
         </div>
     </div>
+
 </div>
 
-<!-- Sección de Trazabilidad de Seriales (IMEIs) -->
+<!-- ── TRAZABILIDAD IMEIs (solo modo celular) ────────────────────── -->
+{% if es_modo_celular %}
 <div class="row mt-4">
     <div class="col-12">
         <div class="card card-custom border-0 shadow-sm p-4 bg-tekfix-card">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h5 class="fw-bold text-tekfix-main m-0"><i class="fa-solid fa-barcode text-tekfix-primary me-2"></i>Trazabilidad: Últimos 5 IMEIs Vendidos</h5>
+                    <h5 class="fw-bold text-tekfix-main m-0">
+                        <i class="fa-solid fa-barcode text-tekfix-primary me-2"></i>Trazabilidad: Últimos 5 IMEIs Vendidos
+                    </h5>
                     <p class="text-tekfix-sec small m-0">Movimiento de unidades físicas en tiempo real.</p>
                 </div>
             </div>
@@ -135,20 +222,22 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for s in ultimos_imeis %}
+                        {% for serie, detalle, venta in ultimos_imeis %}
                         <tr>
-                            <td class="fw-bold text-tekfix-main">{{ s.producto.nombre }}</td>
+                            <td class="fw-bold text-tekfix-main">{{ serie.producto.nombre }}</td>
                             <td class="text-center">
-                                <span class="badge bg-tekfix-card text-tekfix-primary border px-3 py-2 fw-bold" style="font-size: 0.8rem; letter-spacing: 1px;">
-                                    {{ s.serial }}
+                                <span class="badge bg-tekfix-card text-tekfix-primary border px-3 py-2 fw-bold"
+                                      style="font-size: 0.8rem; letter-spacing: 1px;">
+                                    {{ serie.serial }}
                                 </span>
                             </td>
-                            <td class="text-end fw-bold text-tekfix-hover">${{ (s.producto.precio_sugerido)|cop }}</td>
+                            <td class="text-end fw-bold text-tekfix-hover">${{ (detalle.precio_venta_final)|cop }}</td>
                         </tr>
                         {% else %}
                         <tr>
                             <td colspan="3" class="text-center py-4 text-tekfix-sec">
-                                <i class="fa-solid fa-info-circle me-1"></i> No hay ventas de productos serializados registradas aún.
+                                <i class="fa-solid fa-info-circle me-1"></i>
+                                No hay IMEIs vendidos registrados en este nicho aún.
                             </td>
                         </tr>
                         {% endfor %}
@@ -158,5 +247,6 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endif %}
 
+{% endblock %}

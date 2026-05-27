@@ -1,8 +1,7 @@
-import os
 from app import create_app
 from models import db, User, Product, ProductVariant, Loss, Sale, SalePayment, SaleDetail, StockAdjustment, ArqueoCaja, Maneo, Expense, Cliente, FacturaBodega, FacturaBodegaDetalle, AbonoBodega, Provider, ProviderInvoice, ProviderPayment, Warranty
 from werkzeug.security import generate_password_hash
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytz
 
 def obtener_hora_bogota():

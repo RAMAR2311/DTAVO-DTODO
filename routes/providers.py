@@ -1,8 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
-from models import db, Provider, ProviderInvoice, ProviderPayment, Expense, obtener_hora_bogota
+from models import db, Provider, ProviderInvoice, ProviderPayment, Expense
 from decorators import admin_required
-from werkzeug.utils import secure_filename
 import os
 import time
 
@@ -72,7 +71,7 @@ def cuenta(id):
 @login_required
 @admin_required
 def registrar_factura(id):
-    proveedor = Provider.query.get_or_404(id)
+    Provider.query.get_or_404(id)
     
     monto = float(request.form.get('monto', '0').replace(',', ''))
     numero_factura = request.form.get('numero_factura')
@@ -157,6 +156,6 @@ def api_eliminar_proveedor(id):
         db.session.delete(proveedor)
         db.session.commit()
         return jsonify({'success': True, 'message': f'Proveedor "{nombre}" eliminado correctamente.'}), 200
-    except Exception as e:
+    except Exception:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Error de integridad: el proveedor {nombre} tiene registros vinculados que impiden su eliminación directa.'}), 400

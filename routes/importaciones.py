@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required
-from models import db, Provider, Importacion, SaldoImportacion, Sale, SaleDetail, Product, obtener_hora_bogota
+from models import db, Provider, Importacion, SaldoImportacion, SaleDetail, Product, obtener_hora_bogota
 from decorators import admin_required
 from decimal import Decimal
 
