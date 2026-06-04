@@ -5,10 +5,10 @@
     <!-- Cabecera -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold text-tekfix-main mb-1">Gestión de Proveedores</h2>
-            <p class="text-tekfix-sec mb-0">Administra tus cuentas por pagar y relaciones comerciales.</p>
+            <h2 class="fw-bold text-dtavo-main mb-1">Gestión de Proveedores</h2>
+            <p class="text-dtavo-sec mb-0">Administra tus cuentas por pagar y relaciones comerciales.</p>
         </div>
-        <button class="btn btn-tekfix-primary rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor">
+        <button class="btn btn-dtavo-primary rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor">
             <i class="fa-solid fa-plus me-2"></i>Nuevo Proveedor
         </button>
     </div>
@@ -19,11 +19,11 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-light">
                     <tr>
-                        <th class="ps-4 py-3 text-tekfix-main fw-bold small">NOMBRE</th>
-                        <th class="py-3 text-tekfix-main fw-bold small">EMPRESA</th>
-                        <th class="py-3 text-tekfix-main fw-bold small">TELÉFONO</th>
-                        <th class="py-3 text-tekfix-main fw-bold small text-center">REGISTRO</th>
-                        <th class="pe-4 py-3 text-tekfix-main fw-bold small text-end">ACCIONES</th>
+                        <th class="ps-4 py-3 text-dtavo-main fw-bold small">NOMBRE</th>
+                        <th class="py-3 text-dtavo-main fw-bold small">EMPRESA</th>
+                        <th class="py-3 text-dtavo-main fw-bold small">TELÉFONO</th>
+                        <th class="py-3 text-dtavo-main fw-bold small text-center">REGISTRO</th>
+                        <th class="pe-4 py-3 text-dtavo-main fw-bold small text-end">ACCIONES</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -31,24 +31,24 @@
                     <tr id="row-proveedor-{{ p.id }}">
                         <td class="ps-4">
                             <div class="d-flex align-items-center">
-                                <div class="rounded-circle bg-tekfix-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px; font-weight: 700;">
+                                <div class="rounded-circle bg-dtavo-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px; font-weight: 700;">
                                     {{ p.nombre[0] | upper }}
                                 </div>
-                                <span class="fw-bold text-tekfix-main">{{ p.nombre }}</span>
+                                <span class="fw-bold text-dtavo-main">{{ p.nombre }}</span>
                             </div>
                         </td>
-                        <td class="text-tekfix-sec">{{ p.empresa or 'N/A' }}</td>
+                        <td class="text-dtavo-sec">{{ p.empresa or 'N/A' }}</td>
                         <td>
-                            <a href="tel:{{ p.telefono }}" class="text-decoration-none text-tekfix-primary fw-semibold">
+                            <a href="tel:{{ p.telefono }}" class="text-decoration-none text-dtavo-primary fw-semibold">
                                 {{ p.telefono or '---' }}
                             </a>
                         </td>
-                        <td class="text-center text-tekfix-sec small">
+                        <td class="text-center text-dtavo-sec small">
                             {{ p.fecha_registro.strftime('%d/%m/%Y') }}
                         </td>
                         <td class="pe-4 text-end">
                             <div class="btn-group">
-                                <button type="button" onclick="handleVerCuenta('{{ p.id }}')" class="btn btn-sm btn-outline-tekfix px-3 rounded-pill me-2">
+                                <button type="button" onclick="handleVerCuenta('{{ p.id }}')" class="btn btn-sm btn-outline-dtavo px-3 rounded-pill me-2">
                                     <i class="fa-solid fa-file-invoice-dollar me-1"></i> Ver Cuenta
                                 </button>
                                 <button type="button" class="btn btn-sm btn-light text-danger rounded-circle" onclick="handleEliminar('{{ p.id }}', '{{ p.nombre }}')" title="Eliminar">
@@ -60,8 +60,8 @@
                     {% else %}
                     <tr>
                         <td colspan="5" class="text-center py-5">
-                            <i class="fa-solid fa-truck-ramp-box fa-3x text-tekfix-border mb-3"></i>
-                            <p class="text-tekfix-sec">No hay proveedores registrados aún.</p>
+                            <i class="fa-solid fa-truck-ramp-box fa-3x text-dtavo-border mb-3"></i>
+                            <p class="text-dtavo-sec">No hay proveedores registrados aún.</p>
                         </td>
                     </tr>
                     {% endfor %}
@@ -76,28 +76,28 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-header border-0 pb-0">
-                <h5 class="fw-bold text-tekfix-main">Registrar Nuevo Proveedor</h5>
+                <h5 class="fw-bold text-dtavo-main">Registrar Nuevo Proveedor</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ url_for('providers_bp.crear') }}" method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="modal-body py-4">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-tekfix-sec">Nombre del Contacto</label>
+                        <label class="form-label small fw-bold text-dtavo-sec">Nombre del Contacto</label>
                         <input type="text" name="nombre" class="form-control rounded-3" placeholder="Ej: Juan Pérez" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-tekfix-sec">Empresa / Distribuidora</label>
+                        <label class="form-label small fw-bold text-dtavo-sec">Empresa / Distribuidora</label>
                         <input type="text" name="empresa" class="form-control rounded-3" placeholder="Ej: Importadora Global S.A.S">
                     </div>
                     <div class="mb-0">
-                        <label class="form-label small fw-bold text-tekfix-sec">Teléfono de Contacto</label>
+                        <label class="form-label small fw-bold text-dtavo-sec">Teléfono de Contacto</label>
                         <input type="text" name="telefono" class="form-control rounded-3" placeholder="Ej: 300 123 4567">
                     </div>
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-tekfix-primary rounded-pill px-4 fw-bold">Guardar Proveedor</button>
+                    <button type="submit" class="btn btn-dtavo-primary rounded-pill px-4 fw-bold">Guardar Proveedor</button>
                 </div>
             </form>
         </div>
@@ -152,14 +152,14 @@ async function handleEliminar(proveedorId, nombre) {
 </script>
 
 <style>
-    .btn-outline-tekfix {
-        color: var(--tekfix-primary);
-        border-color: var(--tekfix-primary);
+    .btn-outline-dtavo {
+        color: var(--dtavo-primary);
+        border-color: var(--dtavo-primary);
         font-weight: 600;
         transition: all 0.3s;
     }
-    .btn-outline-tekfix:hover {
-        background-color: var(--tekfix-primary);
+    .btn-outline-dtavo:hover {
+        background-color: var(--dtavo-primary);
         color: white;
     }
     .hover-lift {

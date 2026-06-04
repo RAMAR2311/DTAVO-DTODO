@@ -10,16 +10,16 @@
             </h4>
             
             <form action="{{ url_for('arqueo_bp.reporte') }}" method="GET" class="d-flex align-items-center justify-content-end gap-3 flex-grow-1 mx-4">
-                <label for="fecha_inicio" class="fw-bold text-tekfix-main m-0">Desde:</label>
+                <label for="fecha_inicio" class="fw-bold text-dtavo-main m-0">Desde:</label>
                 <input type="date" name="fecha_inicio" id="fecha_inicio" value="{{ fecha_inicio }}" class="form-control w-auto">
 
-                <label for="fecha_fin" class="fw-bold text-tekfix-main m-0 ms-2">Hasta:</label>
+                <label for="fecha_fin" class="fw-bold text-dtavo-main m-0 ms-2">Hasta:</label>
                 <input type="date" name="fecha_fin" id="fecha_fin" value="{{ fecha_fin }}" class="form-control w-auto">
                 
                 <button type="submit" class="btn btn-outline-secondary rounded-pill px-4">Filtrar</button>
             </form>
 
-            <button onclick="window.print()" class="btn px-4 rounded-pill fw-bold text-tekfix-main border shadow-sm" style="background-color: #F9C8D3; border-color: #ebaebc;">
+            <button onclick="window.print()" class="btn px-4 rounded-pill fw-bold text-dtavo-main border shadow-sm" style="background-color: #F9C8D3; border-color: #ebaebc;">
                 <i class="fa-solid fa-print me-1"></i> Imprimir Tirilla
             </button>
         </div>
@@ -27,24 +27,24 @@
 
     <!-- Contenido del Reporte EN PANTALLA e IMPRESIÓN A4 -->
     <div class="col-12 col-xl-10">
-        <div class="card bg-tekfix-card p-5 border-0 shadow-sm rounded-4 printable-document">
+        <div class="card bg-dtavo-card p-5 border-0 shadow-sm rounded-4 printable-document">
             
             <!-- Encabezado Ticket / Documento Contable -->
             <div class="text-center mb-5 pb-3 border-bottom">
-                <h1 class="fw-bold text-tekfix-main mb-1"><i class="fa-solid fa-calculator me-2"></i> Bendito Encanto</h1>
-                <h4 class="text-tekfix-sec fw-semibold">INFORME CONTABLE DE CIERRE DE CAJA (ARQUEO)</h4>
+                <h1 class="fw-bold text-dtavo-main mb-1"><i class="fa-solid fa-calculator me-2"></i> DTAVO</h1>
+                <h4 class="text-dtavo-sec fw-semibold">INFORME CONTABLE DE CIERRE DE CAJA (ARQUEO)</h4>
                 <p class="mb-0 text-secondary">
                     Período: <strong>{{ fecha_inicio }}</strong> hasta <strong>{{ fecha_fin }}</strong>
                     <br>
                     Generado el: <strong>{{ fecha_generacion }}</strong>
                 </p>
                 {% if current_user.rol != 'admin' %}
-                    <p class="mb-0 text-tekfix-main fw-bold">Usuario Solicitante: {{ current_user.nombre }}</p>
+                    <p class="mb-0 text-dtavo-main fw-bold">Usuario Solicitante: {{ current_user.nombre }}</p>
                 {% endif %}
             </div>
 
             <!-- Resumen Consolidado de Totales -->
-            <h5 class="fw-bold text-tekfix-main mb-3">📍 Resumen General del Período Recaudado</h5>
+            <h5 class="fw-bold text-dtavo-main mb-3">📍 Resumen General del Período Recaudado</h5>
             <div class="row g-3 mb-5 resumen-totales">
                 <div class="col-sm-6 col-md">
                     <div class="card p-3 border rounded shadow-sm text-center h-100" style="background-color: #d4edda; border-left: 4px solid #28a745 !important;">
@@ -56,34 +56,34 @@
                     </div>
                 </div>
                 <div class="col-sm-6 col-md">
-                    <div class="card p-3 border rounded shadow-sm bg-tekfix-card text-center h-100">
+                    <div class="card p-3 border rounded shadow-sm bg-dtavo-card text-center h-100">
                         <small class="text-secondary fw-bold text-uppercase d-block mb-1">Efectivo Sistema (Ventas)</small>
                         <h4 class="mb-0 text-success fw-bold">${{ (resumen.total_efectivo)|cop }}</h4>
                     </div>
                 </div>
                 <div class="col-sm-6 col-md">
-                    <div class="card p-3 border rounded shadow-sm bg-tekfix-card text-center h-100">
+                    <div class="card p-3 border rounded shadow-sm bg-dtavo-card text-center h-100">
                         <small class="text-secondary fw-bold text-uppercase d-block mb-1">Bancos / Transf. Sistema</small>
                         <h4 class="mb-0 text-info fw-bold">${{ (resumen.total_transferencia)|cop }}</h4>
                     </div>
                 </div>
                 <div class="col-sm-6 col-md">
-                    <div class="card p-3 border rounded shadow-sm bg-tekfix-card text-center h-100">
+                    <div class="card p-3 border rounded shadow-sm bg-dtavo-card text-center h-100">
                         <small class="text-secondary fw-bold text-uppercase d-block mb-1">Gastos Operativos Retirados</small>
                         <h4 class="mb-0 text-danger fw-bold">$-{{ (resumen.total_gastos)|cop }}</h4>
                     </div>
                 </div>
                 <div class="col-sm-6 col-md">
-                    <div class="card p-3 border rounded shadow-sm bg-tekfix-card text-center h-100" style="border-left: 4px solid #A3D8DE !important;">
+                    <div class="card p-3 border rounded shadow-sm bg-dtavo-card text-center h-100" style="border-left: 4px solid #A3D8DE !important;">
                         <small class="text-secondary fw-bold d-block mb-1">CAJA FÍSICA ESPERADA FINAL</small>
-                        <h4 class="mb-0 text-tekfix-main fw-bold">${{ (resumen.efectivo_esperado)|cop }}</h4>
-                        <small class="text-tekfix-sec d-block mt-1" style="font-size:0.7rem;">(Base Inicial + VentasCash) - Gastos</small>
+                        <h4 class="mb-0 text-dtavo-main fw-bold">${{ (resumen.efectivo_esperado)|cop }}</h4>
+                        <small class="text-dtavo-sec d-block mt-1" style="font-size:0.7rem;">(Base Inicial + VentasCash) - Gastos</small>
                     </div>
                 </div>
             </div>
 
             <!-- Tabla Desglosada Registro a Registro -->
-            <h5 class="fw-bold text-tekfix-main mb-3 border-bottom pb-2">📋 Desglose Analítico por Cierres de Día</h5>
+            <h5 class="fw-bold text-dtavo-main mb-3 border-bottom pb-2">📋 Desglose Analítico por Cierres de Día</h5>
             <div class="table-responsive">
                 <table class="table table-bordered table-sm fw-semibold mb-0 table-hover align-middle">
                     <thead class="table-light text-center text-uppercase" style="font-size: 0.85rem;">
@@ -112,17 +112,17 @@
                             <td class="text-end text-success fw-bold">${{ (arqueo.total_efectivo_sistema)|cop }}</td>
                             <td class="text-end text-info fw-bold">${{ (arqueo.total_transferencia_sistema)|cop }}</td>
                             
-                            <td class="text-end {% if arqueo.gastos_del_dia > 0 %}text-danger{% else %}text-tekfix-sec{% endif %} fw-bold">
+                            <td class="text-end {% if arqueo.gastos_del_dia > 0 %}text-danger{% else %}text-dtavo-sec{% endif %} fw-bold">
                                 ${{ (arqueo.gastos_del_dia)|cop }}
                             </td>
                             
-                            <td class="text-tekfix-sec fst-italic" style="font-size: 0.8rem;">
+                            <td class="text-dtavo-sec fst-italic" style="font-size: 0.8rem;">
                                 {{ arqueo.observaciones_gastos if arqueo.observaciones_gastos else '-' }}
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="7" class="text-center text-tekfix-sec p-4">No hay datos encontrados en estas fechas.</td>
+                            <td colspan="7" class="text-center text-dtavo-sec p-4">No hay datos encontrados en estas fechas.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -133,8 +133,8 @@
 
     <!-- TABLA DE VENTAS DETALLADAS (Pantalla Completa A4) -->
     <div class="col-12 col-xl-10 mt-4">
-        <div class="card bg-tekfix-card p-5 border-0 shadow-sm rounded-4 printable-document">
-            <h5 class="fw-bold text-tekfix-main mb-3 border-bottom pb-2">
+        <div class="card bg-dtavo-card p-5 border-0 shadow-sm rounded-4 printable-document">
+            <h5 class="fw-bold text-dtavo-main mb-3 border-bottom pb-2">
                 <i class="fa-solid fa-list-check me-2"></i> Detalle de Ventas y Productos Involucrados
             </h5>
             <div class="table-responsive">
@@ -152,10 +152,10 @@
                         {% for v in ventas_periodo %}
                         <tr>
                             <td class="text-center text-secondary fw-bold">#{{ "%05d"|format(v.id) }}</td>
-                            <td class="text-center text-tekfix-sec">{{ v.fecha_venta.strftime('%H:%M') }}</td>
+                            <td class="text-center text-dtavo-sec">{{ v.fecha_venta.strftime('%H:%M') }}</td>
                             <td class="text-center">
                                 {% if v.pagos|length > 1 %}
-                                    <span class="badge bg-tekfix-card text-tekfix-main border rounded-pill px-3 py-1" style="border-color: #fd7e14 !important;">
+                                    <span class="badge bg-dtavo-card text-dtavo-main border rounded-pill px-3 py-1" style="border-color: #fd7e14 !important;">
                                         Mixto
                                     </span>
                                     <div style="font-size: 0.7rem; margin-top: 3px; color: #888;">
@@ -164,11 +164,11 @@
                                         {% endfor %}
                                     </div>
                                 {% elif v.pagos|length == 1 %}
-                                    <span class="badge bg-tekfix-card text-tekfix-main border rounded-pill px-3 py-1">
+                                    <span class="badge bg-dtavo-card text-dtavo-main border rounded-pill px-3 py-1">
                                         {{ v.pagos[0].metodo_pago|capitalize }}
                                     </span>
                                 {% else %}
-                                    <span class="badge bg-tekfix-card text-tekfix-main border rounded-pill px-3 py-1">
+                                    <span class="badge bg-dtavo-card text-dtavo-main border rounded-pill px-3 py-1">
                                         {{ v.metodo_pago|capitalize }}
                                     </span>
                                 {% endif %}
@@ -183,18 +183,18 @@
                                         {% else %}
                                             {{ detalle.producto.nombre }} 
                                             {% if detalle.variant_id %}
-                                                <span class="text-tekfix-sec">(Var: {{ detalle.variante.nombre_variante }})</span>
+                                                <span class="text-dtavo-sec">(Var: {{ detalle.variante.nombre_variante }})</span>
                                             {% endif %}
                                         {% endif %}
                                     </li>
                                     {% endfor %}
                                 </ul>
                             </td>
-                            <td class="text-end fw-bold text-tekfix-main fs-6">${{ (v.monto_total)|cop }}</td>
+                            <td class="text-end fw-bold text-dtavo-main fs-6">${{ (v.monto_total)|cop }}</td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="5" class="text-center text-tekfix-sec p-4">No se registraron ventas en este período.</td>
+                            <td colspan="5" class="text-center text-dtavo-sec p-4">No se registraron ventas en este período.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -206,12 +206,12 @@
                 <div class="col-6 text-center">
                     <hr class="w-75 mx-auto border-dark border-1 opacity-100">
                     <p class="mb-0 fw-bold">Firma Administrador</p>
-                    <p class="text-tekfix-sec small">Revisado y Validado</p>
+                    <p class="text-dtavo-sec small">Revisado y Validado</p>
                 </div>
                 <div class="col-6 text-center">
                     <hr class="w-75 mx-auto border-dark border-1 opacity-100">
                     <p class="mb-0 fw-bold">Firma Cajero(a)</p>
-                    <p class="text-tekfix-sec small">Cierre conforme y Entregado</p>
+                    <p class="text-dtavo-sec small">Cierre conforme y Entregado</p>
                 </div>
             </div>
         </div>

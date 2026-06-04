@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold text-tekfix-main m-0">Consignaciones y Maneos</h2>
+    <h2 class="fw-bold text-dtavo-main m-0">Consignaciones y Maneos</h2>
     <a href="{{ url_for('admin_bp.dashboard') if current_user.rol == 'admin' else url_for('sales_bp.procesar_venta') }}" class="btn btn-outline-secondary rounded-pill px-4">
         <i class="fa-solid fa-arrow-left me-1"></i> Volver al Menú
     </a>
@@ -10,33 +10,33 @@
 
 <!-- Formulario para Nuevo Maneo -->
 <div class="card card-custom p-4 mb-4">
-    <h5 class="text-tekfix-main fw-bold mb-3"><i class="fa-solid fa-box-open text-tekfix-sec me-2"></i>Registrar Nuevo Maneo</h5>
+    <h5 class="text-dtavo-main fw-bold mb-3"><i class="fa-solid fa-box-open text-dtavo-sec me-2"></i>Registrar Nuevo Maneo</h5>
     <form method="POST" action="{{ url_for('admin_bp.maneos_prestar') }}" id="formNuevoManeo">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <input type="hidden" name="variant_id" id="variant_id_hidden" value="">
         <div class="row g-3 align-items-end">
             <div class="col-md-4">
-                <label class="form-label fw-bold text-tekfix-main">Producto a Prestar / Entregar (SKU)</label>
-                <input type="text" name="sku" id="maneo_sku_input" class="form-control bg-tekfix-card border-0" autofocus placeholder="Escanea o digita el SKU..." required>
+                <label class="form-label fw-bold text-dtavo-main">Producto a Prestar / Entregar (SKU)</label>
+                <input type="text" name="sku" id="maneo_sku_input" class="form-control bg-dtavo-card border-0" autofocus placeholder="Escanea o digita el SKU..." required>
             </div>
             <!-- Selector de Subcategoría (aparece dinámicamente) -->
             <div class="col-md-3" id="variant_selector_col" style="display: none;">
-                <label class="form-label fw-bold text-tekfix-main"><i class="fa-solid fa-layer-group text-primary me-1"></i>Subcategoría</label>
-                <select id="variant_selector" class="form-select bg-tekfix-card border-0" onchange="onVariantChange()">
+                <label class="form-label fw-bold text-dtavo-main"><i class="fa-solid fa-layer-group text-primary me-1"></i>Subcategoría</label>
+                <select id="variant_selector" class="form-select bg-dtavo-card border-0" onchange="onVariantChange()">
                     <option value="">— Producto general —</option>
                 </select>
-                <small class="text-tekfix-sec" id="variant_stock_info"></small>
+                <small class="text-dtavo-sec" id="variant_stock_info"></small>
             </div>
             <div class="col-md-2">
-                <label class="form-label fw-bold text-tekfix-main">Local Vecino / Persona</label>
-                <input type="text" name="local_vecino" class="form-control bg-tekfix-card border-0" placeholder="Ej: Fundas Alex" required>
+                <label class="form-label fw-bold text-dtavo-main">Local Vecino / Persona</label>
+                <input type="text" name="local_vecino" class="form-control bg-dtavo-card border-0" placeholder="Ej: Fundas Alex" required>
             </div>
             <div class="col-md-1">
-                <label class="form-label fw-bold text-tekfix-main">Cantidad</label>
-                <input type="number" name="cantidad" class="form-control bg-tekfix-card border-0" min="1" value="1" required>
+                <label class="form-label fw-bold text-dtavo-main">Cantidad</label>
+                <input type="number" name="cantidad" class="form-control bg-dtavo-card border-0" min="1" value="1" required>
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-tekfix-secondary w-100 rounded-pill"><i class="fa-solid fa-paper-plane me-1"></i> Prestar</button>
+                <button type="submit" class="btn btn-dtavo-secondary w-100 rounded-pill"><i class="fa-solid fa-paper-plane me-1"></i> Prestar</button>
             </div>
         </div>
     </form>
@@ -46,7 +46,7 @@
 <div class="card card-custom p-0 overflow-hidden">
     <div class="table-responsive">
         <table class="table table-hover table-custom table-dark mb-0">
-            <thead class="bg-tekfix-card">
+            <thead class="bg-dtavo-card">
                 <tr>
                     <th class="ps-4">FECHA PRÉSTAMO</th>
                     <th>LOCAL VECINO</th>
@@ -59,24 +59,24 @@
             <tbody>
                 {% for m in maneos %}
                 <tr>
-                    <td class="ps-4 text-tekfix-sec"><small>{{ m.fecha_prestamo.strftime('%d/%m/%Y %H:%M') }}</small></td>
-                    <td class="fw-bold text-tekfix-main"><i class="fa-solid fa-store text-tekfix-sec me-2"></i>{{ m.local_vecino }}</td>
+                    <td class="ps-4 text-dtavo-sec"><small>{{ m.fecha_prestamo.strftime('%d/%m/%Y %H:%M') }}</small></td>
+                    <td class="fw-bold text-dtavo-main"><i class="fa-solid fa-store text-dtavo-sec me-2"></i>{{ m.local_vecino }}</td>
                     <td>
-                        <span class="text-tekfix-main fw-semibold">{{ m.producto.nombre }}</span> <small class="text-tekfix-sec">({{ m.producto.sku }})</small>
+                        <span class="text-dtavo-main fw-semibold">{{ m.producto.nombre }}</span> <small class="text-dtavo-sec">({{ m.producto.sku }})</small>
                         {% if m.variante %}
-                            <br><span class="badge bg-tekfix-card text-primary border border-primary border-opacity-25 rounded-pill px-2 mt-1" style="font-size: 0.75rem;"><i class="fa-solid fa-layer-group me-1"></i>{{ m.variante.nombre_variante }}</span>
+                            <br><span class="badge bg-dtavo-card text-primary border border-primary border-opacity-25 rounded-pill px-2 mt-1" style="font-size: 0.75rem;"><i class="fa-solid fa-layer-group me-1"></i>{{ m.variante.nombre_variante }}</span>
                         {% endif %}
                     </td>
                     <td class="text-center fw-bold">{{ m.cantidad }} uds</td>
                     <td class="text-center">
                         {% if m.estado == 'PENDIENTE' %}
-                            <span class="badge bg-warning text-tekfix-main border border-warning rounded-pill px-3 py-2">Pendiente</span>
+                            <span class="badge bg-warning text-dtavo-main border border-warning rounded-pill px-3 py-2">Pendiente</span>
                         {% elif m.estado == 'FACTURADO' %}
                             <span class="badge bg-success rounded-pill px-3 py-2">Facturado</span>
-                            <br><small class="text-tekfix-sec d-block mt-1">{{ m.fecha_resolucion.strftime('%d/%m/%Y %H:%M') }}</small>
+                            <br><small class="text-dtavo-sec d-block mt-1">{{ m.fecha_resolucion.strftime('%d/%m/%Y %H:%M') }}</small>
                         {% elif m.estado == 'DEVUELTO' %}
                             <span class="badge bg-secondary rounded-pill px-3 py-2">Devuelto</span>
-                            <br><small class="text-tekfix-sec d-block mt-1">{{ m.fecha_resolucion.strftime('%d/%m/%Y %H:%M') }}</small>
+                            <br><small class="text-dtavo-sec d-block mt-1">{{ m.fecha_resolucion.strftime('%d/%m/%Y %H:%M') }}</small>
                         {% endif %}
                     </td>
                     <td class="text-center">
@@ -92,7 +92,7 @@
                                         <div class="modal-content border-0 shadow">
                                             <form method="POST" action="{{ url_for('admin_bp.maneos_facturar', id=m.id) }}">
                                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                                <div class="modal-header border-0 bg-tekfix-card">
+                                                <div class="modal-header border-0 bg-dtavo-card">
                                                     <h5 class="modal-title fw-bold text-success"><i class="fa-solid fa-sack-dollar me-2"></i>Facturar Maneo</h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
@@ -105,18 +105,18 @@
                                                         <div class="col-md-6">
                                                             <label class="form-label fw-bold">Cantidad</label>
                                                             <div class="input-group">
-                                                                <input type="number" name="cantidad_vendida" class="form-control bg-tekfix-card border-0" min="1" max="{{ m.cantidad }}" value="{{ m.cantidad }}" required>
-                                                                <span class="input-group-text border-0 bg-tekfix-card text-tekfix-sec">/ {{ m.cantidad }}</span>
+                                                                <input type="number" name="cantidad_vendida" class="form-control bg-dtavo-card border-0" min="1" max="{{ m.cantidad }}" value="{{ m.cantidad }}" required>
+                                                                <span class="input-group-text border-0 bg-dtavo-card text-dtavo-sec">/ {{ m.cantidad }}</span>
                                                             </div>
                                                         </div>
                                                         <div class="col-md-6">
                                                             <label class="form-label fw-bold">Precio Unitario</label>
                                                             <div class="input-group">
-                                                                <span class="input-group-text border-0 bg-tekfix-card text-success fw-bold">$</span>
+                                                                <span class="input-group-text border-0 bg-dtavo-card text-success fw-bold">$</span>
                                                                 {% if m.variante and m.variante.precio_sugerido %}
-                                                                    <input type="text" class="form-control bg-tekfix-card border-0 money-input" name="precio_venta" value="{{ (m.variante.precio_sugerido or m.producto.precio_sugerido)|cop }}" required>
+                                                                    <input type="text" class="form-control bg-dtavo-card border-0 money-input" name="precio_venta" value="{{ (m.variante.precio_sugerido or m.producto.precio_sugerido)|cop }}" required>
                                                                 {% else %}
-                                                                    <input type="text" class="form-control bg-tekfix-card border-0 money-input" name="precio_venta" value="{{ m.producto.precio_sugerido|cop }}" required>
+                                                                    <input type="text" class="form-control bg-dtavo-card border-0 money-input" name="precio_venta" value="{{ m.producto.precio_sugerido|cop }}" required>
                                                                 {% endif %}
                                                             </div>
                                                         </div>
@@ -124,7 +124,7 @@
 
                                                     <div class="mt-3">
                                                         <label class="form-label fw-bold">Medio de Pago a Recibir</label>
-                                                        <select name="metodo_pago" class="form-select bg-tekfix-card border-0" required>
+                                                        <select name="metodo_pago" class="form-select bg-dtavo-card border-0" required>
                                                             <option value="efectivo">💵 Efectivo directo a Caja</option>
                                                             <option value="nequi">📱 Ingresará a Medio Digital (Nequi)</option>
                                                             <option value="bancolombia">🏦 Ingresará a Medio Digital (Bancolombia)</option>
@@ -132,7 +132,7 @@
                                                         </select>
                                                     </div>
                                                     
-                                                    <small class="text-tekfix-sec mt-3 d-block">Nota: Si cobras menos de {{ m.cantidad }}, el sistema devolverá automáticamente el resto de unidades al inventario.</small>
+                                                    <small class="text-dtavo-sec mt-3 d-block">Nota: Si cobras menos de {{ m.cantidad }}, el sistema devolverá automáticamente el resto de unidades al inventario.</small>
                                                 </div>
                                                 <div class="modal-footer border-0">
                                                     <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Cancelar</button>
@@ -153,7 +153,7 @@
                                         <div class="modal-content border-0 shadow">
                                             <form method="POST" action="{{ url_for('admin_bp.maneos_devolver', id=m.id) }}">
                                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                                                <div class="modal-header border-0 bg-tekfix-card">
+                                                <div class="modal-header border-0 bg-dtavo-card">
                                                     <h5 class="modal-title fw-bold text-secondary"><i class="fa-solid fa-rotate-left me-2"></i>Devolver Unidades</h5>
                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
@@ -163,11 +163,11 @@
                                                         devuelve <strong>{{ m.local_vecino }}</strong>?
                                                     </p>
                                                     <div class="input-group input-group-lg mb-3">
-                                                        <input type="number" name="cantidad_devuelta" class="form-control bg-tekfix-card border-0 text-center fw-bold" min="1" max="{{ m.cantidad }}" value="{{ m.cantidad }}" required>
-                                                        <span class="input-group-text border-0 bg-tekfix-card text-tekfix-sec fw-bold">/ {{ m.cantidad }} uds</span>
+                                                        <input type="number" name="cantidad_devuelta" class="form-control bg-dtavo-card border-0 text-center fw-bold" min="1" max="{{ m.cantidad }}" value="{{ m.cantidad }}" required>
+                                                        <span class="input-group-text border-0 bg-dtavo-card text-dtavo-sec fw-bold">/ {{ m.cantidad }} uds</span>
                                                     </div>
                                                     <div class="alert py-2 px-3 rounded-3 mb-0" style="background: #f0f4ff; border: 1px dashed #b0c4de;">
-                                                        <small class="text-tekfix-sec"><i class="fa-solid fa-circle-info text-primary me-1"></i>Si devuelves menos de {{ m.cantidad }}, las unidades restantes quedarán <strong>pendientes de cobrar</strong>.</small>
+                                                        <small class="text-dtavo-sec"><i class="fa-solid fa-circle-info text-primary me-1"></i>Si devuelves menos de {{ m.cantidad }}, las unidades restantes quedarán <strong>pendientes de cobrar</strong>.</small>
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer border-0">
@@ -180,13 +180,13 @@
                                 </div>
                             </div>
                         {% else %}
-                            <span class="text-tekfix-sec small"><i class="fa-solid fa-check text-success"></i> Completado</span>
+                            <span class="text-dtavo-sec small"><i class="fa-solid fa-check text-success"></i> Completado</span>
                         {% endif %}
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="6" class="text-center py-5 text-tekfix-sec">
+                    <td colspan="6" class="text-center py-5 text-dtavo-sec">
                         <i class="fa-solid fa-handshake-slash fs-2 mb-3 text-warning opacity-50"></i>
                         <p class="mb-0">No hay maneos o préstamos registrados.</p>
                     </td>

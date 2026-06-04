@@ -8,84 +8,84 @@
         width: 38%; 
         display: flex; 
         flex-direction: column; 
-        background: var(--tekfix-card-bg); 
+        background: var(--dtavo-card-bg); 
         border-radius: 20px; 
-        border: 1px solid var(--tekfix-border); 
+        border: 1px solid var(--dtavo-border); 
         box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
         height: calc(100vh - 120px);
         overflow: hidden;
     }
     
-    .cart-header { padding: 12px 20px; border-bottom: 1px solid var(--tekfix-border); flex-shrink: 0; }
+    .cart-header { padding: 12px 20px; border-bottom: 1px solid var(--dtavo-border); flex-shrink: 0; }
     
     .cart-items { 
         flex: 1 1 150px; 
         overflow-y: auto; 
         padding: 5px 15px; 
         scrollbar-width: thin;
-        scrollbar-color: var(--tekfix-border) transparent;
+        scrollbar-color: var(--dtavo-border) transparent;
         min-height: 120px;
     }
     .cart-items::-webkit-scrollbar { width: 6px; }
-    .cart-items::-webkit-scrollbar-thumb { background: var(--tekfix-border); border-radius: 10px; }
+    .cart-items::-webkit-scrollbar-thumb { background: var(--dtavo-border); border-radius: 10px; }
 
-    .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--tekfix-border); padding-bottom: 5px; margin-bottom: 5px; word-wrap: break-word; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--dtavo-border); padding-bottom: 5px; margin-bottom: 5px; word-wrap: break-word; }
     .cart-item-info { flex-grow: 1; padding-right: 15px; overflow: hidden; }
-    .cart-item-title { font-weight: bold; font-size: 0.85rem; margin-bottom: 2px; color: var(--tekfix-text-main); white-space: normal; line-height: 1.2; }
-    .cart-item-price { color: var(--tekfix-primary); font-size: 0.9rem; font-weight: bold; }
+    .cart-item-title { font-weight: bold; font-size: 0.85rem; margin-bottom: 2px; color: var(--dtavo-text-main); white-space: normal; line-height: 1.2; }
+    .cart-item-price { color: var(--dtavo-primary); font-size: 0.9rem; font-weight: bold; }
     
     .cart-footer { 
         flex: 0 0 auto;
         margin-top: auto;
         padding: 10px 15px; 
-        background: var(--tekfix-card-bg); 
-        border-top: 1px solid var(--tekfix-border); 
+        background: var(--dtavo-card-bg); 
+        border-top: 1px solid var(--dtavo-border); 
         overflow-y: auto;
         max-height: 75%;
     }
     .cart-total-row { display: flex; justify-content: space-between; margin-bottom: 2px; font-size: 0.8rem; }
-    .cart-total-final { font-size: 1.4rem; font-weight: 900; color: var(--tekfix-primary); text-shadow: 0 0 15px rgba(197, 159, 96, 0.15); }
+    .cart-total-final { font-size: 1.4rem; font-weight: 900; color: var(--dtavo-primary); text-shadow: 0 0 15px rgba(197, 159, 96, 0.15); }
 
     .category-scroll { display: flex; overflow-x: auto; padding-bottom: 10px; gap: 10px; flex-shrink: 0; }
     .category-scroll::-webkit-scrollbar { height: 6px; }
-    .category-scroll::-webkit-scrollbar-thumb { background: var(--tekfix-border); border-radius: 4px; }
+    .category-scroll::-webkit-scrollbar-thumb { background: var(--dtavo-border); border-radius: 4px; }
     
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); grid-auto-rows: minmax(280px, auto); gap: 15px; overflow-y: auto; padding-right: 5px; align-content: flex-start; flex-grow: 1; padding-bottom: 20px; }
     .product-grid::-webkit-scrollbar { width: 8px; }
-    .product-grid::-webkit-scrollbar-thumb { background: var(--tekfix-border); border-radius: 4px; }
+    .product-grid::-webkit-scrollbar-thumb { background: var(--dtavo-border); border-radius: 4px; }
     
-    .product-card { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--tekfix-border); border-radius: 15px; overflow: hidden; background: var(--tekfix-card-bg); display: flex; flex-direction: column; height: 100%; }
-    .product-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); border-color: var(--tekfix-primary); }
-    .product-img { width: 100%; height: 160px; object-fit: contain; background: var(--tekfix-bg); padding: 15px; border-bottom: 1px solid var(--tekfix-border); flex-shrink: 0; opacity: 0.9; }
+    .product-card { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--dtavo-border); border-radius: 15px; overflow: hidden; background: var(--dtavo-card-bg); display: flex; flex-direction: column; height: 100%; }
+    .product-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); border-color: var(--dtavo-primary); }
+    .product-img { width: 100%; height: 160px; object-fit: contain; background: var(--dtavo-bg); padding: 15px; border-bottom: 1px solid var(--dtavo-border); flex-shrink: 0; opacity: 0.9; }
     .product-info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; }
-    .product-title { font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; color: var(--tekfix-text-main); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; min-height: 2.6em; }
-    .product-price { color: var(--tekfix-primary); font-weight: 800; font-size: 1.2rem; margin-top: auto; }
-    .product-stock { font-size: 0.8rem; color: var(--tekfix-text-sec); margin-top: 5px; flex-shrink: 0; }
+    .product-title { font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; color: var(--dtavo-text-main); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; min-height: 2.6em; }
+    .product-price { color: var(--dtavo-primary); font-weight: 800; font-size: 1.2rem; margin-top: auto; }
+    .product-stock { font-size: 0.8rem; color: var(--dtavo-text-sec); margin-top: 5px; flex-shrink: 0; }
 
     .cart-controls { display: flex; align-items: center; gap: 10px; }
-    .cart-controls button { width: 32px; height: 32px; border-radius: 10px; padding: 0; display: flex; align-items: center; justify-content: center; background: var(--tekfix-bg); border: 1px solid var(--tekfix-border); color: var(--tekfix-text-main); transition: all 0.2s; }
-    .cart-controls button:hover { border-color: var(--tekfix-primary); color: var(--tekfix-primary); }
-    .cart-qty { font-weight: 800; width: 25px; text-align: center; font-size: 1rem; color: var(--tekfix-text-main); }
+    .cart-controls button { width: 32px; height: 32px; border-radius: 10px; padding: 0; display: flex; align-items: center; justify-content: center; background: var(--dtavo-bg); border: 1px solid var(--dtavo-border); color: var(--dtavo-text-main); transition: all 0.2s; }
+    .cart-controls button:hover { border-color: var(--dtavo-primary); color: var(--dtavo-primary); }
+    .cart-qty { font-weight: 800; width: 25px; text-align: center; font-size: 1rem; color: var(--dtavo-text-main); }
     
-    .bg-tekfix-input { 
-        background-color: var(--tekfix-input-bg) !important; 
-        color: var(--tekfix-text-main) !important; 
-        border: 1px solid var(--tekfix-border) !important; 
+    .bg-dtavo-input { 
+        background-color: var(--dtavo-input-bg) !important; 
+        color: var(--dtavo-text-main) !important; 
+        border: 1px solid var(--dtavo-border) !important; 
     }
 
-    .money-input { font-weight: bold; color: var(--tekfix-primary) !important; }
+    .money-input { font-weight: bold; color: var(--dtavo-primary) !important; }
 
     /* Ajuste para inputs en modo claro */
     [data-theme="light"] .product-img { background: #fff; }
     [data-theme="light"] .cart-controls button { background: #f0f0f0; }
-    [data-theme="light"] .bg-tekfix-input { background-color: #ffffff !important; }
+    [data-theme="light"] .bg-dtavo-input { background-color: #ffffff !important; }
     
-    .text-tekfix-main { color: var(--tekfix-text-main) !important; }
-    .text-tekfix-sec { color: var(--tekfix-text-sec) !important; }
+    .text-dtavo-main { color: var(--dtavo-text-main) !important; }
+    .text-dtavo-sec { color: var(--dtavo-text-sec) !important; }
 </style>
 
 <div class="d-flex align-items-center mb-3">
-    <h2 class="fw-bold text-tekfix-main m-0"><i class="fa-solid fa-store me-2" style="color: var(--tekfix-hover);"></i>Caja Rápida Visual</h2>
+    <h2 class="fw-bold text-dtavo-main m-0"><i class="fa-solid fa-store me-2" style="color: var(--dtavo-hover);"></i>Caja Rápida Visual</h2>
 </div>
 
 <div class="pos-layout">
@@ -94,18 +94,18 @@
         <!-- Buscador y Categorías -->
         <div class="mb-3">
             <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden border border-secondary mb-3">
-                <span class="input-group-text bg-tekfix-input border-0 ps-4"><i class="fa-solid fa-magnifying-glass text-tekfix-primary"></i></span>
-                <input type="text" id="pos-search" class="form-control border-0 bg-tekfix-input shadow-none ps-2" placeholder="Buscar por Nombre, SKU, IMEI o Talla..." autocomplete="off">
-                <button class="btn bg-tekfix-input border-0 px-3 text-tekfix-sec" type="button" id="clear-pos-search">
+                <span class="input-group-text bg-dtavo-input border-0 ps-4"><i class="fa-solid fa-magnifying-glass text-dtavo-primary"></i></span>
+                <input type="text" id="pos-search" class="form-control border-0 bg-dtavo-input shadow-none ps-2" placeholder="Buscar por Nombre, SKU, IMEI o Talla..." autocomplete="off">
+                <button class="btn bg-dtavo-input border-0 px-3 text-dtavo-sec" type="button" id="clear-pos-search">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             
-            <h6 class="fw-bold text-tekfix-primary mb-2">Filtrar por Categoría:</h6>
+            <h6 class="fw-bold text-dtavo-primary mb-2">Filtrar por Categoría:</h6>
             <div class="category-scroll" id="category-filters">
-                <button class="btn btn-tekfix rounded-pill px-4 cat-btn active shadow-sm" data-category="Todas">Todas</button>
+                <button class="btn btn-dtavo rounded-pill px-4 cat-btn active shadow-sm" data-category="Todas">Todas</button>
                 {% for cat in categorias %}
-                <button class="btn btn-outline-secondary rounded-pill px-3 cat-btn text-tekfix-main" data-category="{{ cat }}">{{ cat }}</button>
+                <button class="btn btn-outline-secondary rounded-pill px-3 cat-btn text-dtavo-main" data-category="{{ cat }}">{{ cat }}</button>
                 {% endfor %}
             </div>
         </div>
@@ -119,13 +119,13 @@
     <!-- PANEL DERECHO: SIDEBAR CARRITO -->
     <div class="pos-sidebar">
         <div class="cart-header d-flex justify-content-between align-items-center">
-            <h5 class="fw-bold m-0 text-tekfix-main"><i class="fa-solid fa-shopping-cart me-2 text-tekfix-primary"></i>Caja Rápida</h5>
-            <span class="badge bg-tekfix-primary rounded-pill px-3 text-dark" id="cart-count" style="font-size:0.85rem;">0 ítems</span>
+            <h5 class="fw-bold m-0 text-dtavo-main"><i class="fa-solid fa-shopping-cart me-2 text-dtavo-primary"></i>Caja Rápida</h5>
+            <span class="badge bg-dtavo-primary rounded-pill px-3 text-dark" id="cart-count" style="font-size:0.85rem;">0 ítems</span>
         </div>
         
         <div class="cart-items" id="cart-items">
                 <!-- Items del carrito -->
-                <div class="text-center text-tekfix-sec mt-5" id="empty-cart-msg">
+                <div class="text-center text-dtavo-sec mt-5" id="empty-cart-msg">
                     <i class="fa-solid fa-basket-shopping fs-1 mb-3 opacity-25"></i>
                     <p class="mb-1 fw-bold">Tu carrito está vacío.</p>
                     <small>Selecciona prendas del catálogo.</small>
@@ -133,13 +133,13 @@
             </div>
             
             <div class="cart-footer">
-                <div class="cart-total-row text-tekfix-sec fw-semibold">
+                <div class="cart-total-row text-dtavo-sec fw-semibold">
                     <span>Subtotal:</span>
-                    <span id="subtotal-val" class="text-tekfix-main">$0</span>
+                    <span id="subtotal-val" class="text-dtavo-main">$0</span>
                 </div>
-                <div class="cart-total-row text-tekfix-sec fw-semibold mb-3">
+                <div class="cart-total-row text-dtavo-sec fw-semibold mb-3">
                     <span>Impuestos:</span>
-                    <span class="text-tekfix-main">$0</span>
+                    <span class="text-dtavo-main">$0</span>
                 </div>
                 <hr class="my-2 border-secondary opacity-25">
                 
@@ -158,36 +158,36 @@
                 </div>
 
                 <div class="cart-total-row mb-2">
-                    <span class="fw-bold fs-5 align-self-end text-tekfix-main">Total a Cobrar:</span>
+                    <span class="fw-bold fs-5 align-self-end text-dtavo-main">Total a Cobrar:</span>
                     <span class="cart-total-final" id="total-val">$0</span>
                 </div>
 
                 <!-- Factura Física y Datos del Cliente Compactos -->
-                <div class="card bg-tekfix-input border-0 shadow-sm rounded-4 mb-2">
+                <div class="card bg-dtavo-input border-0 shadow-sm rounded-4 mb-2">
                     <div class="card-body p-2">
                         <div class="row g-2 align-items-center mb-2">
                             <div class="col-5">
-                                <label class="form-label fw-bold small text-tekfix-primary mb-0" style="font-size: 0.65rem;">N° FACTURA</label>
-                                <input type="text" id="factura-fisica" class="form-control form-control-sm border-0 bg-tekfix-bg text-tekfix-main fw-bold" placeholder="#" autocomplete="off" style="font-size: 0.75rem;">
+                                <label class="form-label fw-bold small text-dtavo-primary mb-0" style="font-size: 0.65rem;">N° FACTURA</label>
+                                <input type="text" id="factura-fisica" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main fw-bold" placeholder="#" autocomplete="off" style="font-size: 0.75rem;">
                             </div>
                             <div class="col-7">
-                                <label class="form-label fw-bold small text-tekfix-primary mb-0" style="font-size: 0.65rem;">CÉDULA / NIT</label>
-                                <input type="text" id="cliente-cedula" class="form-control form-control-sm border-0 bg-tekfix-bg text-tekfix-main" placeholder="Buscar cliente..." autocomplete="off" style="font-size: 0.75rem;">
+                                <label class="form-label fw-bold small text-dtavo-primary mb-0" style="font-size: 0.65rem;">CÉDULA / NIT</label>
+                                <input type="text" id="cliente-cedula" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main" placeholder="Buscar cliente..." autocomplete="off" style="font-size: 0.75rem;">
                             </div>
                         </div>
 
                         <div class="row g-2 mb-1">
                             <div class="col-12">
-                                <input type="text" id="cliente-nombre" class="form-control form-control-sm border-0 bg-tekfix-bg text-tekfix-main" placeholder="Nombre del Cliente" style="font-size: 0.75rem;">
+                                <input type="text" id="cliente-nombre" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main" placeholder="Nombre del Cliente" style="font-size: 0.75rem;">
                             </div>
                         </div>
 
                         <div class="row g-2 mb-0">
                             <div class="col-6">
-                                <input type="text" id="cliente-telefono" class="form-control form-control-sm border-0 bg-tekfix-bg text-tekfix-main" placeholder="Teléfono" style="font-size: 0.7rem;">
+                                <input type="text" id="cliente-telefono" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main" placeholder="Teléfono" style="font-size: 0.7rem;">
                             </div>
                             <div class="col-6">
-                                <input type="email" id="cliente-correo" class="form-control form-control-sm border-0 bg-tekfix-bg text-tekfix-main" placeholder="Correo" style="font-size: 0.7rem;">
+                                <input type="email" id="cliente-correo" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main" placeholder="Correo" style="font-size: 0.7rem;">
                             </div>
                         </div>
                         <div id="cliente-status" class="small mt-1" style="display:none; font-size: 0.65rem;"></div>
@@ -195,24 +195,24 @@
                 </div>
 
                 <div class="mb-1">
-                    <label class="form-label fw-bold small text-tekfix-main mb-0" style="font-size: 0.75rem;"><i class="fa-regular fa-calendar me-1"></i>Fecha:</label>
-                    <input type="date" id="fecha-venta" class="form-control form-control-sm border-0 shadow-sm bg-tekfix-input text-tekfix-main">
+                    <label class="form-label fw-bold small text-dtavo-main mb-0" style="font-size: 0.75rem;"><i class="fa-regular fa-calendar me-1"></i>Fecha:</label>
+                    <input type="date" id="fecha-venta" class="form-control form-control-sm border-0 shadow-sm bg-dtavo-input text-dtavo-main">
                 </div>
                 
                 <!-- Toggle: Pago Único vs Pago Dividido -->
                 <div class="mb-1">
                     <div class="d-flex align-items-center gap-2 mb-1">
-                        <label class="form-label fw-bold text-tekfix-main small text-uppercase m-0" style="font-size: 0.7rem;">Pago</label>
+                        <label class="form-label fw-bold text-dtavo-main small text-uppercase m-0" style="font-size: 0.7rem;">Pago</label>
                         <div class="form-check form-switch ms-auto">
                             <input class="form-check-input" type="checkbox" id="toggle_pago_mixto" style="cursor: pointer; scale: 0.8;">
-                            <label class="form-check-label fw-bold small text-tekfix-sec" for="toggle_pago_mixto" style="cursor: pointer; font-size: 0.7rem;">Dividir</label>
+                            <label class="form-check-label fw-bold small text-dtavo-sec" for="toggle_pago_mixto" style="cursor: pointer; font-size: 0.7rem;">Dividir</label>
                         </div>
                     </div>
                 </div>
 
                 <!-- Modo 1: Pago Único (por defecto) -->
                 <div id="pago_unico_section" class="mb-2">
-                    <select id="metodo-pago" class="form-select form-select-sm border-0 shadow-sm bg-tekfix-input text-tekfix-main" style="cursor: pointer;">
+                    <select id="metodo-pago" class="form-select form-select-sm border-0 shadow-sm bg-dtavo-input text-dtavo-main" style="cursor: pointer;">
                         <option value="efectivo">💵 Efectivo</option>
                         <option value="nequi">📱 Nequi</option>
                         <option value="bancolombia">🏦 Bancolombia</option>
@@ -224,13 +224,13 @@
                 <!-- Modo 2: Pago Dividido/Mixto (oculto por defecto) -->
                 <div id="pago_mixto_section" style="display: none;" class="mb-2">
                     <!-- Indicador visual del saldo restante -->
-                    <div class="alert border border-secondary py-1 px-2 mb-2 bg-tekfix-input">
+                    <div class="alert border border-secondary py-1 px-2 mb-2 bg-dtavo-input">
                         <div class="d-flex justify-content-between align-items-center">
-                            <small class="fw-bold text-tekfix-sec" id="saldo_label" style="font-size: 0.65rem;">SALDO:</small>
-                            <span class="fw-bolder text-tekfix-primary" id="saldo_restante" style="font-size: 1rem;">$0</span>
+                            <small class="fw-bold text-dtavo-sec" id="saldo_label" style="font-size: 0.65rem;">SALDO:</small>
+                            <span class="fw-bolder text-dtavo-primary" id="saldo_restante" style="font-size: 1rem;">$0</span>
                         </div>
-                        <div class="progress mt-1" style="height: 4px; border-radius: 10px; background-color: var(--tekfix-border);">
-                            <div class="progress-bar" id="barra_progreso_pago" role="progressbar" style="width: 0%; background: var(--tekfix-primary); border-radius: 10px;"></div>
+                        <div class="progress mt-1" style="height: 4px; border-radius: 10px; background-color: var(--dtavo-border);">
+                            <div class="progress-bar" id="barra_progreso_pago" role="progressbar" style="width: 0%; background: var(--dtavo-primary); border-radius: 10px;"></div>
                         </div>
                     </div>
 
@@ -244,7 +244,7 @@
                     </button>
                 </div>
 
-                <button class="btn btn-tekfix w-100 py-2 rounded-pill fw-bold fs-6 shadow-sm text-uppercase mb-2" id="btn-process-sale">
+                <button class="btn btn-dtavo w-100 py-2 rounded-pill fw-bold fs-6 shadow-sm text-uppercase mb-2" id="btn-process-sale">
                     <i class="fa-solid fa-cash-register me-2"></i> Procesar Venta
                 </button>
                 <button class="btn btn-outline-danger w-100 py-1 rounded-pill fw-bold small" id="btn-clear-cart" style="font-size: 0.75rem;">
@@ -257,25 +257,25 @@
 <!-- MODAL RETOMA -->
 <div class="modal fade" id="modalRetoma" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="background: var(--tekfix-card-bg);">
+        <div class="modal-content border-0 shadow-lg" style="background: var(--dtavo-card-bg);">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold text-tekfix-primary"><i class="fa-solid fa-mobile-retro me-2"></i>Añadir Retoma</h5>
+                <h5 class="modal-title fw-bold text-dtavo-primary"><i class="fa-solid fa-mobile-retro me-2"></i>Añadir Retoma</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
                 <div class="mb-3">
-                    <label class="form-label small fw-bold text-tekfix-sec">IMEI del Equipo</label>
-                    <input type="text" id="input-retoma-imei" class="form-control bg-tekfix-input border-0 text-tekfix-main" placeholder="Ej: 35123...">
+                    <label class="form-label small fw-bold text-dtavo-sec">IMEI del Equipo</label>
+                    <input type="text" id="input-retoma-imei" class="form-control bg-dtavo-input border-0 text-dtavo-main" placeholder="Ej: 35123...">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label small fw-bold text-tekfix-sec">Marca / Modelo</label>
-                    <input type="text" id="input-retoma-modelo" class="form-control bg-tekfix-input border-0 text-tekfix-main" placeholder="Ej: iPhone 12 Pro">
+                    <label class="form-label small fw-bold text-dtavo-sec">Marca / Modelo</label>
+                    <input type="text" id="input-retoma-modelo" class="form-control bg-dtavo-input border-0 text-dtavo-main" placeholder="Ej: iPhone 12 Pro">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label small fw-bold text-tekfix-sec">Valor Acordado ($)</label>
-                    <input type="text" id="input-retoma-valor" class="form-control bg-tekfix-input border-0 text-tekfix-main money-input" placeholder="Ej: 500,000">
+                    <label class="form-label small fw-bold text-dtavo-sec">Valor Acordado ($)</label>
+                    <input type="text" id="input-retoma-valor" class="form-control bg-dtavo-input border-0 text-dtavo-main money-input" placeholder="Ej: 500,000">
                 </div>
-                <button class="btn btn-tekfix w-100 py-3 rounded-pill fw-bold mt-3" id="btn-confirm-retoma">
+                <button class="btn btn-dtavo w-100 py-3 rounded-pill fw-bold mt-3" id="btn-confirm-retoma">
                     Aplicar Retoma <i class="fa-solid fa-check ms-1"></i>
                 </button>
             </div>
@@ -287,11 +287,11 @@
 <div class="modal fade" id="modalVariantes" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header border-0 bg-tekfix-card pb-3">
-                <h5 class="modal-title fw-bold text-tekfix-main" id="modalVariantesTitle">Seleccionar Talla/Color</h5>
+            <div class="modal-header border-0 bg-dtavo-card pb-3">
+                <h5 class="modal-title fw-bold text-dtavo-main" id="modalVariantesTitle">Seleccionar Talla/Color</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body bg-tekfix-card p-4">
+            <div class="modal-body bg-dtavo-card p-4">
                 <div id="variantes-list" class="list-group list-group-flush gap-2">
                     <!-- Las variantes se inyectan aquí -->
                 </div>
@@ -303,27 +303,27 @@
 <!-- MODAL DETALLES SERIAL (IMEI) -->
 <div class="modal fade" id="modalDetallesSerial" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="background: var(--tekfix-card-bg);">
+        <div class="modal-content border-0 shadow-lg" style="background: var(--dtavo-card-bg);">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold text-tekfix-primary"><i class="fa-solid fa-mobile-screen-button me-2"></i>Detalles del Dispositivo</h5>
+                <h5 class="modal-title fw-bold text-dtavo-primary"><i class="fa-solid fa-mobile-screen-button me-2"></i>Detalles del Dispositivo</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
                 <div class="mb-4 text-center">
-                    <span class="badge bg-tekfix-input text-tekfix-primary px-3 py-2 rounded-pill border border-secondary" id="serial-label-display" style="font-family: monospace; font-size: 1rem;">IMEI: 000000</span>
+                    <span class="badge bg-dtavo-input text-dtavo-primary px-3 py-2 rounded-pill border border-secondary" id="serial-label-display" style="font-family: monospace; font-size: 1rem;">IMEI: 000000</span>
                 </div>
                 
                 <div class="mb-3">
-                    <label class="form-label small fw-bold text-tekfix-sec">Estado de Batería (%)</label>
+                    <label class="form-label small fw-bold text-dtavo-sec">Estado de Batería (%)</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-tekfix-input border-0 text-tekfix-primary"><i class="fa-solid fa-battery-three-quarters"></i></span>
-                        <input type="number" id="input-bateria" class="form-control bg-tekfix-input border-0 text-tekfix-main" placeholder="Ej: 95" min="1" max="100">
+                        <span class="input-group-text bg-dtavo-input border-0 text-dtavo-primary"><i class="fa-solid fa-battery-three-quarters"></i></span>
+                        <input type="number" id="input-bateria" class="form-control bg-dtavo-input border-0 text-dtavo-main" placeholder="Ej: 95" min="1" max="100">
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label small fw-bold text-tekfix-sec">Condición Estética</label>
-                    <select id="input-condicion" class="form-select bg-tekfix-input border-0 text-tekfix-main">
+                    <label class="form-label small fw-bold text-dtavo-sec">Condición Estética</label>
+                    <select id="input-condicion" class="form-select bg-dtavo-input border-0 text-dtavo-main">
                         <option value="Nuevo">✨ Nuevo</option>
                         <option value="Seminuevo">👍 Seminuevo</option>
                         <option value="Exhibición">📱 De Exhibición</option>
@@ -331,22 +331,22 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label small fw-bold text-tekfix-sec">Color</label>
+                    <label class="form-label small fw-bold text-dtavo-sec">Color</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-tekfix-input border-0 text-tekfix-primary"><i class="fa-solid fa-palette"></i></span>
-                        <input type="text" id="input-color" class="form-control bg-tekfix-input border-0 text-tekfix-main" placeholder="Ej: Azul Sierra">
+                        <span class="input-group-text bg-dtavo-input border-0 text-dtavo-primary"><i class="fa-solid fa-palette"></i></span>
+                        <input type="text" id="input-color" class="form-control bg-dtavo-input border-0 text-dtavo-main" placeholder="Ej: Azul Sierra">
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label small fw-bold text-tekfix-sec">Tiempo de Garantía</label>
+                    <label class="form-label small fw-bold text-dtavo-sec">Tiempo de Garantía</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-tekfix-input border-0 text-tekfix-primary"><i class="fa-solid fa-shield-halved"></i></span>
-                        <input type="text" id="input-garantia" class="form-control bg-tekfix-input border-0 text-tekfix-main" placeholder="Ej: 6 Meses / 1 Año">
+                        <span class="input-group-text bg-dtavo-input border-0 text-dtavo-primary"><i class="fa-solid fa-shield-halved"></i></span>
+                        <input type="text" id="input-garantia" class="form-control bg-dtavo-input border-0 text-dtavo-main" placeholder="Ej: 6 Meses / 1 Año">
                     </div>
                 </div>
 
-                <button class="btn btn-tekfix w-100 py-3 rounded-pill fw-bold mt-3" id="btn-confirm-serial-details">
+                <button class="btn btn-dtavo w-100 py-3 rounded-pill fw-bold mt-3" id="btn-confirm-serial-details">
                     Vincular al Carrito <i class="fa-solid fa-cart-plus ms-1"></i>
                 </button>
             </div>
@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (p.requiere_imei) {
                 badge = `<span class="badge mb-1" style="width:fit-content; font-size:0.65rem; background: #f59e0b; color: #fff;"><i class="fa-solid fa-barcode me-1"></i>Requiere IMEI</span>`;
             } else if (p.tiene_variantes) {
-                badge = `<span class="badge mb-1" style="width:fit-content; font-size:0.65rem; background: var(--tekfix-primary); color: #000;"><i class="fa-solid fa-layer-group me-1"></i>Con Variantes</span>`;
+                badge = `<span class="badge mb-1" style="width:fit-content; font-size:0.65rem; background: var(--dtavo-primary); color: #000;"><i class="fa-solid fa-layer-group me-1"></i>Con Variantes</span>`;
             }
 
             card.innerHTML = `
@@ -498,10 +498,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentCategory !== 'Todas') {
                 currentCategory = 'Todas';
                 document.querySelectorAll('.cat-btn').forEach(b => {
-                    b.classList.remove('btn-tekfix', 'active', 'shadow-sm');
+                    b.classList.remove('btn-dtavo', 'active', 'shadow-sm');
                     b.classList.add('btn-outline-secondary', 'bg-white');
                     if (b.dataset.category === 'Todas') {
-                        b.classList.add('btn-tekfix', 'active', 'shadow-sm');
+                        b.classList.add('btn-dtavo', 'active', 'shadow-sm');
                         b.classList.remove('btn-outline-secondary', 'bg-white');
                     }
                 });
@@ -523,10 +523,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', (e) => {
             const targetBtn = e.currentTarget;
             document.querySelectorAll('.cat-btn').forEach(b => {
-                b.classList.remove('btn-tekfix', 'active', 'shadow-sm');
+                b.classList.remove('btn-dtavo', 'active', 'shadow-sm');
                 b.classList.add('btn-outline-secondary', 'bg-white');
             });
-            targetBtn.classList.add('btn-tekfix', 'active', 'shadow-sm');
+            targetBtn.classList.add('btn-dtavo', 'active', 'shadow-sm');
             targetBtn.classList.remove('btn-outline-secondary', 'bg-white');
             
             searchInput.value = '';
@@ -576,7 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (p.requiere_imei || p.tiene_variantes) {
             document.getElementById('modalVariantesTitle').innerText = p.nombre;
             const listEl = document.getElementById('variantes-list');
-            listEl.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-tekfix-primary" role="status"></div></div>';
+            listEl.innerHTML = '<div class="text-center p-4"><div class="spinner-border text-dtavo-primary" role="status"></div></div>';
             modalVariantes.show();
 
             // RAMA 1: Producto con Variantes (Ropa, Calzado, etc.)
@@ -597,7 +597,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         btn.className = `list-group-item list-group-item-action rounded-3 shadow-sm border-0 mb-2 d-flex justify-content-between align-items-center ${v.cantidad_stock <= 0 ? 'disabled opacity-50' : ''}`;
                         btn.innerHTML = `
                             <div><span class="fw-bold">${v.nombre_variante}</span><br><small>Stock: ${v.cantidad_stock}</small></div>
-                            <span class="fw-bolder fs-5 text-tekfix-primary">${formatoCOP(v.precio_final || p.precio_final)}</span>
+                            <span class="fw-bolder fs-5 text-dtavo-primary">${formatoCOP(v.precio_final || p.precio_final)}</span>
                         `;
                         btn.onclick = () => {
                             if (v.cantidad_stock > 0) {
@@ -786,8 +786,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${item.variante ? `<small class="badge bg-light text-secondary border px-2">${item.variante}</small>` : ''}
                         ${item.serial_vinculado ? `
                             <div class="mt-1" style="line-height: 1.2;">
-                                <div class="small fw-bold text-tekfix-primary" style="font-size: 0.75rem;"><i class="fa-solid fa-barcode me-1"></i>IMEI: ${item.serial_vinculado}</div>
-                                <div class="text-tekfix-sec" style="font-size: 0.68rem;">
+                                <div class="small fw-bold text-dtavo-primary" style="font-size: 0.75rem;"><i class="fa-solid fa-barcode me-1"></i>IMEI: ${item.serial_vinculado}</div>
+                                <div class="text-dtavo-sec" style="font-size: 0.68rem;">
                                     <span class="me-2"><i class="fa-solid fa-battery-half me-1"></i>${item.bateria || 'N/A'}%</span>
                                     <span class="me-2"><i class="fa-solid fa-star me-1"></i>${item.condicion || 'N/A'}</span>
                                     ${item.color ? `<span class="me-2"><i class="fa-solid fa-palette me-1"></i>${item.color}</span>` : ''}
@@ -798,12 +798,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="cart-item-price d-flex align-items-center gap-1">
                             <i class="fa-solid fa-tag small opacity-50"></i>
                             <input type="number" 
-                                   class="form-control form-control-sm border-0 bg-transparent fw-bold p-0 shadow-none text-tekfix-primary" 
+                                   class="form-control form-control-sm border-0 bg-transparent fw-bold p-0 shadow-none text-dtavo-primary" 
                                    style="width: 100px; ${item.precio_final < item.precio_original ? 'color: #C59F60 !important;' : ''}" 
                                    value="${item.precio_final}" 
                                    onblur="updateCartPrice(${idx}, this.value)"
                                    onfocus="this.select()">
-                            ${item.precio_final < (item.precio_original || item.precio_final) ? '<small class="badge bg-tekfix-primary text-dark ms-1" style="font-size:0.6rem;">Desc.</small>' : ''}
+                            ${item.precio_final < (item.precio_original || item.precio_final) ? '<small class="badge bg-dtavo-primary text-dark ms-1" style="font-size:0.6rem;">Desc.</small>' : ''}
                         </div>
                     </div>
                     <div class="cart-controls">
@@ -987,7 +987,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 wrapper.classList.add('animate__animated', 'animate__pulse');
                 setTimeout(() => wrapper.classList.remove('animate__animated', 'animate__pulse'), 1000);
             } else {
-                statusCliente.innerHTML = '<span class="text-tekfix-sec"><i class="fa-solid fa-user-plus me-1"></i> Cliente Nuevo</span>';
+                statusCliente.innerHTML = '<span class="text-dtavo-sec"><i class="fa-solid fa-user-plus me-1"></i> Cliente Nuevo</span>';
             }
         } catch (error) {
             statusCliente.style.display = 'none';

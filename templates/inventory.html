@@ -30,7 +30,7 @@
     }
 
     .premium-table th {
-        color: var(--text-tekfix-sec);
+        color: var(--text-dtavo-sec);
         text-transform: uppercase;
         font-size: 0.75rem;
         font-weight: 600;
@@ -81,7 +81,7 @@
     .money {
         font-family: 'Inter', sans-serif;
         font-weight: 500;
-        color: var(--text-tekfix-sec);
+        color: var(--text-dtavo-sec);
     }
     
     .money-highlight {
@@ -110,7 +110,7 @@
             <tbody>
                 {% for p in productos %}
                 <tr>
-                    <td style="color: var(--text-tekfix-sec); font-family: monospace; font-size: 0.9rem;">{{ p.sku }}</td>
+                    <td style="color: var(--text-dtavo-sec); font-family: monospace; font-size: 0.9rem;">{{ p.sku }}</td>
                     <td style="font-weight: 500;">{{ p.nombre }}</td>
                     <td>
                         <span class="stock-badge {% if p.cantidad_stock < 15 %}low{% endif %}">
@@ -122,7 +122,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="5" style="text-align: center; color: var(--text-tekfix-sec); padding: 4rem;">
+                    <td colspan="5" style="text-align: center; color: var(--text-dtavo-sec); padding: 4rem;">
                         No existen productos. Asegúrate de ejecutar tu seed_inventory.py
                     </td>
                 </tr>

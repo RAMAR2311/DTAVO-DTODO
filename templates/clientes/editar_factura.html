@@ -9,11 +9,11 @@
             <li class="breadcrumb-item active">Editar Factura #{{ factura.id }}</li>
         </ol>
     </nav>
-    <h2 class="fw-bold text-tekfix-main"><i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edición y Devoluciones</h2>
+    <h2 class="fw-bold text-dtavo-main"><i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edición y Devoluciones</h2>
     <div class="d-flex align-items-center gap-3">
-        <p class="text-tekfix-sec mb-0"><i class="fa-solid fa-user me-1"></i> <strong>Cliente:</strong> {{ factura.cliente.nombre_completo }}</p>
-        <p class="text-tekfix-sec mb-0"><i class="fa-solid fa-phone me-1"></i> <strong>Tel:</strong> {{ factura.cliente.telefono }}</p>
-        <p class="text-tekfix-sec mb-0"><i class="fa-solid fa-calendar me-1"></i> <strong>Factura de:</strong> {{ factura.fecha_emision.strftime('%d/%m/%Y') }}</p>
+        <p class="text-dtavo-sec mb-0"><i class="fa-solid fa-user me-1"></i> <strong>Cliente:</strong> {{ factura.cliente.nombre_completo }}</p>
+        <p class="text-dtavo-sec mb-0"><i class="fa-solid fa-phone me-1"></i> <strong>Tel:</strong> {{ factura.cliente.telefono }}</p>
+        <p class="text-dtavo-sec mb-0"><i class="fa-solid fa-calendar me-1"></i> <strong>Factura de:</strong> {{ factura.fecha_emision.strftime('%d/%m/%Y') }}</p>
     </div>
 </div>
 
@@ -87,7 +87,7 @@
         <!-- Resumen Financiero -->
         <div class="card card-custom border-0 shadow-sm mb-4">
             <div class="card-body p-4">
-                <h6 class="fw-bold mb-3"><i class="fa-solid fa-calculator text-tekfix-primary me-2"></i>Resumen Financiero</h6>
+                <h6 class="fw-bold mb-3"><i class="fa-solid fa-calculator text-dtavo-primary me-2"></i>Resumen Financiero</h6>
                 <div class="d-flex justify-content-between mb-1">
                     <span>Total Factura:</span>
                     <span class="fw-bold">${{ factura.total_factura | cop }}</span>
@@ -107,7 +107,7 @@
         <!-- Historial de Abonos -->
         <div class="card card-custom border-0 shadow-sm mb-4">
             <div class="card-header bg-white pt-4 px-4 border-0">
-                <h6 class="fw-bold mb-0"><i class="fa-solid fa-history text-tekfix-primary me-2"></i>Historial de Abonos</h6>
+                <h6 class="fw-bold mb-0"><i class="fa-solid fa-history text-dtavo-primary me-2"></i>Historial de Abonos</h6>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive" style="max-height: 200px;">

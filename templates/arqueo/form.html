@@ -10,7 +10,7 @@
         <!-- Seleccionador de Fecha -->
         <div class="card card-custom p-4 mb-4 border-0 shadow-sm">
             <form id="fechaForm" action="{{ url_for('arqueo_bp.nuevo') }}" method="GET" class="d-flex align-items-center">
-                <label for="fecha" class="fw-bold me-3 text-tekfix-main">Fecha del Arqueo:</label>
+                <label for="fecha" class="fw-bold me-3 text-dtavo-main">Fecha del Arqueo:</label>
                 <input type="date" id="fecha" name="fecha" value="{{ fecha }}" class="form-control w-auto me-3" onchange="this.form.submit()" required>
                 <button type="submit" class="btn btn-outline-secondary rounded-pill px-4" style="display:none;">Consultar</button>
             </form>
@@ -19,7 +19,7 @@
         {% if arqueo_existente %}
         <div class="alert alert-warning text-center rounded-pill">
             <i class="fa-solid fa-triangle-exclamation me-1"></i> Ya existe un arqueo guardado para ti el <strong>{{ fecha }}</strong>. Las sumas no se pueden modificar de nuevo.
-            <a href="{{ url_for('arqueo_bp.reporte') }}" class="fw-bold text-tekfix-main ms-2">Ver Arqueos</a>
+            <a href="{{ url_for('arqueo_bp.reporte') }}" class="fw-bold text-dtavo-main ms-2">Ver Arqueos</a>
         </div>
         {% else %}
 
@@ -30,20 +30,20 @@
                 <!-- Columna Izquierda: Datos del Sistema -->
                 <div class="col-12 col-md-6">
                     <div class="card card-custom p-4 h-100 border-0 shadow-sm" style="background-color: #fafbfc;">
-                        <h5 class="fw-bold text-tekfix-sec mb-3"><i class="fa-solid fa-calculator me-2"></i> Datos del Sistema (Automáticos)</h5>
+                        <h5 class="fw-bold text-dtavo-sec mb-3"><i class="fa-solid fa-calculator me-2"></i> Datos del Sistema (Automáticos)</h5>
                         
                         <div class="mb-3">
-                            <label class="form-label text-tekfix-sec mb-1">Total Ventas en Efectivo</label>
+                            <label class="form-label text-dtavo-sec mb-1">Total Ventas en Efectivo</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-tekfix-card">$</span>
+                                <span class="input-group-text bg-dtavo-card">$</span>
                                 <input type="text" id="total_efectivo_visual" class="form-control fw-bold" value="{{ (total_efectivo)|cop }}" readonly disabled>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label text-tekfix-sec mb-1">Total Ventas por Medios Digitales</label>
+                            <label class="form-label text-dtavo-sec mb-1">Total Ventas por Medios Digitales</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-tekfix-card">$</span>
+                                <span class="input-group-text bg-dtavo-card">$</span>
                                 <input type="text" id="total_transferencia_visual" class="form-control fw-bold" value="{{ (total_transferencia)|cop }}" readonly disabled>
                             </div>
                         </div>
@@ -69,12 +69,12 @@
                 <!-- Columna Derecha: Ingresos de Cajero -->
                 <div class="col-12 col-md-6">
                     <div class="card card-custom p-4 h-100 border-0 shadow-sm">
-                        <h5 class="fw-bold text-tekfix-main mb-3"><i class="fa-solid fa-user-pen me-2"></i> Tu Ingreso Manual</h5>
+                        <h5 class="fw-bold text-dtavo-main mb-3"><i class="fa-solid fa-user-pen me-2"></i> Tu Ingreso Manual</h5>
                         
                         <div class="mb-3">
                             <label for="base_inicial" class="form-label fw-semibold">Base Inicial (Efectivo inicio de caja) <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text border-end-0 bg-tekfix-card"><i class="fa-solid fa-sack-dollar text-tekfix-sec"></i></span>
+                                <span class="input-group-text border-end-0 bg-dtavo-card"><i class="fa-solid fa-sack-dollar text-dtavo-sec"></i></span>
                                 <input type="text" id="base_inicial" name="base_inicial" class="form-control border-start-0 money-input" value="0" required>
                             </div>
                             <div class="form-text">Dinero en caja desde la apertura.</div>
@@ -83,10 +83,10 @@
                         <div class="mb-3">
                             <label for="gastos_del_dia" class="form-label fw-semibold">Gastos del Día</label>
                             <div class="input-group">
-                                <span class="input-group-text border-end-0 bg-tekfix-card"><i class="fa-solid fa-money-bill-transfer text-danger"></i></span>
-                                <input type="text" id="gastos_del_dia" name="gastos_del_dia" class="form-control border-start-0 bg-tekfix-card money-input" value="{{ (gastos_automaticos|int if gastos_automaticos else 0)|cop }}" readonly>
+                                <span class="input-group-text border-end-0 bg-dtavo-card"><i class="fa-solid fa-money-bill-transfer text-danger"></i></span>
+                                <input type="text" id="gastos_del_dia" name="gastos_del_dia" class="form-control border-start-0 bg-dtavo-card money-input" value="{{ (gastos_automaticos|int if gastos_automaticos else 0)|cop }}" readonly>
                             </div>
-                            <small class="form-text text-tekfix-sec">Valor calculado automáticamente desde el módulo de Gastos Diarios de hoy.</small>
+                            <small class="form-text text-dtavo-sec">Valor calculado automáticamente desde el módulo de Gastos Diarios de hoy.</small>
                         </div>
 
                         <div class="mb-4">
@@ -98,7 +98,7 @@
             </div>
 
             <div class="d-flex justify-content-center mt-5">
-                <button type="submit" class="btn btn-lg rounded-pill px-5 fw-bold text-tekfix-main w-100 shadow-sm" style="background-color: #A3D8DE;">
+                <button type="submit" class="btn btn-lg rounded-pill px-5 fw-bold text-dtavo-main w-100 shadow-sm" style="background-color: #A3D8DE;">
                     <i class="fa-solid fa-lock me-2"></i> Cerrar Caja y Guardar Arqueo
                 </button>
             </div>

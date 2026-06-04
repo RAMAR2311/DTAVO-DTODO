@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="d-flex align-items-center justify-content-between mb-4">
-    <h2 class="fw-bold text-tekfix-main m-0"><i class="fa-solid fa-address-book me-2 text-tekfix-primary"></i>Directorio de Clientes</h2>
+    <h2 class="fw-bold text-dtavo-main m-0"><i class="fa-solid fa-address-book me-2 text-dtavo-primary"></i>Directorio de Clientes</h2>
     {% if current_user.rol == 'admin' %}
     <div class="d-flex gap-2">
         <a href="{{ url_for('clientes_bp.cartera_index') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold">
@@ -17,12 +17,12 @@
         <form method="GET" action="{{ url_for('clientes_bp.index') }}" class="row g-3">
             <div class="col-md-10">
                 <div class="input-group">
-                    <span class="input-group-text bg-tekfix-input border-0 text-tekfix-sec"><i class="fa-solid fa-magnifying-glass"></i></span>
-                    <input type="text" name="q" class="form-control bg-tekfix-input border-0 text-white" placeholder="Buscar por Nombre o Cédula..." value="{{ q or '' }}">
+                    <span class="input-group-text bg-dtavo-input border-0 text-dtavo-sec"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" name="q" class="form-control bg-dtavo-input border-0 text-white" placeholder="Buscar por Nombre o Cédula..." value="{{ q or '' }}">
                 </div>
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-tekfix w-100 rounded-pill fw-bold">Buscar</button>
+                <button type="submit" class="btn btn-dtavo w-100 rounded-pill fw-bold">Buscar</button>
             </div>
         </form>
     </div>
@@ -44,20 +44,20 @@
             <tbody>
                 {% for cliente in clientes %}
                 <tr>
-                    <td class="fw-bold text-tekfix-primary">{{ cliente.cedula }}</td>
+                    <td class="fw-bold text-dtavo-primary">{{ cliente.cedula }}</td>
                     <td class="fw-bold text-white">{{ cliente.nombre }}</td>
                     <td>{{ cliente.telefono or '---' }}</td>
                     <td>{{ cliente.correo or '---' }}</td>
-                    <td class="small text-tekfix-sec">{{ cliente.fecha_registro.strftime('%d/%m/%Y') }}</td>
+                    <td class="small text-dtavo-sec">{{ cliente.fecha_registro.strftime('%d/%m/%Y') }}</td>
                     <td class="text-center">
-                        <a href="{{ url_for('clientes_bp.ver_compras', id=cliente.id) }}" class="btn btn-sm btn-outline-tekfix rounded-pill px-3">
+                        <a href="{{ url_for('clientes_bp.ver_compras', id=cliente.id) }}" class="btn btn-sm btn-outline-dtavo rounded-pill px-3">
                             <i class="fa-solid fa-eye me-1"></i> Ver Compras
                         </a>
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="6" class="text-center py-5 text-tekfix-sec">
+                    <td colspan="6" class="text-center py-5 text-dtavo-sec">
                         <i class="fa-solid fa-users-slash fs-1 mb-3 opacity-25"></i>
                         <p class="m-0">No se encontraron clientes en el directorio.</p>
                     </td>
@@ -69,13 +69,13 @@
 </div>
 
 <style>
-    .btn-outline-tekfix {
-        color: var(--tekfix-primary);
-        border: 2px solid var(--tekfix-primary);
+    .btn-outline-dtavo {
+        color: var(--dtavo-primary);
+        border: 2px solid var(--dtavo-primary);
         transition: all 0.3s ease;
     }
-    .btn-outline-tekfix:hover {
-        background-color: var(--tekfix-primary);
+    .btn-outline-dtavo:hover {
+        background-color: var(--dtavo-primary);
         color: white;
     }
 </style>

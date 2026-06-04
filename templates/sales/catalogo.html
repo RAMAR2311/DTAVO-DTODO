@@ -4,23 +4,23 @@
 <div class="row mb-5">
     <div class="col-12">
         <!-- Titular Simple y Limpio, el color de marca A3D8DE acentúa el Logo -->
-        <h2 class="fw-bolder m-0" style="color: var(--tekfix-primary);">
+        <h2 class="fw-bolder m-0" style="color: var(--dtavo-primary);">
             <i class="fa-solid fa-book-open me-2"></i>Catálogo de Stock General
         </h2>
     </div>
 </div>
 
-<div class="card card-custom p-4 border mt-2 bg-tekfix-card shadow-sm mb-4">
+<div class="card card-custom p-4 border mt-2 bg-dtavo-card shadow-sm mb-4">
     <!-- El Formulario usa Método GET Nativo para enviar 'q' por barra de direcciones URL -->
     <form method="GET" action="{{ url_for('sales_bp.catalogo') }}" class="row align-items-end g-3">
         <div class="col-md-9">
-            <label class="form-label fw-bold text-tekfix-main small"><i class="fa-solid fa-magnifying-glass me-1"></i> Búsqueda de Artículos</label>
+            <label class="form-label fw-bold text-dtavo-main small"><i class="fa-solid fa-magnifying-glass me-1"></i> Búsqueda de Artículos</label>
             <!-- Permite filtrado profundo en la BD por Substraer Coincidencias (ILIKE) -->
-            <input type="text" name="q" class="form-control bg-tekfix-card border-0 py-2 shadow-sm" value="{{ q }}" placeholder="Busca escribiendo el SKU Oficial o el Nombre del accesorio..." autocomplete="off">
+            <input type="text" name="q" class="form-control bg-dtavo-card border-0 py-2 shadow-sm" value="{{ q }}" placeholder="Busca escribiendo el SKU Oficial o el Nombre del accesorio..." autocomplete="off">
         </div>
         <div class="col-md-3">
-            <!-- Botón Dominante en Turquesa (Azul de Cases.com '#A3D8DE') -->
-            <button type="submit" class="btn btn-tekfix-secondary w-100 py-2 rounded-3 shadow-sm fw-bold">
+            <!-- Botón Dominante en Turquesa (Azul de Dtavo.com '#A3D8DE') -->
+            <button type="submit" class="btn btn-dtavo-secondary w-100 py-2 rounded-3 shadow-sm fw-bold">
                 Buscar Existencias
             </button>
         </div>
@@ -52,7 +52,7 @@
         aspect-ratio: 1 / 1;
         width: 100%;
         overflow: hidden;
-        background-color: var(--tekfix-bg);
+        background-color: var(--dtavo-bg);
     }
     .img-container-1-1 img {
         width: 100%;
@@ -63,15 +63,15 @@
     .size-badge-mini {
         font-size: 0.65rem;
         padding: 2px 6px;
-        background-color: var(--tekfix-border);
-        color: var(--tekfix-primary);
+        background-color: var(--dtavo-border);
+        color: var(--dtavo-primary);
         border-radius: 4px;
         font-weight: 700;
         text-transform: uppercase;
     }
     .btn-add-minimal {
-        border: 1px solid var(--tekfix-hover);
-        color: var(--tekfix-hover);
+        border: 1px solid var(--dtavo-hover);
+        color: var(--dtavo-hover);
         background: transparent;
         border-radius: 20px;
         font-weight: 700;
@@ -79,7 +79,7 @@
         transition: all 0.2s;
     }
     .btn-add-minimal:hover {
-        background-color: var(--tekfix-hover);
+        background-color: var(--dtavo-hover);
         color: white;
     }
     .title-clamp-2 {
@@ -96,7 +96,7 @@
 <div class="row row-cols-1 row-cols-md-3 row-cols-xl-4 g-4 print-friendly-row">
     {% for p in productos %}
     <div class="col">
-        <div class="card card-product border-0 shadow-sm h-100 {% if p.total_stock <= 0 %}opacity-50{% endif %}" style="background-color: var(--tekfix-card-bg);">
+        <div class="card card-product border-0 shadow-sm h-100 {% if p.total_stock <= 0 %}opacity-50{% endif %}" style="background-color: var(--dtavo-card-bg);">
             <div class="img-container-1-1">
                 {% if p.imagen %}
                     <img src="{{ url_for('static', filename='uploads/' ~ p.imagen) }}" alt="{{ p.nombre }}">
@@ -109,16 +109,16 @@
             
             <div class="card-body p-3 d-flex flex-column">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="text-tekfix-sec" style="font-size: 0.65rem; letter-spacing: 1px;">{{ p.sku }}</span>
+                    <span class="text-dtavo-sec" style="font-size: 0.65rem; letter-spacing: 1px;">{{ p.sku }}</span>
                     {% if p.total_stock <= 0 %}
                         <span class="text-danger fw-bold" style="font-size: 0.65rem;">AGOTADO</span>
                     {% endif %}
                 </div>
                 
-                <h6 class="fw-bold text-tekfix-main mb-1 title-clamp-2" title="{{ p.nombre }}">{{ p.nombre }}</h6>
+                <h6 class="fw-bold text-dtavo-main mb-1 title-clamp-2" title="{{ p.nombre }}">{{ p.nombre }}</h6>
                 
                 <div class="mb-2">
-                    <span class="fw-bold" style="color: var(--tekfix-primary); font-size: 1.1rem;">${{ p.precio_sugerido|cop }}</span>
+                    <span class="fw-bold" style="color: var(--dtavo-primary); font-size: 1.1rem;">${{ p.precio_sugerido|cop }}</span>
                 </div>
 
                 {% if p.variantes %}
@@ -137,11 +137,11 @@
                     </button>
                     
                     <div class="collapse mt-2" id="stockDetalle{{ p.id }}">
-                        <div class="p-2 rounded-3 border-dashed" style="background-color: var(--tekfix-bg); border: 1px dashed var(--tekfix-border);">
+                        <div class="p-2 rounded-3 border-dashed" style="background-color: var(--dtavo-bg); border: 1px dashed var(--dtavo-border);">
                             {% for v in p.variantes|sort(attribute='nombre_variante') %}
                                 <div class="d-flex justify-content-between align-items-center mb-1 last-child-mb-0">
-                                    <span class="fw-bold text-tekfix-primary" style="font-size: 0.7rem;">{{ v.nombre_variante.upper() }}</span>
-                                    <span class="badge bg-white text-tekfix-main border shadow-xs" style="font-size: 0.65rem;">{{ v.cantidad_stock }} uds</span>
+                                    <span class="fw-bold text-dtavo-primary" style="font-size: 0.7rem;">{{ v.nombre_variante.upper() }}</span>
+                                    <span class="badge bg-white text-dtavo-main border shadow-xs" style="font-size: 0.65rem;">{{ v.cantidad_stock }} uds</span>
                                 </div>
                             {% endfor %}
                         </div>
@@ -151,10 +151,10 @@
         </div>
     </div>
     {% else %}
-    <div class="col-12 text-center py-5 bg-tekfix-card border rounded shadow-sm" style="border-color: var(--tekfix-border) !important;">
-        <i class="fa-solid fa-box-open fs-1 mb-3 text-tekfix-sec opacity-25"></i>
-        <h4 class="text-tekfix-main fw-bold">No se hallaron resultados</h4>
-        <p class="text-tekfix-sec mb-0">No pudimos localizar artículos físicos con esos atributos de búsqueda.</p>
+    <div class="col-12 text-center py-5 bg-dtavo-card border rounded shadow-sm" style="border-color: var(--dtavo-border) !important;">
+        <i class="fa-solid fa-box-open fs-1 mb-3 text-dtavo-sec opacity-25"></i>
+        <h4 class="text-dtavo-main fw-bold">No se hallaron resultados</h4>
+        <p class="text-dtavo-sec mb-0">No pudimos localizar artículos físicos con esos atributos de búsqueda.</p>
     </div>
     {% endfor %}
 </div>

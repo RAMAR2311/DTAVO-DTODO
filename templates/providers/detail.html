@@ -9,12 +9,12 @@
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
             <div>
-                <h2 class="fw-bold text-tekfix-main mb-1">{{ proveedor.nombre }}</h2>
-                <span class="badge bg-tekfix-primary rounded-pill px-3">{{ proveedor.empresa or 'Sin Empresa' }}</span>
+                <h2 class="fw-bold text-dtavo-main mb-1">{{ proveedor.nombre }}</h2>
+                <span class="badge bg-dtavo-primary rounded-pill px-3">{{ proveedor.empresa or 'Sin Empresa' }}</span>
             </div>
         </div>
         <div class="d-flex gap-2">
-            <button class="btn btn-outline-tekfix rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalFactura">
+            <button class="btn btn-outline-dtavo rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalFactura">
                 <i class="fa-solid fa-file-invoice me-2"></i>Ingresar Factura
             </button>
             <button class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalAbono">
@@ -27,25 +27,25 @@
     <div class="row g-4 mb-4">
         <div class="col-md-4">
             <div class="card card-custom border-0 shadow-sm p-4 text-center h-100">
-                <div class="text-tekfix-sec small fw-bold mb-2 text-uppercase letter-spacing-1">Total Facturado</div>
-                <div class="display-6 fw-bold text-tekfix-main">${{ total_facturado | cop }}</div>
-                <div class="small text-tekfix-border mt-2">Acumulado histórico</div>
+                <div class="text-dtavo-sec small fw-bold mb-2 text-uppercase letter-spacing-1">Total Facturado</div>
+                <div class="display-6 fw-bold text-dtavo-main">${{ total_facturado | cop }}</div>
+                <div class="small text-dtavo-border mt-2">Acumulado histórico</div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card card-custom border-0 shadow-sm p-4 text-center h-100">
-                <div class="text-tekfix-sec small fw-bold mb-2 text-uppercase letter-spacing-1">Total Abonos</div>
+                <div class="text-dtavo-sec small fw-bold mb-2 text-uppercase letter-spacing-1">Total Abonos</div>
                 <div class="display-6 fw-bold text-success">${{ total_abonos | cop }}</div>
                 <div class="small text-success opacity-75 mt-2">Pagos realizados</div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card card-custom border-0 shadow-sm p-4 text-center h-100 bg-light">
-                <div class="text-tekfix-sec small fw-bold mb-2 text-uppercase letter-spacing-1">Saldo Pendiente</div>
-                <div class="display-6 fw-bold {{ 'text-danger' if saldo_pendiente > 0 else 'text-tekfix-main' }}">
+                <div class="text-dtavo-sec small fw-bold mb-2 text-uppercase letter-spacing-1">Saldo Pendiente</div>
+                <div class="display-6 fw-bold {{ 'text-danger' if saldo_pendiente > 0 else 'text-dtavo-main' }}">
                     ${{ saldo_pendiente | cop }}
                 </div>
-                <div class="small mt-2 {{ 'text-danger' if saldo_pendiente > 0 else 'text-tekfix-sec' }}">
+                <div class="small mt-2 {{ 'text-danger' if saldo_pendiente > 0 else 'text-dtavo-sec' }}">
                     {{ 'Deuda actual' if saldo_pendiente > 0 else 'Cuenta al día' }}
                 </div>
             </div>
@@ -58,7 +58,7 @@
         <div class="col-lg-6">
             <div class="card card-custom border-0 shadow-sm h-100">
                 <div class="card-header bg-transparent border-0 p-4 pb-0">
-                    <h5 class="fw-bold text-tekfix-main mb-0"><i class="fa-solid fa-receipt me-2 text-tekfix-primary"></i>Facturas Registradas</h5>
+                    <h5 class="fw-bold text-dtavo-main mb-0"><i class="fa-solid fa-receipt me-2 text-dtavo-primary"></i>Facturas Registradas</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -74,8 +74,8 @@
                             <tbody class="small">
                                 {% for f in facturas %}
                                 <tr>
-                                    <td class="ps-4 text-tekfix-sec">{{ f.fecha.strftime('%d/%m/%Y') }}</td>
-                                    <td class="fw-bold text-tekfix-main">{{ f.numero_factura or 'S/N' }}</td>
+                                    <td class="ps-4 text-dtavo-sec">{{ f.fecha.strftime('%d/%m/%Y') }}</td>
+                                    <td class="fw-bold text-dtavo-main">{{ f.numero_factura or 'S/N' }}</td>
                                     <td class="fw-bold">${{ f.monto | cop }}</td>
                                     <td class="pe-4 text-end">
                                         {% if f.comprobante_url %}
@@ -87,7 +87,7 @@
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-tekfix-border">No hay facturas registradas.</td>
+                                    <td colspan="4" class="text-center py-4 text-dtavo-border">No hay facturas registradas.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -101,7 +101,7 @@
         <div class="col-lg-6">
             <div class="card card-custom border-0 shadow-sm h-100">
                 <div class="card-header bg-transparent border-0 p-4 pb-0">
-                    <h5 class="fw-bold text-tekfix-main mb-0"><i class="fa-solid fa-money-bill-wave me-2 text-success"></i>Historial de Abonos</h5>
+                    <h5 class="fw-bold text-dtavo-main mb-0"><i class="fa-solid fa-money-bill-wave me-2 text-success"></i>Historial de Abonos</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -117,9 +117,9 @@
                             <tbody class="small">
                                 {% for a in abonos %}
                                 <tr>
-                                    <td class="ps-4 text-tekfix-sec">{{ a.fecha.strftime('%d/%m/%Y') }}</td>
+                                    <td class="ps-4 text-dtavo-sec">{{ a.fecha.strftime('%d/%m/%Y') }}</td>
                                     <td class="fw-bold text-success">${{ a.monto | cop }}</td>
-                                    <td class="text-tekfix-sec">{{ a.observacion or 'Abono realizado' }}</td>
+                                    <td class="text-dtavo-sec">{{ a.observacion or 'Abono realizado' }}</td>
                                     <td class="pe-4 text-end">
                                         <a href="{{ url_for('providers_bp.imprimir_abono', id=a.id) }}" target="_blank" class="btn btn-sm btn-light rounded-circle" title="Imprimir Recibo">
                                             <i class="fa-solid fa-print"></i>
@@ -128,7 +128,7 @@
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="3" class="text-center py-4 text-tekfix-border">No hay abonos registrados.</td>
+                                    <td colspan="3" class="text-center py-4 text-dtavo-border">No hay abonos registrados.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -145,7 +145,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-header border-0 pb-0">
-                <h5 class="fw-bold text-tekfix-main">Cargar Nueva Factura</h5>
+                <h5 class="fw-bold text-dtavo-main">Cargar Nueva Factura</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ url_for('providers_bp.registrar_factura', id=proveedor.id) }}" method="POST" enctype="multipart/form-data">
@@ -153,26 +153,26 @@
                 <div class="modal-body py-4">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label small fw-bold text-tekfix-sec">N° de Factura</label>
+                            <label class="form-label small fw-bold text-dtavo-sec">N° de Factura</label>
                             <input type="text" name="numero_factura" class="form-control rounded-3" placeholder="Ej: FV-001" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label small fw-bold text-tekfix-sec">Monto Total</label>
+                            <label class="form-label small fw-bold text-dtavo-sec">Monto Total</label>
                             <input type="number" name="monto" class="form-control rounded-3" placeholder="0.00" required>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-tekfix-sec">Descripción / Concepto</label>
+                        <label class="form-label small fw-bold text-dtavo-sec">Descripción / Concepto</label>
                         <textarea name="descripcion" class="form-control rounded-3" rows="2" placeholder="Ej: Compra de 50 protectores Cerámicos"></textarea>
                     </div>
                     <div class="mb-0">
-                        <label class="form-label small fw-bold text-tekfix-sec">Foto del Comprobante (Opcional)</label>
+                        <label class="form-label small fw-bold text-dtavo-sec">Foto del Comprobante (Opcional)</label>
                         <input type="file" name="comprobante" class="form-control rounded-3" accept="image/*,.pdf">
                     </div>
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-tekfix-primary rounded-pill px-4 fw-bold">Guardar Factura</button>
+                    <button type="submit" class="btn btn-dtavo-primary rounded-pill px-4 fw-bold">Guardar Factura</button>
                 </div>
             </form>
         </div>
@@ -184,18 +184,18 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-header border-0 pb-0">
-                <h5 class="fw-bold text-tekfix-main">Registrar Abono / Pago</h5>
+                <h5 class="fw-bold text-dtavo-main">Registrar Abono / Pago</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ url_for('providers_bp.registrar_abono', id=proveedor.id) }}" method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="modal-body py-4">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-tekfix-sec">Monto del Abono</label>
+                        <label class="form-label small fw-bold text-dtavo-sec">Monto del Abono</label>
                         <input type="number" name="monto" class="form-control rounded-3" placeholder="0.00" required>
                     </div>
                     <div class="mb-0">
-                        <label class="form-label small fw-bold text-tekfix-sec">Observación</label>
+                        <label class="form-label small fw-bold text-dtavo-sec">Observación</label>
                         <input type="text" name="observacion" class="form-control rounded-3" placeholder="Ej: Pago parcial factura FV-001">
                     </div>
                 </div>
@@ -210,12 +210,12 @@
 
 <style>
     .letter-spacing-1 { letter-spacing: 1px; }
-    .btn-outline-tekfix {
-        color: var(--tekfix-primary);
-        border-color: var(--tekfix-primary);
+    .btn-outline-dtavo {
+        color: var(--dtavo-primary);
+        border-color: var(--dtavo-primary);
     }
-    .btn-outline-tekfix:hover {
-        background-color: var(--tekfix-primary);
+    .btn-outline-dtavo:hover {
+        background-color: var(--dtavo-primary);
         color: white;
     }
 </style>

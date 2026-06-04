@@ -4,8 +4,8 @@
 <div class="row justify-content-center mt-5">
     <div class="col-md-10 text-center mb-5">
         <div class="animate__animated animate__fadeInDown">
-            <h1 class="display-3 fw-bold text-tekfix-main mb-2" style="letter-spacing: -2px;">TAVO <span class="text-tekfix-primary">HUB</span></h1>
-            <p class="lead text-tekfix-sec">Selecciona un nicho de negocio para gestionar</p>
+            <h1 class="display-3 fw-bold text-dtavo-main mb-2" style="letter-spacing: -2px;">TAVO <span class="text-dtavo-primary">HUB</span></h1>
+            <p class="lead text-dtavo-sec">Selecciona un nicho de negocio para gestionar</p>
         </div>
     </div>
 </div>
@@ -20,12 +20,12 @@
 
     {% for cat in categorias %}
     <div class="col-sm-6 col-lg-3">
-        <a href="{{ url_for('seleccionar_nicho', categoria_id=cat.id) }}" class="card hub-card h-100 border-0 shadow-lg p-5 text-center text-decoration-none bg-tekfix-card">
+        <a href="{{ url_for('seleccionar_nicho', categoria_id=cat.id) }}" class="card hub-card h-100 border-0 shadow-lg p-5 text-center text-decoration-none bg-dtavo-card">
             <div class="hub-icon-container mb-4 mx-auto">
                 <i class="fa-solid {{ icon_map.get(cat.nombre, 'fa-tag') }} fs-1"></i>
             </div>
-            <h3 class="fw-bold text-tekfix-main m-0">{{ cat.nombre }}</h3>
-            <div class="mt-3 small text-tekfix-sec opacity-75">Gestionar inventario y ventas de {{ cat.nombre.lower() }}</div>
+            <h3 class="fw-bold text-dtavo-main m-0">{{ cat.nombre }}</h3>
+            <div class="mt-3 small text-dtavo-sec opacity-75">Gestionar inventario y ventas de {{ cat.nombre.lower() }}</div>
         </a>
     </div>
     {% endfor %}
@@ -39,13 +39,13 @@
     }
     .hub-card:hover {
         transform: translateY(-15px) scale(1.05);
-        border-color: var(--tekfix-primary) !important;
+        border-color: var(--dtavo-primary) !important;
         box-shadow: 0 25px 50px rgba(0,0,0,0.5) !important;
     }
     .hub-icon-container {
         width: 100px;
         height: 100px;
-        background: linear-gradient(135deg, var(--tekfix-primary), #DDB856);
+        background: linear-gradient(135deg, var(--dtavo-primary), #DDB856);
         color: white;
         border-radius: 2rem;
         display: flex;

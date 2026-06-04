@@ -19,7 +19,7 @@
     }
     
     .glow-header-container {
-        border-left: 4px solid var(--tekfix-primary);
+        border-left: 4px solid var(--dtavo-primary);
         padding-left: 15px;
     }
 
@@ -38,7 +38,7 @@
         color: #1a1a1a !important;
     }
     .form-control-premium:focus {
-        border-color: var(--tekfix-primary) !important;
+        border-color: var(--dtavo-primary) !important;
         box-shadow: 0 0 15px rgba(197, 159, 96, 0.3) !important;
         background-color: rgba(30, 30, 30, 0.8) !important;
     }
@@ -69,7 +69,7 @@
         color: #1a1a1a !important;
     }
     .textarea-premium:focus {
-        border-color: var(--tekfix-primary) !important;
+        border-color: var(--dtavo-primary) !important;
         box-shadow: 0 0 12px rgba(197, 159, 96, 0.25) !important;
     }
     .textarea-premium:disabled {
@@ -144,22 +144,22 @@
     }
 
     /* BUTTONS LEGIBILITY */
-    .btn-outline-tekfix {
+    .btn-outline-dtavo {
         background-color: transparent !important;
-        color: var(--tekfix-primary) !important;
-        border: 1.5px solid var(--tekfix-primary) !important;
+        color: var(--dtavo-primary) !important;
+        border: 1.5px solid var(--dtavo-primary) !important;
         transition: all 0.3s ease !important;
     }
-    .btn-outline-tekfix:hover {
-        background-color: var(--tekfix-primary) !important;
+    .btn-outline-dtavo:hover {
+        background-color: var(--dtavo-primary) !important;
         color: #000 !important;
         box-shadow: 0 4px 12px rgba(197, 159, 96, 0.25) !important;
     }
-    [data-theme="light"] .btn-outline-tekfix {
+    [data-theme="light"] .btn-outline-dtavo {
         color: #8b6830 !important; /* Darker gold for higher contrast in day mode */
         border-color: #8b6830 !important;
     }
-    [data-theme="light"] .btn-outline-tekfix:hover {
+    [data-theme="light"] .btn-outline-dtavo:hover {
         background-color: #8b6830 !important;
         color: #fff !important;
     }
@@ -216,14 +216,14 @@
     <!-- Header -->
     <div class="d-flex flex-column flex-md-row align-items-md-center gap-3 mb-5">
         <div class="glow-header-container">
-            <h2 class="fw-black text-tekfix-main m-0"><i class="fa-solid fa-cash-register me-3 text-tekfix-primary"></i>Conciliación y Arqueo de Caja</h2>
-            <p class="text-tekfix-sec m-0 mt-1">Recalcula arqueos por día contable para auditoría de sobrantes y faltantes.</p>
+            <h2 class="fw-black text-dtavo-main m-0"><i class="fa-solid fa-cash-register me-3 text-dtavo-primary"></i>Conciliación y Arqueo de Caja</h2>
+            <p class="text-dtavo-sec m-0 mt-1">Recalcula arqueos por día contable para auditoría de sobrantes y faltantes.</p>
         </div>
         <div class="ms-md-auto d-flex flex-wrap align-items-center gap-3">
-            <a href="{{ url_for('arqueo_bp.reporte') }}" class="btn btn-outline-tekfix rounded-pill px-4 py-2 shadow-sm fw-bold">
+            <a href="{{ url_for('arqueo_bp.reporte') }}" class="btn btn-outline-dtavo rounded-pill px-4 py-2 shadow-sm fw-bold">
                 <i class="fa-solid fa-scale-balanced me-2"></i> Reporte y Auditoría
             </a>
-            <a href="{{ url_for('arqueo_bp.historial') }}" class="btn btn-tekfix-secondary rounded-pill px-4 py-2 shadow-sm fw-bold">
+            <a href="{{ url_for('arqueo_bp.historial') }}" class="btn btn-dtavo-secondary rounded-pill px-4 py-2 shadow-sm fw-bold">
                 <i class="fa-solid fa-clock-rotate-left me-2"></i> Ver Historial
             </a>
         </div>
@@ -233,8 +233,8 @@
     <div class="card glass-card mb-4 border-0">
         <div class="card-body p-4 d-flex flex-column flex-md-row align-items-md-center gap-3">
             <div>
-                <h5 class="fw-bold text-tekfix-primary m-0"><i class="fa-solid fa-calendar-check me-2"></i>Selección del Día Contable</h5>
-                <p class="text-tekfix-sec small m-0">Selecciona el día específico para auditar y cuadrar la caja.</p>
+                <h5 class="fw-bold text-dtavo-primary m-0"><i class="fa-solid fa-calendar-check me-2"></i>Selección del Día Contable</h5>
+                <p class="text-dtavo-sec small m-0">Selecciona el día específico para auditar y cuadrar la caja.</p>
             </div>
             <div class="ms-md-auto col-md-4">
                 <input type="date" id="fecha-arqueo-select" class="form-control form-control-premium text-center fw-bold" value="{{ hoy }}">
@@ -258,7 +258,7 @@
         <div class="col-lg-8">
             <div class="card glass-card">
                 <div class="card-body p-4">
-                    <h4 class="fw-bold text-tekfix-primary mb-4"><i class="fa-solid fa-chart-line me-2"></i>Valores Calculados por el Sistema</h4>
+                    <h4 class="fw-bold text-dtavo-primary mb-4"><i class="fa-solid fa-chart-line me-2"></i>Valores Calculados por el Sistema</h4>
 
                     <!-- 4-Card Stats Grid -->
                     <div class="row g-3 mb-5">
@@ -266,12 +266,12 @@
                         <div class="col-sm-6 col-xl-3">
                             <div class="p-3 stat-card-gold text-center">
                                 <div class="mb-2">
-                                    <span class="p-2 rounded-circle bg-tekfix-primary bg-opacity-10 text-tekfix-primary">
+                                    <span class="p-2 rounded-circle bg-dtavo-primary bg-opacity-10 text-dtavo-primary">
                                         <i class="fa-solid fa-sack-dollar fa-lg"></i>
                                     </span>
                                 </div>
-                                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Ventas Brutas</small>
-                                <h4 class="fw-black text-tekfix-primary m-0" id="val-total-bruto">$0</h4>
+                                <small class="text-dtavo-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Ventas Brutas</small>
+                                <h4 class="fw-black text-dtavo-primary m-0" id="val-total-bruto">$0</h4>
                             </div>
                         </div>
                         <!-- Efectivo Recibido -->
@@ -282,7 +282,7 @@
                                         <i class="fa-solid fa-money-bill-wave fa-lg"></i>
                                     </span>
                                 </div>
-                                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Ventas Efectivo (+)</small>
+                                <small class="text-dtavo-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Ventas Efectivo (+)</small>
                                 <h4 class="fw-black text-success m-0" id="val-total-efectivo">$0</h4>
                             </div>
                         </div>
@@ -294,7 +294,7 @@
                                         <i class="fa-solid fa-mobile-screen-button fa-lg"></i>
                                     </span>
                                 </div>
-                                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Transf. & Digitales</small>
+                                <small class="text-dtavo-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Transf. & Digitales</small>
                                 <h4 class="fw-black text-info m-0" id="val-total-digitales">$0</h4>
                             </div>
                         </div>
@@ -306,15 +306,15 @@
                                         <i class="fa-solid fa-receipt fa-lg"></i>
                                     </span>
                                 </div>
-                                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Gastos / Egresos (-)</small>
+                                <small class="text-dtavo-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Gastos / Egresos (-)</small>
                                 <h4 class="fw-black text-danger m-0" id="val-gastos">$0</h4>
                             </div>
                         </div>
                     </div>
 
                     <!-- Nicho Section -->
-                    <div class="border-bottom border-tekfix-border border-opacity-50 pb-4 mb-4">
-                        <h5 class="fw-bold text-tekfix-main mb-3"><i class="fa-solid fa-tags text-tekfix-primary me-2"></i>Desglose por Nicho de Negocio</h5>
+                    <div class="border-bottom border-dtavo-border border-opacity-50 pb-4 mb-4">
+                        <h5 class="fw-bold text-dtavo-main mb-3"><i class="fa-solid fa-tags text-dtavo-primary me-2"></i>Desglose por Nicho de Negocio</h5>
                         <div id="nicho-breakdown">
                             <!-- Listado de nichos se llena con JS -->
                         </div>
@@ -322,7 +322,7 @@
 
                     <!-- Payment Breakdown Section -->
                     <div class="pb-4 mb-4">
-                        <h5 class="fw-bold text-tekfix-main mb-3"><i class="fa-solid fa-wallet text-tekfix-primary me-2"></i>Desglose por Métodos de Pago</h5>
+                        <h5 class="fw-bold text-dtavo-main mb-3"><i class="fa-solid fa-wallet text-dtavo-primary me-2"></i>Desglose por Métodos de Pago</h5>
                         <div class="table-responsive">
                             <table class="table table-custom table-hover">
                                 <thead>
@@ -344,7 +344,7 @@
                         <div class="table-responsive">
                             <table class="table table-custom table-sm">
                                 <thead class="small">
-                                    <tr class="text-tekfix-sec">
+                                    <tr class="text-dtavo-sec">
                                         <th>Categoría</th>
                                         <th>Razón / Descripción</th>
                                         <th class="text-end">Monto</th>
@@ -364,37 +364,37 @@
         <div class="col-lg-4">
             <div class="card glass-card sticky-top" style="top: 100px; z-index: 10;">
                 <div class="card-body p-4">
-                    <h4 class="fw-bold text-tekfix-primary mb-4" id="form-title"><i class="fa-solid fa-shield-halved me-2"></i>Arqueo Manual</h4>
+                    <h4 class="fw-bold text-dtavo-primary mb-4" id="form-title"><i class="fa-solid fa-shield-halved me-2"></i>Arqueo Manual</h4>
                     
                     <form action="{{ url_for('arqueo_bp.guardar') }}" method="POST" id="form-arqueo">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="fecha_arqueo" id="hidden-fecha-arqueo" value="{{ hoy }}">
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold small text-tekfix-primary"><i class="fa-solid fa-vault me-1"></i>BASE INICIAL (Apertura)</label>
+                            <label class="form-label fw-bold small text-dtavo-primary"><i class="fa-solid fa-vault me-1"></i>BASE INICIAL (Apertura)</label>
                             <input type="number" name="base_inicial" id="base_inicial" class="form-control form-control-lg form-control-premium" value="0" required placeholder="0">
-                            <div class="form-text text-tekfix-sec small">Dinero de cambio inicial en caja.</div>
+                            <div class="form-text text-dtavo-sec small">Dinero de cambio inicial en caja.</div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold small text-success"><i class="fa-solid fa-money-bill-1-wave me-1"></i>EFECTIVO FÍSICO CONTADO</label>
                             <input type="number" name="efectivo_fisico" id="efectivo_fisico" class="form-control form-control-lg form-control-premium text-success fw-bold" value="0" required placeholder="0">
-                            <div class="form-text text-tekfix-sec small">Dinero físico real contado en la gaveta.</div>
+                            <div class="form-text text-dtavo-sec small">Dinero físico real contado en la gaveta.</div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold small text-tekfix-sec"><i class="fa-solid fa-receipt me-1"></i>OBSERVACIONES / GASTOS</label>
+                            <label class="form-label fw-bold small text-dtavo-sec"><i class="fa-solid fa-receipt me-1"></i>OBSERVACIONES / GASTOS</label>
                             <textarea name="observaciones_gastos" id="observaciones_gastos" class="form-control textarea-premium" rows="2" placeholder="Notas sobre novedades o egresos..."></textarea>
                         </div>
 
                         <!-- DYNAMIC DIFFERENCE CONTAINER -->
                         <div class="p-3 rounded-4 mb-4 text-center diff-neutral" id="diferencia-card">
                             <small class="fw-bold text-uppercase d-block mb-1" id="diferencia-label" style="letter-spacing: 1px; font-size: 0.75rem;">EFECTIVO ESPERADO</small>
-                            <h2 class="fw-black text-tekfix-main m-0" id="val-efectivo-esperado" style="font-size: 1.8rem;">$0</h2>
-                            <hr class="my-2 border-tekfix-border">
+                            <h2 class="fw-black text-dtavo-main m-0" id="val-efectivo-esperado" style="font-size: 1.8rem;">$0</h2>
+                            <hr class="my-2 border-dtavo-border">
                             <small class="fw-bold text-uppercase d-block mb-1" style="letter-spacing: 1px; font-size: 0.75rem;">DIFERENCIA</small>
-                            <h2 class="fw-black text-tekfix-main m-0" id="val-diferencia" style="font-size: 1.8rem;">$0</h2>
-                            <small class="text-tekfix-sec small mt-1 d-block" id="diferencia-status">Caja Cuadrada</small>
+                            <h2 class="fw-black text-dtavo-main m-0" id="val-diferencia" style="font-size: 1.8rem;">$0</h2>
+                            <small class="text-dtavo-sec small mt-1 d-block" id="diferencia-status">Caja Cuadrada</small>
                         </div>
 
                         <!-- OBLIGATORY JUSTIFICATION IF DIFF != 0 -->
@@ -531,22 +531,22 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const [name, total] of Object.entries(categorias || {})) {
             const perc = totalBruto > 0 ? (total / totalBruto) * 100 : 0;
             
-            let progressColorClass = 'bg-tekfix-primary';
-            let iconClass = 'fa-solid fa-tag text-tekfix-primary';
+            let progressColorClass = 'bg-dtavo-primary';
+            let iconClass = 'fa-solid fa-tag text-dtavo-primary';
             
             if (name.toLowerCase().includes('celular') || name.toLowerCase().includes('tecnologia') || name.toLowerCase().includes('imei')) {
                 progressColorClass = 'bg-gradient-gold';
-                iconClass = 'fa-solid fa-mobile-screen-button text-tekfix-primary';
+                iconClass = 'fa-solid fa-mobile-screen-button text-dtavo-primary';
             } else if (name.toLowerCase().includes('ropa') || name.toLowerCase().includes('vestir') || name.toLowerCase().includes('prenda')) {
                 progressColorClass = 'bg-gradient-blue';
                 iconClass = 'fa-solid fa-shirt text-info';
             }
 
             nichoEl.innerHTML += `
-                <div class="mb-3 p-3 bg-tekfix-input bg-opacity-40 rounded-4 border border-tekfix-border border-opacity-50">
+                <div class="mb-3 p-3 bg-dtavo-input bg-opacity-40 rounded-4 border border-dtavo-border border-opacity-50">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="small fw-bold text-tekfix-main"><i class="${iconClass} me-2"></i>${name}</span>
-                        <span class="small fw-black text-tekfix-primary">${formatCOP(total)} <span class="text-tekfix-sec fw-normal">(${perc.toFixed(1)}%)</span></span>
+                        <span class="small fw-bold text-dtavo-main"><i class="${iconClass} me-2"></i>${name}</span>
+                        <span class="small fw-black text-dtavo-primary">${formatCOP(total)} <span class="text-dtavo-sec fw-normal">(${perc.toFixed(1)}%)</span></span>
                     </div>
                     <div class="progress" style="height: 8px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
                         <div class="progress-bar ${progressColorClass}" style="width: ${perc}%; border-radius: 10px; transition: width 0.8s ease-in-out;"></div>
@@ -571,7 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pagoEl.innerHTML += `
                 <tr>
                     <td class="align-middle">${badgeHtml}</td>
-                    <td class="text-end fw-black text-tekfix-main align-middle" style="font-size: 1.1rem;">${formatCOP(total)}</td>
+                    <td class="text-end fw-black text-dtavo-main align-middle" style="font-size: 1.1rem;">${formatCOP(total)}</td>
                 </tr>
             `;
         }
@@ -584,8 +584,8 @@ document.addEventListener('DOMContentLoaded', () => {
             gastos.forEach(g => {
                 gastosEl.innerHTML += `
                     <tr>
-                        <td class="fw-bold text-tekfix-main align-middle"><span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-1 text-capitalize">${g.categoria}</span></td>
-                        <td class="text-tekfix-sec align-middle">${g.descripcion}</td>
+                        <td class="fw-bold text-dtavo-main align-middle"><span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-1 text-capitalize">${g.categoria}</span></td>
+                        <td class="text-dtavo-sec align-middle">${g.descripcion}</td>
                         <td class="text-end fw-black text-danger align-middle" style="font-size: 1.05rem;">-${formatCOP(g.monto)}</td>
                     </tr>
                 `;
@@ -614,7 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (diferencia === 0) {
             diferenciaCard.classList.add('diff-neutral');
             diferenciaStatus.innerText = "Caja Cuadrada";
-            diferenciaStatus.className = "text-tekfix-sec small mt-1 d-block";
+            diferenciaStatus.className = "text-dtavo-sec small mt-1 d-block";
             
             // Ocultar justificación
             obsDiferenciaContainer.style.display = 'none';

@@ -4,7 +4,7 @@
 <div class="row justify-content-center">
     <div class="col-md-10 col-lg-8">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold text-tekfix-main m-0"><i class="fa-solid fa-file-invoice text-tekfix-primary me-2"></i> Anexar Factura</h2>
+            <h2 class="fw-bold text-dtavo-main m-0"><i class="fa-solid fa-file-invoice text-dtavo-primary me-2"></i> Anexar Factura</h2>
             <a href="{{ url_for('bodega_bp.dashboard') }}" class="btn btn-light rounded-pill px-3 shadow-sm border">Volver</a>
         </div>
 
@@ -14,7 +14,7 @@
                 
                 <div class="mb-4">
                     <label class="form-label fw-bold">Fijar al Cliente <span class="text-danger">*</span></label>
-                    <select name="cliente_id" class="form-select border-0 bg-tekfix-card shadow-sm" required>
+                    <select name="cliente_id" class="form-select border-0 bg-dtavo-card shadow-sm" required>
                         <option value="" disabled selected>-- Selecciona el destinatario --</option>
                         {% for c in clientes %}
                             <option value="{{ c.id }}">{{ c.nombre_o_razon_social }} - (NIT: {{ c.documento_o_nit }})</option>
@@ -25,50 +25,50 @@
                 <div class="row">
                     <div class="col-md-6 mb-4">
                         <label class="form-label fw-bold">Número de Factura o Remisión <span class="text-danger">*</span></label>
-                        <input type="text" name="numero_factura" class="form-control bg-tekfix-card border-0 shadow-sm" required placeholder="Ej: FAC-987019">
+                        <input type="text" name="numero_factura" class="form-control bg-dtavo-card border-0 shadow-sm" required placeholder="Ej: FAC-987019">
                     </div>
                     <div class="col-md-6 mb-4">
                         <label class="form-label fw-bold">Monto Total de la Deuda <span class="text-danger">*</span></label>
                         <div class="input-group shadow-sm">
-                            <span class="input-group-text border-0 bg-tekfix-card text-success fw-bold">$</span>
-                            <input type="text" name="monto_total" id="inputMontoTotal" class="form-control bg-tekfix-card border-0 money-input" required placeholder="0.00" title="Calculado automáticamente, pero puedes ajustarlo si hay descuentos finales">
+                            <span class="input-group-text border-0 bg-dtavo-card text-success fw-bold">$</span>
+                            <input type="text" name="monto_total" id="inputMontoTotal" class="form-control bg-dtavo-card border-0 money-input" required placeholder="0.00" title="Calculado automáticamente, pero puedes ajustarlo si hay descuentos finales">
                         </div>
                     </div>
                 </div>
 
                 <!-- SECCIÓN DE BÚSQUEDA Y CARRITO DE FACTURA -->
-                <div class="mb-4 bg-tekfix-card p-4 rounded-3 border position-relative">
-                    <h5 class="fw-bold border-bottom pb-2 mb-3"><i class="fa-solid fa-barcode text-tekfix-sec me-2"></i> Escanear Productos</h5>
+                <div class="mb-4 bg-dtavo-card p-4 rounded-3 border position-relative">
+                    <h5 class="fw-bold border-bottom pb-2 mb-3"><i class="fa-solid fa-barcode text-dtavo-sec me-2"></i> Escanear Productos</h5>
                     
                     <div class="row g-2 mb-4 align-items-end">
                         <div class="col-md-10">
-                            <label class="form-label fw-semibold small text-tekfix-sec">Código SKU (Decodificador)</label>
+                            <label class="form-label fw-semibold small text-dtavo-sec">Código SKU (Decodificador)</label>
                             <div class="input-group">
-                                <span class="input-group-text border-0 bg-tekfix-card"><i class="fa-solid fa-search text-tekfix-sec"></i></span>
+                                <span class="input-group-text border-0 bg-dtavo-card"><i class="fa-solid fa-search text-dtavo-sec"></i></span>
                                 <input type="text" id="skuBuscador" class="form-control border-0 shadow-sm form-control-lg" placeholder="Pistolea o escribe el código aquí..." autofocus autocomplete="off">
                             </div>
                         </div>
                         <div class="col-md-2">
-                            <button type="button" class="btn btn-tekfix-secondary w-100 fw-bold shadow-sm py-2" onclick="buscarSKUManual()" title="Buscar Manual"><i class="fa-solid fa-magnifying-glass"></i></button>
+                            <button type="button" class="btn btn-dtavo-secondary w-100 fw-bold shadow-sm py-2" onclick="buscarSKUManual()" title="Buscar Manual"><i class="fa-solid fa-magnifying-glass"></i></button>
                         </div>
                     </div>
 
                     <!-- Tabla de Carrito -->
-                    <div class="table-responsive bg-tekfix-card rounded-3 shadow-sm border">
+                    <div class="table-responsive bg-dtavo-card rounded-3 shadow-sm border">
                         <table class="table table-hover mb-0 text-center align-middle" id="tablaProductos">
-                            <thead class="bg-tekfix-card">
+                            <thead class="bg-dtavo-card">
                                 <tr>
                                     <th class="ps-3 text-start">Producto (SKU)</th>
                                     <th width="15%">Ctd.</th>
                                     <th width="25%">Precio Und.</th>
                                     <th width="20%">Subtotal</th>
-                                    <th class="pe-3" width="10%"><i class="fa-solid fa-trash text-tekfix-sec"></i></th>
+                                    <th class="pe-3" width="10%"><i class="fa-solid fa-trash text-dtavo-sec"></i></th>
                                 </tr>
                             </thead>
                             <tbody id="carritoBody">
                                 <!-- Filas dinámicas se agregan vía JS -->
                                 <tr id="emptyRow">
-                                    <td colspan="5" class="text-tekfix-sec py-4"><i class="fa-solid fa-barcode opacity-50 fs-2 mb-2"></i><br>Escanea un producto para agregarlo a la factura.</td>
+                                    <td colspan="5" class="text-dtavo-sec py-4"><i class="fa-solid fa-barcode opacity-50 fs-2 mb-2"></i><br>Escanea un producto para agregarlo a la factura.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -77,11 +77,11 @@
 
                 <div class="mb-4">
                     <label class="form-label fw-bold border-bottom pb-2 w-100">Documento Escaneado o PDF <span class="text-danger">*</span></label>
-                    <input class="form-control form-control-lg bg-tekfix-card border-0 shadow-sm mt-3" type="file" name="archivo_factura" accept=".pdf,.png,.jpg,.jpeg,.webp" required>
-                    <small class="text-tekfix-sec mt-2 d-block"><i class="fa-solid fa-circle-info me-1"></i> Formatos PDF, JPG, PNG. Máx. 3MB.</small>
+                    <input class="form-control form-control-lg bg-dtavo-card border-0 shadow-sm mt-3" type="file" name="archivo_factura" accept=".pdf,.png,.jpg,.jpeg,.webp" required>
+                    <small class="text-dtavo-sec mt-2 d-block"><i class="fa-solid fa-circle-info me-1"></i> Formatos PDF, JPG, PNG. Máx. 3MB.</small>
                 </div>
 
-                <button type="button" onclick="validarEnvio()" class="btn btn-tekfix w-100 rounded-pill fw-bold py-3 shadow-sm text-uppercase"><i class="fa-solid fa-cloud-arrow-up me-2"></i> Procesar y Subir Factura</button>
+                <button type="button" onclick="validarEnvio()" class="btn btn-dtavo w-100 rounded-pill fw-bold py-3 shadow-sm text-uppercase"><i class="fa-solid fa-cloud-arrow-up me-2"></i> Procesar y Subir Factura</button>
             </form>
         </div>
     </div>
@@ -154,7 +154,7 @@
             tr.innerHTML = `
                 <td class="ps-3 text-start">
                     <span class="fw-bold">${nombre}</span><br>
-                    <small class="text-tekfix-sec"><i class="fa-solid fa-barcode"></i> ${sku}</small>
+                    <small class="text-dtavo-sec"><i class="fa-solid fa-barcode"></i> ${sku}</small>
                     <input type="hidden" name="producto_id[]" value="${id}">
                 </td>
                 <td>
@@ -168,7 +168,7 @@
                 </td>
                 <td class="fw-bolder text-success" id="subtotal_${id}">$${precioSugerido.toFixed(2)}</td>
                 <td class="pe-3">
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle shadow-sm" style="border-color: var(--tekfix-border); color: var(--tekfix-text-main);" onclick="eliminarProducto('${id}')"><i class="fa-solid fa-times"></i></button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle shadow-sm" style="border-color: var(--dtavo-border); color: var(--dtavo-text-main);" onclick="eliminarProducto('${id}')"><i class="fa-solid fa-times"></i></button>
                 </td>
             `;
             tbody.appendChild(tr);

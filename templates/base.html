@@ -13,53 +13,53 @@
     <style>
         /* VARIABLES DE TEMA (DARK POR DEFECTO) */
         :root {
-            --tekfix-bg: #0A0A0A;          /* Fondo Negro TAVO */
-            --tekfix-primary: #C59F60;     /* Dorado TAVO */
-            --tekfix-hover: #A6824D;       
-            --tekfix-border: #222222;      
-            --tekfix-text-sec: #A0A0A0;    
-            --tekfix-text-main: #FFFFFF;   
-            --tekfix-card-bg: #111111;     
-            --tekfix-navbar-bg: #0A0A0A;   
-            --tekfix-input-bg: #1A1A1A;
-            --tekfix-table-header: rgba(197, 159, 96, 0.1); 
-            --tekfix-card-header: rgba(197, 159, 96, 0.1);
+            --dtavo-bg: #0A0A0A;          /* Fondo Negro TAVO */
+            --dtavo-primary: #C59F60;     /* Dorado TAVO */
+            --dtavo-hover: #A6824D;       
+            --dtavo-border: #222222;      
+            --dtavo-text-sec: #A0A0A0;    
+            --dtavo-text-main: #FFFFFF;   
+            --dtavo-card-bg: #111111;     
+            --dtavo-navbar-bg: #0A0A0A;   
+            --dtavo-input-bg: #1A1A1A;
+            --dtavo-table-header: rgba(197, 159, 96, 0.1); 
+            --dtavo-card-header: rgba(197, 159, 96, 0.1);
         }
 
         /* TEMA LIGHT (DÍA) */
         [data-theme="light"] {
-            --tekfix-bg: #F5F5F5;          /* Fondo Gris Claro */
-            --tekfix-primary: #C59F60;     /* Dorado se mantiene */
-            --tekfix-hover: #A6824D;
-            --tekfix-border: #DDDDDD;
-            --tekfix-text-sec: #555555;
-            --tekfix-text-main: #1A1A1A;   /* Texto Gris Oscuro */
-            --tekfix-card-bg: #FFFFFF;     /* Tarjetas Blancas */
-            --tekfix-navbar-bg: #FFFFFF;
-            --tekfix-input-bg: #FFFFFF;
-            --tekfix-table-header: #F8F9FA;
-            --tekfix-card-header: #F8F9FA;
+            --dtavo-bg: #F5F5F5;          /* Fondo Gris Claro */
+            --dtavo-primary: #C59F60;     /* Dorado se mantiene */
+            --dtavo-hover: #A6824D;
+            --dtavo-border: #DDDDDD;
+            --dtavo-text-sec: #555555;
+            --dtavo-text-main: #1A1A1A;   /* Texto Gris Oscuro */
+            --dtavo-card-bg: #FFFFFF;     /* Tarjetas Blancas */
+            --dtavo-navbar-bg: #FFFFFF;
+            --dtavo-input-bg: #FFFFFF;
+            --dtavo-table-header: #F8F9FA;
+            --dtavo-card-header: #F8F9FA;
         }
 
         body {
-            background-color: var(--tekfix-bg);
-            color: var(--tekfix-text-main);
+            background-color: var(--dtavo-bg);
+            color: var(--dtavo-text-main);
             font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             -webkit-font-smoothing: antialiased;
             transition: background-color 0.3s, color 0.3s;
         }
 
         /* Variables Utilitarias Auxiliares */
-        .bg-tekfix-primary { background-color: var(--tekfix-primary) !important; color: #fff !important; }
-        .bg-tekfix-card { background-color: var(--tekfix-card-bg) !important; }
-        .text-tekfix-main { color: var(--tekfix-text-main) !important; }
-        .text-tekfix-primary { color: var(--tekfix-primary) !important; }
-        .text-tekfix-sec { color: var(--tekfix-text-sec) !important; }
+        .bg-dtavo-primary { background-color: var(--dtavo-primary) !important; color: #fff !important; }
+        .bg-dtavo-card { background-color: var(--dtavo-card-bg) !important; }
+        .text-dtavo-main { color: var(--dtavo-text-main) !important; }
+        .text-dtavo-primary { color: var(--dtavo-primary) !important; }
+        .text-dtavo-sec { color: var(--dtavo-text-sec) !important; }
 
-        /* Navbar Tekfix */
+        /* Navbar Dtavo */
         .navbar-custom {
-            background-color: var(--tekfix-navbar-bg);
-            border-bottom: 1px solid var(--tekfix-border);
+            background-color: var(--dtavo-navbar-bg);
+            border-bottom: 1px solid var(--dtavo-border);
             padding: 1rem 0;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             transition: background-color 0.3s;
@@ -67,72 +67,72 @@
         
         .navbar-custom .navbar-brand {
             font-weight: 800;
-            color: var(--tekfix-text-main) !important;
+            color: var(--dtavo-text-main) !important;
             font-size: 1.75rem;
             letter-spacing: -0.5px;
         }
 
         .navbar-custom .nav-link {
-            color: var(--tekfix-text-main);
+            color: var(--dtavo-text-main);
             font-weight: 500;
             margin-left: 1rem;
             transition: color 0.2s;
         }
         
         .navbar-custom .nav-link:hover {
-            color: var(--tekfix-primary);
+            color: var(--dtavo-primary);
         }
 
         /* Removidos selectores antiguos de body.dark-mode para usar [data-theme] */
         
         body.dark-mode .navbar-toggler i {
-            color: var(--tekfix-primary) !important;
+            color: var(--dtavo-primary) !important;
         }
 
         /* Botones Pro */
-        .btn, .btn-primary, .btn-tekfix {
+        .btn, .btn-primary, .btn-dtavo {
             border-radius: 12px !important;
         }
 
-        .btn-tekfix, .btn-primary {
-            background-color: var(--tekfix-primary) !important; /* Dorado TAVO */
+        .btn-dtavo, .btn-primary {
+            background-color: var(--dtavo-primary) !important; /* Dorado TAVO */
             color: #000 !important; /* Texto negro sobre dorado para legibilidad */
             font-weight: 700;
             border: none;
             transition: all 0.2s ease-in-out;
         }
-        .btn-tekfix:hover, .btn-primary:hover {
-            background-color: var(--tekfix-hover) !important;
+        .btn-dtavo:hover, .btn-primary:hover {
+            background-color: var(--dtavo-hover) !important;
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(197, 159, 96, 0.3);
         }
 
-        .btn-tekfix-secondary, .btn-secondary, .badge.bg-secondary {
+        .btn-dtavo-secondary, .btn-secondary, .badge.bg-secondary {
             background-color: transparent !important; 
-            color: var(--tekfix-primary) !important;
+            color: var(--dtavo-primary) !important;
             font-weight: 600;
-            border: 1px solid var(--tekfix-primary) !important;
+            border: 1px solid var(--dtavo-primary) !important;
             border-radius: 12px !important;
             transition: all 0.2s ease-in-out;
         }
-        .btn-tekfix-secondary:hover, .btn-secondary:hover {
-            background-color: var(--tekfix-primary) !important;
+        .btn-dtavo-secondary:hover, .btn-secondary:hover {
+            background-color: var(--dtavo-primary) !important;
             color: #000 !important;
         }
 
         /* Cards */
         .card-header {
-            background-color: var(--tekfix-card-header) !important; /* Rosa Pastel o Dark */
-            color: var(--tekfix-text-main) !important;
+            background-color: var(--dtavo-card-header) !important; /* Rosa Pastel o Dark */
+            color: var(--dtavo-text-main) !important;
             border-bottom: none;
             border-top-left-radius: 12px !important;
             border-top-right-radius: 12px !important;
         }
 
         .card-custom, .card {
-            background-color: var(--tekfix-card-bg);
-            color: var(--tekfix-text-main);
-            border: 1px solid var(--tekfix-border);
+            background-color: var(--dtavo-card-bg);
+            color: var(--dtavo-text-main);
+            border: 1px solid var(--dtavo-border);
             border-radius: 12px !important;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             transition: background-color 0.3s, border-color 0.3s;
@@ -141,14 +141,14 @@
         /* Tablas - Adaptación Universal */
         .table-custom {
             --bs-table-bg: transparent !important;
-            --bs-table-color: var(--tekfix-text-main) !important;
-            color: var(--tekfix-text-main) !important;
+            --bs-table-color: var(--dtavo-text-main) !important;
+            color: var(--dtavo-text-main) !important;
         }
         
         .table-custom thead th {
-            color: var(--tekfix-primary) !important;
-            background-color: var(--tekfix-table-header) !important;
-            border-bottom: 2px solid var(--tekfix-primary) !important;
+            color: var(--dtavo-primary) !important;
+            background-color: var(--dtavo-table-header) !important;
+            border-bottom: 2px solid var(--dtavo-primary) !important;
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 0.5px;
@@ -156,8 +156,8 @@
         }
 
         .table-custom tbody td {
-            color: var(--tekfix-text-main) !important;
-            border-bottom: 1px solid var(--tekfix-border) !important;
+            color: var(--dtavo-text-main) !important;
+            border-bottom: 1px solid var(--dtavo-border) !important;
             padding: 1.25rem 1rem;
             vertical-align: middle;
             background-color: transparent !important;
@@ -166,7 +166,7 @@
         /* Hover y Zebra Striping adaptables */
         .table-hover tbody tr:hover td {
             background-color: rgba(197, 159, 96, 0.15) !important;
-            color: var(--tekfix-text-main) !important;
+            color: var(--dtavo-text-main) !important;
         }
         
         .table-striped tbody tr:nth-of-type(odd) td {
@@ -179,13 +179,13 @@
 
         /* Sidebar Offcanvas */
         .offcanvas { 
-            background-color: var(--tekfix-bg) !important; 
-            border-right: 1px solid var(--tekfix-border) !important; 
-            color: var(--tekfix-text-main) !important;
+            background-color: var(--dtavo-bg) !important; 
+            border-right: 1px solid var(--dtavo-border) !important; 
+            color: var(--dtavo-text-main) !important;
         }
         .offcanvas-header { 
-            background-color: var(--tekfix-card-bg) !important; 
-            border-bottom: 1px solid var(--tekfix-border) !important; 
+            background-color: var(--dtavo-card-bg) !important; 
+            border-bottom: 1px solid var(--dtavo-border) !important; 
         }
         
         .btn-close { 
@@ -197,27 +197,27 @@
         
         /* Inputs */
         .form-control, .form-select {
-            background-color: var(--tekfix-input-bg) !important;
-            border: 1px solid var(--tekfix-border) !important;
-            color: var(--tekfix-text-main) !important;
+            background-color: var(--dtavo-input-bg) !important;
+            border: 1px solid var(--dtavo-border) !important;
+            color: var(--dtavo-text-main) !important;
         }
         .form-control:focus, .form-select:focus {
-            border-color: var(--tekfix-primary) !important;
+            border-color: var(--dtavo-primary) !important;
             box-shadow: 0 0 0 0.25rem rgba(221, 184, 86, 0.2);
         }
         .form-control::placeholder {
-            color: var(--tekfix-text-sec) !important;
+            color: var(--dtavo-text-sec) !important;
             opacity: 0.5;
         }
 
         /* Modales */
         .modal-content {
-            background-color: var(--tekfix-card-bg) !important;
-            color: var(--tekfix-text-main) !important;
-            border: 1px solid var(--tekfix-border) !important;
+            background-color: var(--dtavo-card-bg) !important;
+            color: var(--dtavo-text-main) !important;
+            border: 1px solid var(--dtavo-border) !important;
         }
         .modal-header, .modal-footer {
-            border-color: var(--tekfix-border) !important;
+            border-color: var(--dtavo-border) !important;
         }
 
         .alert-success {
@@ -244,14 +244,14 @@
     </style>
 </head>
 <body>
-    <!-- Navbar Tekfix -->
+    <!-- Navbar Dtavo -->
     <nav class="navbar navbar-custom mb-5 position-relative">
         <div class="container-fluid px-3 d-flex justify-content-between align-items-center">
             
             {% if current_user.is_authenticated %}
             <!-- Botón Hamburguesa (Izquierda) -->
             <button class="navbar-toggler border-0 shadow-none p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
-                <i class="fa-solid fa-bars fs-3 text-tekfix-main"></i>
+                <i class="fa-solid fa-bars fs-3 text-dtavo-main"></i>
             </button>
             {% else %}
             <!-- Spacer if not authenticated -->
@@ -264,7 +264,7 @@
                     <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="me-2" style="height: 32px; width: auto;"> DTAVO
                 </a>
                 {% if session.categoria_actual %}
-                <span class="ms-3 badge rounded-pill bg-tekfix-primary text-dark fw-bold px-3 py-2 animate__animated animate__pulse animate__infinite d-none d-sm-inline-block">
+                <span class="ms-3 badge rounded-pill bg-dtavo-primary text-dark fw-bold px-3 py-2 animate__animated animate__pulse animate__infinite d-none d-sm-inline-block">
                     <i class="fa-solid fa-store me-1"></i> {{ session.categoria_nombre }}
                 </span>
                 {% endif %}
@@ -272,11 +272,11 @@
 
             <!-- Acciones Derecha -->
             <div class="d-flex align-items-center gap-3">
-                <button id="theme-toggle" class="btn btn-link p-0 me-3 border-0 shadow-none text-tekfix-main" style="text-decoration: none;">
+                <button id="theme-toggle" class="btn btn-link p-0 me-3 border-0 shadow-none text-dtavo-main" style="text-decoration: none;">
                     <i class="fa-solid fa-sun fs-4" id="theme-icon"></i>
                 </button>
                 {% if session.categoria_actual %}
-                <a href="{{ url_for('salir_nicho') }}" class="btn btn-sm btn-tekfix-secondary rounded-pill px-3 d-none d-md-inline-block">
+                <a href="{{ url_for('salir_nicho') }}" class="btn btn-sm btn-dtavo-secondary rounded-pill px-3 d-none d-md-inline-block">
                     <i class="fa-solid fa-rotate me-1"></i> Cambiar Nicho
                 </a>
                 {% endif %}
@@ -288,8 +288,8 @@
     {% if current_user.is_authenticated %}
     <!-- Offcanvas Menú Lateral (Sidebar) -->
     <div class="offcanvas offcanvas-start border-0 shadow" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel" style="width: 280px;">
-        <div class="offcanvas-header bg-tekfix-card border-bottom">
-            <h5 class="offcanvas-title fw-bold text-tekfix-main" id="offcanvasNavbarLabel">
+        <div class="offcanvas-header bg-dtavo-card border-bottom">
+            <h5 class="offcanvas-title fw-bold text-dtavo-main" id="offcanvasNavbarLabel">
                 <i class="fa-solid fa-user-circle me-2"></i>{{ current_user.rol | capitalize }}
             </h5>
             <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -297,52 +297,52 @@
         <div class="offcanvas-body d-flex flex-column p-0">
             <ul class="nav flex-column gap-2 px-3 py-3">
                 <li class="nav-item">
-                    <a class="nav-link text-tekfix-main rounded-3 px-3 py-2 fw-bold shadow-sm border" href="{{ url_for('sales_bp.pos_visual') }}" style="background: rgba(197, 159, 96, 0.08); border-color: rgba(197, 159, 96, 0.3) !important; box-shadow: 0 4px 6px -1px rgba(197, 159, 96, 0.2), 0 2px 4px -1px rgba(197, 159, 96, 0.1) !important;">
+                    <a class="nav-link text-dtavo-main rounded-3 px-3 py-2 fw-bold shadow-sm border" href="{{ url_for('sales_bp.pos_visual') }}" style="background: rgba(197, 159, 96, 0.08); border-color: rgba(197, 159, 96, 0.3) !important; box-shadow: 0 4px 6px -1px rgba(197, 159, 96, 0.2), 0 2px 4px -1px rgba(197, 159, 96, 0.1) !important;">
                         <i class="fa-solid fa-cash-register me-2" style="width:20px; text-align:center; color: #C59F60; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));"></i> Ventas
                     </a>
                 </li>
                 {% if current_user.rol == 'admin' %}
                 <li class="nav-item">
-                    <a class="nav-link text-tekfix-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('admin_bp.dashboard') }}">
+                    <a class="nav-link text-dtavo-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('admin_bp.dashboard') }}">
                         <i class="fa-solid fa-chart-pie me-2" style="width:20px; text-align:center; color: #4A90E2;"></i> Dashboard
                     </a>
                 </li>
                 {% endif %}
-                {% if current_user.rol in ['admin', 'bodega'] %}
+                {% if current_user.rol in ['admin', 'bodega', 'vendedor'] %}
                 <li class="nav-item">
-                    <a class="nav-link text-tekfix-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('inventory_bp.index') }}">
+                    <a class="nav-link text-dtavo-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('inventory_bp.index') }}">
                         <i class="fa-solid fa-boxes-stacked me-2" style="width:20px; text-align:center; color: #7ED321;"></i> Inventario
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-tekfix-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('inventory_bp.retomas_index') }}">
+                    <a class="nav-link text-dtavo-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('inventory_bp.retomas_index') }}">
                         <i class="fa-solid fa-mobile-retro me-2" style="width:20px; text-align:center; color: #FF9F00;"></i> Retomas
                     </a>
                 </li>
                 {% endif %}
                 <li class="nav-item">
-                    <a class="nav-link text-tekfix-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('clientes_bp.index') }}">
+                    <a class="nav-link text-dtavo-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('clientes_bp.index') }}">
                         <i class="fa-solid fa-users me-2" style="width:20px; text-align:center; color: #50E3C2;"></i> Clientes
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-tekfix-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('gastos_bp.index') }}">
+                    <a class="nav-link text-dtavo-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('gastos_bp.index') }}">
                         <i class="fa-solid fa-file-invoice-dollar me-2" style="width:20px; text-align:center; color: #F5A623;"></i> Gastos
                     </a>
                 </li>
                 {% if current_user.rol == 'admin' %}
                 <li class="nav-item">
-                    <a class="nav-link text-tekfix-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('arqueo_bp.index') }}">
+                    <a class="nav-link text-dtavo-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('arqueo_bp.index') }}">
                         <i class="fa-solid fa-calculator me-2" style="width:20px; text-align:center; color: #D0021B;"></i> Cierre de Caja
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-tekfix-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('providers_bp.index') }}">
+                    <a class="nav-link text-dtavo-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('providers_bp.index') }}">
                         <i class="fa-solid fa-truck-field me-2" style="width:20px; text-align:center; color: #BD10E0;"></i> Proveedores
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-tekfix-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('personal_bp.index') }}">
+                    <a class="nav-link text-dtavo-main rounded-3 px-3 py-2 fw-semibold border-bottom" href="{{ url_for('personal_bp.index') }}">
                         <i class="fa-solid fa-users-gear me-2" style="width:20px; text-align:center; color: #9013FE;"></i> Gestión de Personal
                     </a>
                 </li>
@@ -351,7 +351,7 @@
             
             <!-- Interfaz de Desconexión / Fin de Turno al final del sidebar -->
             <div class="px-3 pb-4 mt-auto">
-                <a class="btn w-100 rounded-pill fw-bold border shadow-sm" href="{{ url_for('auth_bp.logout') }}" style="border-color: var(--tekfix-border) !important; color: var(--tekfix-text-main);">
+                <a class="btn w-100 rounded-pill fw-bold border shadow-sm" href="{{ url_for('auth_bp.logout') }}" style="border-color: var(--dtavo-border) !important; color: var(--dtavo-text-main);">
                     <i class="fa-solid fa-sign-out-alt me-2"></i> Salir del Sistema
                 </a>
             </div>

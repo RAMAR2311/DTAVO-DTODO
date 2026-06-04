@@ -3,12 +3,12 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div class="mb-4">
-        <h2 class="fw-bold text-tekfix-main m-0">Gestión de Inventario</h2>
-        <p class="text-tekfix-sec small mb-0"><i class="fa-solid fa-eye me-1"></i> {{ titulo_contexto }}</p>
+        <h2 class="fw-bold text-dtavo-main m-0">Gestión de Inventario</h2>
+        <p class="text-dtavo-sec small mb-0"><i class="fa-solid fa-eye me-1"></i> {{ titulo_contexto }}</p>
     </div>
     {% if busqueda_activa %}
         <div class="ms-3">
-            <span class="badge bg-tekfix-primary rounded-pill px-3 py-2">
+            <span class="badge bg-dtavo-primary rounded-pill px-3 py-2">
                 <i class="fa-solid fa-filter me-1"></i> {{ busqueda_activa }}
                 <a href="/inventory" class="text-white ms-2"><i class="fa-solid fa-circle-xmark"></i></a>
             </span>
@@ -18,10 +18,12 @@
         <a href="{{ url_for('inventory_bp.retomas_index') }}" class="btn btn-outline-warning rounded-pill px-4 fw-bold shadow-sm">
             <i class="fa-solid fa-mobile-retro me-1"></i> Ver Retomas
         </a>
+        {% if current_user.rol != 'vendedor' %}
         <button type="button" class="btn btn-outline-success rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#importarModal">
             <i class="fa-solid fa-file-excel me-1"></i> Importar Masivo
         </button>
-        <a href="/inventory/nuevo" class="btn btn-tekfix-secondary rounded-pill px-4 fw-bold shadow-sm">
+        {% endif %}
+        <a href="/inventory/nuevo" class="btn btn-dtavo-secondary rounded-pill px-4 fw-bold shadow-sm">
             <i class="fa-solid fa-plus me-1"></i> Nuevo Producto
         </a>
     </div>
@@ -31,15 +33,15 @@
 <div class="row g-3 mb-4">
     <!-- Tarjeta 1: Valor a Costo -->
     <div class="col-md-4">
-        <div class="card card-custom border-0 shadow-sm bg-tekfix-card h-100 p-3" style="border-left: 4px solid #C59F60 !important;">
+        <div class="card card-custom border-0 shadow-sm bg-dtavo-card h-100 p-3" style="border-left: 4px solid #C59F60 !important;">
             <div class="d-flex align-items-center">
                 <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 55px; height: 55px; background-color: rgba(197, 159, 96, 0.15);">
                     <i class="fa-solid fa-coins fs-4" style="color: #C59F60;"></i>
                 </div>
                 <div>
-                    <h6 class="text-tekfix-sec fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Valor a Costo</h6>
-                    <h3 class="fw-bold text-tekfix-main m-0">${{ total_costo|cop }}</h3>
-                    <small class="text-tekfix-sec">Inversión total en bodega</small>
+                    <h6 class="text-dtavo-sec fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Valor a Costo</h6>
+                    <h3 class="fw-bold text-dtavo-main m-0">${{ total_costo|cop }}</h3>
+                    <small class="text-dtavo-sec">Inversión total en bodega</small>
                 </div>
             </div>
         </div>
@@ -47,15 +49,15 @@
     
     <!-- Tarjeta 2: Valor Potencial -->
     <div class="col-md-4">
-        <div class="card card-custom border-0 shadow-sm bg-tekfix-card h-100 p-3" style="border-left: 4px solid #22c55e !important;">
+        <div class="card card-custom border-0 shadow-sm bg-dtavo-card h-100 p-3" style="border-left: 4px solid #22c55e !important;">
             <div class="d-flex align-items-center">
                 <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 55px; height: 55px; background-color: rgba(34, 197, 94, 0.15);">
                     <i class="fa-solid fa-chart-line fs-4" style="color: #22c55e;"></i>
                 </div>
                 <div>
-                    <h6 class="text-tekfix-sec fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Valor Potencial</h6>
-                    <h3 class="fw-bold text-tekfix-main m-0">${{ total_potencial|cop }}</h3>
-                    <small class="text-tekfix-sec">Proyección de ventas</small>
+                    <h6 class="text-dtavo-sec fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Valor Potencial</h6>
+                    <h3 class="fw-bold text-dtavo-main m-0">${{ total_potencial|cop }}</h3>
+                    <small class="text-dtavo-sec">Proyección de ventas</small>
                 </div>
             </div>
         </div>
@@ -63,15 +65,15 @@
 
     <!-- Tarjeta 3: Unidades en Stock -->
     <div class="col-md-4">
-        <div class="card card-custom border-0 shadow-sm bg-tekfix-card h-100 p-3" style="border-left: 4px solid #3b82f6 !important;">
+        <div class="card card-custom border-0 shadow-sm bg-dtavo-card h-100 p-3" style="border-left: 4px solid #3b82f6 !important;">
             <div class="d-flex align-items-center">
                 <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 55px; height: 55px; background-color: rgba(59, 130, 246, 0.15);">
                     <i class="fa-solid fa-boxes-stacked fs-4" style="color: #3b82f6;"></i>
                 </div>
                 <div>
-                    <h6 class="text-tekfix-sec fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Unidades en Stock</h6>
-                    <h3 class="fw-bold text-tekfix-main m-0">{{ total_unidades }} <span class="fs-6 fw-normal text-muted">uds</span></h3>
-                    <small class="text-tekfix-sec">Ítems físicos disponibles</small>
+                    <h6 class="text-dtavo-sec fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Unidades en Stock</h6>
+                    <h3 class="fw-bold text-dtavo-main m-0">{{ total_unidades }} <span class="fs-6 fw-normal text-muted">uds</span></h3>
+                    <small class="text-dtavo-sec">Ítems físicos disponibles</small>
                 </div>
             </div>
         </div>
@@ -79,20 +81,20 @@
 </div>
 
 <!-- Buscador Rápido de Inventario -->
-<div class="card card-custom p-3 mb-4 border-0 shadow-sm bg-tekfix-card">
+<div class="card card-custom p-3 mb-4 border-0 shadow-sm bg-dtavo-card">
     <div class="row align-items-center">
         <div class="col-md-8 col-lg-6">
             <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden border">
-                <span class="input-group-text bg-tekfix-card border-0 ps-4"><i class="fa-solid fa-magnifying-glass text-tekfix-sec"></i></span>
-                <input type="text" id="inventarioSearch" class="form-control border-0 bg-tekfix-card shadow-none ps-2" placeholder="Busca por SKU o Nombre del producto..." autocomplete="off">
-                <button class="btn btn-light border-0 px-3 text-tekfix-sec" type="button" id="clearSearch" title="Limpiar búsqueda">
+                <span class="input-group-text bg-dtavo-card border-0 ps-4"><i class="fa-solid fa-magnifying-glass text-dtavo-sec"></i></span>
+                <input type="text" id="inventarioSearch" class="form-control border-0 bg-dtavo-card shadow-none ps-2" placeholder="Busca por SKU o Nombre del producto..." autocomplete="off">
+                <button class="btn btn-light border-0 px-3 text-dtavo-sec" type="button" id="clearSearch" title="Limpiar búsqueda">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
         </div>
         <div class="col-md-4 col-lg-6 text-md-end mt-3 mt-md-0">
-            <small class="text-tekfix-sec fw-bold text-uppercase" style="font-size: 0.75rem;">
-                Mostrando <span id="visibleCount" class="text-tekfix-primary">{{ productos|length }}</span> de {{ productos|length }} productos
+            <small class="text-dtavo-sec fw-bold text-uppercase" style="font-size: 0.75rem;">
+                Mostrando <span id="visibleCount" class="text-dtavo-primary">{{ productos|length }}</span> de {{ productos|length }} productos
             </small>
         </div>
     </div>
@@ -101,7 +103,7 @@
 <div class="card card-custom p-0 overflow-hidden">
     <div class="table-responsive">
         <table class="table table-hover table-custom mb-0">
-            <thead class="bg-tekfix-card">
+            <thead class="bg-dtavo-card">
                 <tr>
                     <th width="120" class="ps-4">SKU</th>
                     <th>PRODUCTO</th>
@@ -115,13 +117,13 @@
             <tbody>
                 {% for p in productos %}
                 <tr>
-                    <td class="text-tekfix-sec"><small><strong>{{ p.sku }}</strong></small></td>
-                    <td class="fw-semibold text-tekfix-main">
+                    <td class="text-dtavo-sec"><small><strong>{{ p.sku }}</strong></small></td>
+                    <td class="fw-semibold text-dtavo-main">
                         {{ p.nombre }}
                         {% if p.atributos %}
                             <div class="mt-1 d-flex flex-wrap gap-1">
                                 {% for k, v in p.atributos.items() %}
-                                    <span class="badge bg-tekfix-card text-tekfix-sec border fw-normal" style="font-size: 0.65rem;">{{ k }}: {{ v }}</span>
+                                    <span class="badge bg-dtavo-card text-dtavo-sec border fw-normal" style="font-size: 0.65rem;">{{ k }}: {{ v }}</span>
                                 {% endfor %}
                             </div>
                         {% endif %}
@@ -131,32 +133,32 @@
                         {% if p.total_stock <= 3 %}
                             <span class="badge bg-danger rounded-pill px-3 py-2"><i class="fa-solid fa-triangle-exclamation me-1"></i> {{ p.total_stock }} (Stock Bajo)</span>
                         {% else %}
-                            <span class="badge border border-tekfix-primary text-tekfix-main rounded-pill px-3 py-2" style="background-color: var(--tekfix-table-header);">{{ p.total_stock }} uds</span>
+                            <span class="badge border border-dtavo-primary text-dtavo-main rounded-pill px-3 py-2" style="background-color: var(--dtavo-table-header);">{{ p.total_stock }} uds</span>
                         {% endif %}
 
                         {% if p.variantes %}
                             <div class="mt-2 pt-1 border-top">
                                 <div class="d-flex flex-wrap gap-1 mt-1">
                                     {% for v in p.variantes %}
-                                        <div class="d-flex align-items-center gap-1 py-0 px-2 rounded-pill shadow-xs border" style="background-color: var(--tekfix-card-bg); border-color: var(--tekfix-border) !important; width: fit-content;" title="{{ v.nombre_variante }}">
-                                            <span class="fw-bold text-truncate" style="font-size: 0.65rem; color: var(--tekfix-primary); max-width: 60px;">{{ v.nombre_variante }}</span>
-                                            <span class="badge rounded-pill shadow-sm px-1 py-0" style="background-color: var(--tekfix-hover); color: #FFFFFF; font-size: 0.62rem; min-width: 18px;">{{ v.cantidad_stock }}</span>
+                                        <div class="d-flex align-items-center gap-1 py-0 px-2 rounded-pill shadow-xs border" style="background-color: var(--dtavo-card-bg); border-color: var(--dtavo-border) !important; width: fit-content;" title="{{ v.nombre_variante }}">
+                                            <span class="fw-bold text-truncate" style="font-size: 0.65rem; color: var(--dtavo-primary); max-width: 60px;">{{ v.nombre_variante }}</span>
+                                            <span class="badge rounded-pill shadow-sm px-1 py-0" style="background-color: var(--dtavo-hover); color: #FFFFFF; font-size: 0.62rem; min-width: 18px;">{{ v.cantidad_stock }}</span>
                                         </div>
                                     {% endfor %}
                                 </div>
                             </div>
                         {% endif %}
                     </td>
-                    <td class="text-end fw-bold" style="color: var(--tekfix-hover);">${{ (p.precio_costo)|cop }}</td>
-                    <td class="text-end text-tekfix-sec fw-bold">${{ (p.precio_minimo)|cop }}</td>
-                    <td class="text-end fw-bold text-tekfix-main pe-4">
+                    <td class="text-end fw-bold" style="color: var(--dtavo-hover);">${{ (p.precio_costo)|cop }}</td>
+                    <td class="text-end text-dtavo-sec fw-bold">${{ (p.precio_minimo)|cop }}</td>
+                    <td class="text-end fw-bold text-dtavo-main pe-4">
                         {% if p.rango_precios %}
                             {% if p.rango_precios is number %}
                                 ${{ (p.rango_precios)|cop }}
                             {% else %}
-                                <div class="small text-tekfix-sec fw-normal" style="line-height:1;">Desde</div>
+                                <div class="small text-dtavo-sec fw-normal" style="line-height:1;">Desde</div>
                                 ${{ (p.rango_precios[0])|cop }}<br>
-                                <div class="small text-tekfix-sec fw-normal mt-1" style="line-height:1;">hasta</div>
+                                <div class="small text-dtavo-sec fw-normal mt-1" style="line-height:1;">hasta</div>
                                 ${{ (p.rango_precios[1])|cop }}
                             {% endif %}
                         {% else %}
@@ -179,19 +181,21 @@
                         <a href="{{ url_for('inventory_bp.editar_producto', id=p.id) }}" class="btn btn-sm text-secondary hover-primary me-1" title="Editar">
                             <i class="fa-solid fa-pen"></i>
                         </a>
+                        {% if current_user.rol != 'vendedor' %}
                         <form method="POST" action="{{ url_for('inventory_bp.eliminar_producto', id=p.id) }}" class="d-inline" onsubmit="return confirm('ATENCIÓN: ¿Está seguro de que desea ELIMINAR PERMANENTEMENTE este producto del sistema en la Nube? Esto no se puede deshacer.');">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn btn-sm text-danger hover-danger" title="Eliminar Producto">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </form>
+                        {% endif %}
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="6" class="text-center py-5 text-tekfix-sec">
+                    <td colspan="6" class="text-center py-5 text-dtavo-sec">
                         <!-- Icono en Rosa Pastel -->
-                        <i class="fa-solid fa-box-open fs-1 mb-3 text-tekfix-primary"></i>
+                        <i class="fa-solid fa-box-open fs-1 mb-3 text-dtavo-primary"></i>
                         <p class="mb-0">El inventario está vacío.</p>
                     </td>
                 </tr>
@@ -206,21 +210,21 @@
 <div class="modal fade" id="variantesModal{{ p.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
-            <div class="modal-header border-0 bg-tekfix-card">
-                <h5 class="modal-title fw-bold text-tekfix-main">Gestión de Variantes - {{ p.nombre }}</h5>
+            <div class="modal-header border-0 bg-dtavo-card">
+                <h5 class="modal-title fw-bold text-dtavo-main">Gestión de Variantes - {{ p.nombre }}</h5>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4 text-start bg-tekfix-card rounded-bottom">
+            <div class="modal-body p-4 text-start bg-dtavo-card rounded-bottom">
                 
                 <!-- Sección para Añadir Nueva Variante -->
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-body p-3">
-                        <h6 class="fw-bold mb-3 text-tekfix-main"><i class="fa-solid fa-plus-circle text-success me-2"></i>Añadir Subcategoría Nueva</h6>
+                        <h6 class="fw-bold mb-3 text-dtavo-main"><i class="fa-solid fa-plus-circle text-success me-2"></i>Añadir Subcategoría Nueva</h6>
                         <form method="POST" action="{{ url_for('inventory_bp.agregar_variante', id=p.id) }}">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <div class="row g-2 mb-3">
                                 <div class="col-md-9">
-                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">Talla / Medida</label>
+                                    <label class="form-label small text-dtavo-sec mb-1 fw-bold">Talla / Medida</label>
                                     <select name="nombre_variante" class="form-select form-select-sm" required>
                                         <option value="" disabled selected>Selecciona Talla...</option>
                                         <option value="S">S</option>
@@ -231,29 +235,29 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">Stock Inicial</label>
+                                    <label class="form-label small text-dtavo-sec mb-1 fw-bold">Stock Inicial</label>
                                     <input type="number" name="cantidad_stock" class="form-control form-control-sm" placeholder="0" required min="0">
                                 </div>
                             </div>
                             <div class="row g-2 mb-3">
                                 <div class="col-md-4">
-                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">P. Costo</label>
+                                    <label class="form-label small text-dtavo-sec mb-1 fw-bold">P. Costo</label>
                                     <div class="input-group input-group-sm">
-                                        <span class="input-group-text bg-tekfix-card text-tekfix-sec border-end-0">$</span>
+                                        <span class="input-group-text bg-dtavo-card text-dtavo-sec border-end-0">$</span>
                                         <input type="text" name="precio_costo" class="form-control border-start-0 ps-0 money-input" value="{{ "%.0f"|format(p.precio_costo) }}" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">P. Mínimo</label>
+                                    <label class="form-label small text-dtavo-sec mb-1 fw-bold">P. Mínimo</label>
                                     <div class="input-group input-group-sm">
-                                        <span class="input-group-text bg-tekfix-card text-tekfix-sec border-end-0">$</span>
+                                        <span class="input-group-text bg-dtavo-card text-dtavo-sec border-end-0">$</span>
                                         <input type="text" name="precio_minimo" class="form-control border-start-0 ps-0 money-input" value="{{ "%.0f"|format(p.precio_minimo) }}" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label small fw-bold mb-1" style="color: var(--tekfix-hover);">P. Sugerido</label>
+                                    <label class="form-label small fw-bold mb-1" style="color: var(--dtavo-hover);">P. Sugerido</label>
                                     <div class="input-group input-group-sm">
-                                        <span class="input-group-text bg-tekfix-card text-tekfix-sec border-end-0">$</span>
+                                        <span class="input-group-text bg-dtavo-card text-dtavo-sec border-end-0">$</span>
                                         <input type="text" name="precio_sugerido" class="form-control border-start-0 ps-0 border-pink border-1 money-input" value="{{ "%.0f"|format(p.precio_sugerido) }}" required>
                                     </div>
                                 </div>
@@ -263,11 +267,11 @@
                     </div>
                 </div>
                 
-                <h6 class="fw-bold mb-3 text-tekfix-main"><i class="fa-solid fa-boxes-stacked text-primary me-2"></i>Variantes Registradas</h6>
+                <h6 class="fw-bold mb-3 text-dtavo-main"><i class="fa-solid fa-boxes-stacked text-primary me-2"></i>Variantes Registradas</h6>
                 {% if p.variantes %}
                 <div class="d-flex flex-column gap-3">
                     {% for v in p.variantes %}
-                    <div class="card border border-light shadow-sm bg-tekfix-card rounded-3">
+                    <div class="card border border-light shadow-sm bg-dtavo-card rounded-3">
                         <div class="card-body p-3">
                             <form method="POST" action="{{ url_for('inventory_bp.editar_variante', id=v.id) }}">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -275,45 +279,47 @@
                                 <div class="row g-2 align-items-center mb-3">
                                     <div class="col-8">
                                         <div class="input-group input-group-sm">
-                                            <span class="input-group-text bg-tekfix-card border-0 text-tekfix-sec"><i class="fa-solid fa-tag"></i></span>
-                                            <input type="text" name="nombre_variante" class="form-control fw-bold border-light bg-tekfix-card" value="{{ v.nombre_variante }}" required>
+                                            <span class="input-group-text bg-dtavo-card border-0 text-dtavo-sec"><i class="fa-solid fa-tag"></i></span>
+                                            <input type="text" name="nombre_variante" class="form-control fw-bold border-light bg-dtavo-card" value="{{ v.nombre_variante }}" required>
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <div class="input-group input-group-sm">
-                                            <span class="input-group-text bg-tekfix-card border-0 text-tekfix-sec"><i class="fa-solid fa-cubes"></i></span>
-                                            <input type="number" name="cantidad_stock" class="form-control text-center fw-bold text-primary border-light bg-tekfix-card" value="{{ v.cantidad_stock }}" required>
+                                            <span class="input-group-text bg-dtavo-card border-0 text-dtavo-sec"><i class="fa-solid fa-cubes"></i></span>
+                                            <input type="number" name="cantidad_stock" class="form-control text-center fw-bold text-primary border-light bg-dtavo-card" value="{{ v.cantidad_stock }}" required>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="row g-2 align-items-end">
                                     <div class="col-4">
-                                        <label class="form-label text-tekfix-sec mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">COSTO REAL</label>
+                                        <label class="form-label text-dtavo-sec mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">COSTO REAL</label>
                                         <div class="input-group input-group-sm">
-                                            <span class="input-group-text bg-transparent border-end-0 text-tekfix-sec px-2">$</span>
+                                            <span class="input-group-text bg-transparent border-end-0 text-dtavo-sec px-2">$</span>
                                             <input type="text" name="precio_costo" class="form-control border-start-0 ps-0 text-secondary money-input" value="{{ "%.0f"|format(v.precio_costo|float) if v.precio_costo else "%.0f"|format(p.precio_costo|float) }}">
                                         </div>
                                     </div>
                                     <div class="col-4">
-                                        <label class="form-label text-tekfix-sec mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">P. MÍNIMO DEV.</label>
+                                        <label class="form-label text-dtavo-sec mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">P. MÍNIMO DEV.</label>
                                         <div class="input-group input-group-sm">
-                                            <span class="input-group-text bg-transparent border-end-0 text-tekfix-sec px-2">$</span>
+                                            <span class="input-group-text bg-transparent border-end-0 text-dtavo-sec px-2">$</span>
                                             <input type="text" name="precio_minimo" class="form-control border-start-0 ps-0 text-secondary money-input" value="{{ "%.0f"|format(v.precio_minimo|float) if v.precio_minimo else "%.0f"|format(p.precio_minimo|float) }}">
                                         </div>
                                     </div>
                                     <div class="col-4">
-                                        <label class="form-label mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px; color: var(--tekfix-hover);">P. SUGERIDO</label>
+                                        <label class="form-label mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px; color: var(--dtavo-hover);">P. SUGERIDO</label>
                                         <div class="input-group input-group-sm">
-                                            <span class="input-group-text bg-transparent border-end-0 fw-bold px-2" style="color: var(--tekfix-hover);">$</span>
-                                            <input type="text" name="precio_sugerido" class="form-control border-start-0 ps-0 fw-bold money-input" style="color: var(--tekfix-hover);" value="{{ "%.0f"|format(v.precio_sugerido|float) if v.precio_sugerido else "%.0f"|format(p.precio_sugerido|float) }}">
+                                            <span class="input-group-text bg-transparent border-end-0 fw-bold px-2" style="color: var(--dtavo-hover);">$</span>
+                                            <input type="text" name="precio_sugerido" class="form-control border-start-0 ps-0 fw-bold money-input" style="color: var(--dtavo-hover);" value="{{ "%.0f"|format(v.precio_sugerido|float) if v.precio_sugerido else "%.0f"|format(p.precio_sugerido|float) }}">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center mt-3 pt-2">
+                                    {% if current_user.rol != 'vendedor' %}
                                     <button type="button" class="btn btn-sm btn-outline-light border-0 hover-danger px-2" title="Eliminar Permanente" onclick="if(confirm('¿Eliminar la subcategoría {{ v.nombre_variante }} del inventario? Esta acción es irreversible.')) { document.getElementById('delVarForm{{ v.id }}').submit(); }">
                                         <i class="fa-solid fa-trash-can"></i>
                                     </button>
+                                    {% endif %}
                                     <button type="submit" class="btn btn-sm btn-outline-primary rounded-pill px-4" title="Guardar Cambios">
                                         <i class="fa-solid fa-arrows-rotate me-1"></i> Actualizar Variante
                                     </button>
@@ -328,9 +334,9 @@
                     {% endfor %}
                 </div>
                 {% else %}
-                <div class="text-center p-4 border rounded bg-tekfix-card mt-1 shadow-sm">
-                    <i class="fa-solid fa-boxes-stacked fs-3 text-tekfix-sec mb-2 opacity-50"></i>
-                    <p class="text-tekfix-sec small mb-0">Este producto actualmente utiliza <strong>stock plano</strong> y tarifas genéricas.<br>Añade variantes arriba para dividir su rango comercial.</p>
+                <div class="text-center p-4 border rounded bg-dtavo-card mt-1 shadow-sm">
+                    <i class="fa-solid fa-boxes-stacked fs-3 text-dtavo-sec mb-2 opacity-50"></i>
+                    <p class="text-dtavo-sec small mb-0">Este producto actualmente utiliza <strong>stock plano</strong> y tarifas genéricas.<br>Añade variantes arriba para dividir su rango comercial.</p>
                 </div>
                 {% endif %}
             </div>
@@ -345,7 +351,7 @@
         <div class="modal-content border-0 shadow">
             <form method="POST" action="{{ url_for('inventory_bp.importar_inventario') }}" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <div class="modal-header border-0 bg-tekfix-card">
+                <div class="modal-header border-0 bg-dtavo-card">
                     <h5 class="modal-title fw-bold text-success" id="importarModalLabel">
                         <i class="fa-solid fa-cloud-arrow-up me-2"></i>Carga Masiva de Productos
                     </h5>
@@ -361,11 +367,11 @@
 
                     <div class="text-start mb-2">
                         <label class="form-label fw-bold">2. Subir archivo rellenado</label>
-                        <input type="file" name="archivo" accept=".xlsx, .csv" class="form-control bg-tekfix-card border-0 shadow-sm" required>
-                        <small class="text-tekfix-sec d-block mt-2"><i class="fa-solid fa-circle-info text-info me-1"></i>Si el código SKU ya existe, su cantidad será <strong>SUMADA</strong> al inventario actual y se pisarán los precios.</small>
+                        <input type="file" name="archivo" accept=".xlsx, .csv" class="form-control bg-dtavo-card border-0 shadow-sm" required>
+                        <small class="text-dtavo-sec d-block mt-2"><i class="fa-solid fa-circle-info text-info me-1"></i>Si el código SKU ya existe, su cantidad será <strong>SUMADA</strong> al inventario actual y se pisarán los precios.</small>
                     </div>
                 </div>
-                <div class="modal-footer border-0 bg-tekfix-card rounded-bottom">
+                <div class="modal-footer border-0 bg-dtavo-card rounded-bottom">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-success rounded-pill fw-bold px-4 shadow-sm">
                         <i class="fa-solid fa-gear me-1"></i> Subir y Procesar
@@ -387,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Crear fila de "No hay resultados" si no existe
     const noResultsRow = document.createElement('tr');
     noResultsRow.className = 'no-results d-none';
-    noResultsRow.innerHTML = `<td colspan="7" class="text-center py-5 text-tekfix-sec">
+    noResultsRow.innerHTML = `<td colspan="7" class="text-center py-5 text-dtavo-sec">
         <i class="fa-solid fa-magnifying-glass-minus fs-1 mb-3 opacity-25"></i>
         <p class="mb-0">No se encontraron productos que coincidan con tu búsqueda.</p>
     </td>`;
@@ -473,7 +479,7 @@ function abrirModalSeriales(productId, nombre) {
 
 async function cargarSeriales() {
     const listEl = document.getElementById('seriales-list');
-    listEl.innerHTML = '<div class="text-center p-3"><div class="spinner-border spinner-border-sm text-tekfix-primary" role="status"></div></div>';
+    listEl.innerHTML = '<div class="text-center p-3"><div class="spinner-border spinner-border-sm text-dtavo-primary" role="status"></div></div>';
     
     try {
         const res = await fetch(`/inventory/producto/${currentProductId}/seriales`);
@@ -481,19 +487,19 @@ async function cargarSeriales() {
         
         listEl.innerHTML = '';
         if (data.length === 0) {
-            listEl.innerHTML = '<p class="text-center text-tekfix-sec my-3 small">No hay seriales registrados.</p>';
+            listEl.innerHTML = '<p class="text-center text-dtavo-sec my-3 small">No hay seriales registrados.</p>';
             return;
         }
 
         data.forEach(s => {
             const isVendido = s.estado === 'vendido';
             listEl.innerHTML += `
-                <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-tekfix-card rounded border ${isVendido ? 'opacity-50' : ''}">
+                <div class="d-flex justify-content-between align-items-center p-2 mb-2 bg-dtavo-card rounded border ${isVendido ? 'opacity-50' : ''}">
                     <div>
-                        <span class="fw-bold text-tekfix-main">${s.serial}</span>
+                        <span class="fw-bold text-dtavo-main">${s.serial}</span>
                         <span class="badge ${isVendido ? 'bg-danger' : 'bg-success'} ms-2" style="font-size: 0.6rem;">${s.estado.toUpperCase()}</span>
                     </div>
-                    ${!isVendido ? `
+                    ${(!isVendido && '{{ current_user.rol }}' !== 'vendedor') ? `
                         <button class="btn btn-sm text-danger" onclick="eliminarSerial(${s.id})">
                             <i class="fa-solid fa-trash"></i>
                         </button>
@@ -564,20 +570,20 @@ async function eliminarSerial(serialId) {
 <!-- Modal Único de Gestión de Seriales -->
 <div class="modal fade" id="serialManagementModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-tekfix-card border-0 shadow-lg">
+        <div class="modal-content bg-dtavo-card border-0 shadow-lg">
             <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold text-tekfix-main" id="serialModalLabel">Gestión de Seriales</h5>
+                <h5 class="modal-title fw-bold text-dtavo-main" id="serialModalLabel">Gestión de Seriales</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="input-group mb-4 shadow-sm">
-                    <input type="text" id="new-serial-input" class="form-control bg-tekfix-input border-0" placeholder="Escribe el nuevo IMEI/Serial..." onkeypress="if(event.key === 'Enter') agregarSerial()">
-                    <button class="btn btn-tekfix-primary px-3" type="button" id="btn-add-serial" onclick="agregarSerial()">
+                    <input type="text" id="new-serial-input" class="form-control bg-dtavo-input border-0" placeholder="Escribe el nuevo IMEI/Serial..." onkeypress="if(event.key === 'Enter') agregarSerial()">
+                    <button class="btn btn-dtavo-primary px-3" type="button" id="btn-add-serial" onclick="agregarSerial()">
                         <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
                 
-                <h6 class="fw-bold text-tekfix-sec small text-uppercase mb-3">Lista de Unidades Físicas</h6>
+                <h6 class="fw-bold text-dtavo-sec small text-uppercase mb-3">Lista de Unidades Físicas</h6>
                 <div id="seriales-list" style="max-height: 300px; overflow-y: auto;">
                     <!-- Se llena con JS -->
                 </div>

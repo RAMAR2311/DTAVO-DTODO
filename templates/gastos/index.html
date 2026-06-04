@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold text-tekfix-main m-0">Control de Gastos y Costos</h2>
+    <h2 class="fw-bold text-dtavo-main m-0">Control de Gastos y Costos</h2>
     <a href="{{ url_for('admin_bp.dashboard') if current_user.rol == 'admin' else url_for('sales_bp.procesar_venta') }}" class="btn btn-outline-secondary rounded-pill px-4">
         <i class="fa-solid fa-arrow-left me-1"></i> Volver al Menú
     </a>
@@ -11,36 +11,36 @@
 <!-- Tarjetas de Resumen Financiero -->
 <div class="row g-4 mb-4">
     <div class="col-md-6">
-        <div class="card card-custom h-100 p-4 border-0 shadow-sm" style="border-left: 5px solid var(--tekfix-primary) !important;">
+        <div class="card card-custom h-100 p-4 border-0 shadow-sm" style="border-left: 5px solid var(--dtavo-primary) !important;">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="text-tekfix-main fw-bold mb-0">Total Gastos Diarios (Mes)</h5>
-                <i class="fa-solid fa-cart-shopping fs-2" style="color: var(--tekfix-primary);"></i>
+                <h5 class="text-dtavo-main fw-bold mb-0">Total Gastos Diarios (Mes)</h5>
+                <i class="fa-solid fa-cart-shopping fs-2" style="color: var(--dtavo-primary);"></i>
             </div>
             <h2 class="fw-bolder m-0">${{ (total_diarios)|cop }}</h2>
-            <p class="text-tekfix-sec small mt-2 m-0">Operativos: comida, transportes, aseo.</p>
+            <p class="text-dtavo-sec small mt-2 m-0">Operativos: comida, transportes, aseo.</p>
         </div>
     </div>
     <div class="col-md-6">
-        <div class="card card-custom h-100 p-4 border-0 shadow-sm" style="border-left: 5px solid var(--tekfix-hover) !important;">
+        <div class="card card-custom h-100 p-4 border-0 shadow-sm" style="border-left: 5px solid var(--dtavo-hover) !important;">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="text-tekfix-main fw-bold mb-0">Total Costos Indirectos (Mes)</h5>
-                <i class="fa-solid fa-building-columns fs-2" style="color: var(--tekfix-hover);"></i>
+                <h5 class="text-dtavo-main fw-bold mb-0">Total Costos Indirectos (Mes)</h5>
+                <i class="fa-solid fa-building-columns fs-2" style="color: var(--dtavo-hover);"></i>
             </div>
             <h2 class="fw-bolder m-0">${{ (total_indirectos)|cop }}</h2>
-            <p class="text-tekfix-sec small mt-2 m-0">Fijos: arriendo, nómina, servicios.</p>
+            <p class="text-dtavo-sec small mt-2 m-0">Fijos: arriendo, nómina, servicios.</p>
         </div>
     </div>
 </div>
 
 <!-- Formulario para Registrar Nuevo Gasto -->
 <div class="card card-custom p-4 mb-5 shadow-sm border-0">
-    <h5 class="text-tekfix-main fw-bold mb-4"><i class="fa-solid fa-money-bill-transfer text-tekfix-sec me-2"></i>Registrar Salida de Dinero</h5>
+    <h5 class="text-dtavo-main fw-bold mb-4"><i class="fa-solid fa-money-bill-transfer text-dtavo-sec me-2"></i>Registrar Salida de Dinero</h5>
     <form method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="row g-3 align-items-end">
             <div class="col-md-3">
-                <label class="form-label fw-bold text-tekfix-main">Tipo de Salida</label>
-                <select name="tipo" class="form-select bg-tekfix-card border-0" required>
+                <label class="form-label fw-bold text-dtavo-main">Tipo de Salida</label>
+                <select name="tipo" class="form-select bg-dtavo-card border-0" required>
                     {% if current_user.rol == 'admin' %}
                     <option value="" selected disabled>Seleccionar tipo...</option>
                     <option value="Gasto Diario">Gasto Diario / Operativo</option>
@@ -51,9 +51,9 @@
                 </select>
             </div>
             <div class="col-md-3">
-                <label class="form-label fw-bold text-tekfix-main">Categoría</label>
+                <label class="form-label fw-bold text-dtavo-main">Categoría</label>
                 <!-- Usamos datalist para permitir escribir o seleccionar opciones -->
-                <input type="text" name="categoria" list="categoriasComunes" class="form-control bg-tekfix-card border-0" autocomplete="off" placeholder="Ej: Arriendo, Aseo..." required>
+                <input type="text" name="categoria" list="categoriasComunes" class="form-control bg-dtavo-card border-0" autocomplete="off" placeholder="Ej: Arriendo, Aseo..." required>
                 <datalist id="categoriasComunes">
                     <option value="Arriendo">
                     <option value="Servicios Públicos">
@@ -67,19 +67,19 @@
                 </datalist>
             </div>
             <div class="col-md-2">
-                <label class="form-label fw-bold text-tekfix-main">Monto ($)</label>
-                <input type="text" name="monto" class="form-control bg-tekfix-card border-0 money-input" required>
+                <label class="form-label fw-bold text-dtavo-main">Monto ($)</label>
+                <input type="text" name="monto" class="form-control bg-dtavo-card border-0 money-input" required>
             </div>
             <div class="col-md-2">
-                <label class="form-label fw-bold text-tekfix-main">Fecha</label>
-                <input type="date" name="fecha" class="form-control bg-tekfix-card border-0" value="{{ hoy }}" required>
+                <label class="form-label fw-bold text-dtavo-main">Fecha</label>
+                <input type="date" name="fecha" class="form-control bg-dtavo-card border-0" value="{{ hoy }}" required>
             </div>
             <div class="col-md-10 mt-3">
-                <label class="form-label fw-bold text-tekfix-main">Nota o Descripción</label>
-                <input type="text" name="descripcion" class="form-control bg-tekfix-card border-0" placeholder="Breve detalle del gasto..." required>
+                <label class="form-label fw-bold text-dtavo-main">Nota o Descripción</label>
+                <input type="text" name="descripcion" class="form-control bg-dtavo-card border-0" placeholder="Breve detalle del gasto..." required>
             </div>
             <div class="col-md-2 mt-3 text-end">
-                <button type="submit" class="btn btn-tekfix-secondary w-100 rounded-pill fw-bold h-100 py-2"><i class="fa-solid fa-plus me-1"></i> Guardar</button>
+                <button type="submit" class="btn btn-dtavo-secondary w-100 rounded-pill fw-bold h-100 py-2"><i class="fa-solid fa-plus me-1"></i> Guardar</button>
             </div>
         </div>
     </form>
@@ -89,7 +89,7 @@
 <div class="card card-custom p-0 overflow-hidden shadow-sm border-0">
     <div class="table-responsive">
         <table class="table table-hover table-custom mb-0">
-            <thead class="bg-tekfix-card">
+            <thead class="bg-dtavo-card">
                 <tr>
                     <th class="ps-4">FECHA</th>
                     <th>REGISTRADO POR</th>
@@ -103,18 +103,18 @@
             <tbody>
                 {% for gasto in gastos %}
                 <tr>
-                    <td class="ps-4 text-tekfix-sec"><small>{{ gasto.fecha.strftime('%d/%m/%Y') }}</small></td>
-                    <td><span class="text-tekfix-main fw-semibold"><i class="fa-solid fa-user-tie text-tekfix-sec me-1"></i>{{ gasto.usuario.nombre }}</span></td>
+                    <td class="ps-4 text-dtavo-sec"><small>{{ gasto.fecha.strftime('%d/%m/%Y') }}</small></td>
+                    <td><span class="text-dtavo-main fw-semibold"><i class="fa-solid fa-user-tie text-dtavo-sec me-1"></i>{{ gasto.usuario.nombre }}</span></td>
                     <td>
                         {% if gasto.tipo == 'Gasto Diario' %}
-                            <span class="badge rounded-pill text-tekfix-main" style="background-color: var(--tekfix-primary);">{{ gasto.tipo }}</span>
+                            <span class="badge rounded-pill text-dtavo-main" style="background-color: var(--dtavo-primary);">{{ gasto.tipo }}</span>
                         {% else %}
-                            <span class="badge rounded-pill text-tekfix-main" style="background-color: var(--tekfix-hover);">{{ gasto.tipo }}</span>
+                            <span class="badge rounded-pill text-dtavo-main" style="background-color: var(--dtavo-hover);">{{ gasto.tipo }}</span>
                         {% endif %}
                     </td>
                     <td class="fw-bold">{{ gasto.categoria }}</td>
-                    <td class="text-tekfix-sec"><small>{{ gasto.descripcion }}</small></td>
-                    <td class="text-end fw-bolder text-tekfix-main">${{ (gasto.monto)|cop }}</td>
+                    <td class="text-dtavo-sec"><small>{{ gasto.descripcion }}</small></td>
+                    <td class="text-end fw-bolder text-dtavo-main">${{ (gasto.monto)|cop }}</td>
                     <td class="text-center pe-4">
                         {% if current_user.rol == 'admin' or gasto.usuario_id == current_user.id %}
                         <form action="{{ url_for('gastos_bp.eliminar_gasto', id=gasto.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este gasto permanentemente?')">
@@ -128,8 +128,8 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="7" class="text-center py-5 text-tekfix-sec">
-                        <i class="fa-solid fa-wallet fs-2 mb-3 text-tekfix-sec opacity-50"></i>
+                    <td colspan="7" class="text-center py-5 text-dtavo-sec">
+                        <i class="fa-solid fa-wallet fs-2 mb-3 text-dtavo-sec opacity-50"></i>
                         <p class="mb-0">No se han registrado salidas de dinero este mes.</p>
                     </td>
                 </tr>

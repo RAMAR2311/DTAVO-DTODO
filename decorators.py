@@ -33,3 +33,15 @@ def admin_or_bodega_required(f):
             abort(403)
         return f(*args, **kwargs)
     return decorated_function
+
+def inventory_access_required(f):
+    """
+    Decorador para proteger rutas del inventario.
+    Permite acceso a admin, bodega y vendedor.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if current_user.rol not in ['admin', 'bodega', 'vendedor']:
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated_function

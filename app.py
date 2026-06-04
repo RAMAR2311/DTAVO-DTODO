@@ -23,7 +23,7 @@ def create_app():
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
     # 2. Configuración de la Aplicación
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-bendito')
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-dtavo')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@localhost/DTAVO')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

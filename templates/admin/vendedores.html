@@ -3,11 +3,11 @@
 {% block content %}
 <div class="row mb-5">
     <div class="col-12 d-flex justify-content-between align-items-center">
-        <!-- Título con acento Azul Turquesa según reglas de Branding (.text-tekfix-sec es #A3D8DE) -->
-        <h2 class="fw-bolder m-0" style="color: var(--tekfix-primary);">
+        <!-- Título con acento Azul Turquesa según reglas de Branding (.text-dtavo-sec es #A3D8DE) -->
+        <h2 class="fw-bolder m-0" style="color: var(--dtavo-primary);">
             <i class="fa-solid fa-users-gear me-2"></i>Gestión de Personal
         </h2>
-        <a href="/admin/dashboard" class="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-sm" style="border-color: var(--tekfix-border); color: var(--tekfix-text-main);">
+        <a href="/admin/dashboard" class="btn btn-outline-secondary rounded-pill px-4 fw-bold shadow-sm" style="border-color: var(--dtavo-border); color: var(--dtavo-text-main);">
             <i class="fa-solid fa-arrow-left me-1"></i> Panel Principal
         </a>
     </div>
@@ -17,34 +17,34 @@
     <!-- Columna Izquierda: Formulario (Card en Blanco Sólido) -->
     <div class="col-md-4">
         <div class="card card-custom p-4 h-100">
-            <h5 class="fw-bold text-tekfix-main mb-4"><i class="fa-solid fa-id-badge me-2 text-tekfix-primary"></i> Alta de Nuevo Vendedor</h5>
+            <h5 class="fw-bold text-dtavo-main mb-4"><i class="fa-solid fa-id-badge me-2 text-dtavo-primary"></i> Alta de Nuevo Vendedor</h5>
             <form method="POST">
                 <!-- Autenticador Estricto para el Servidor Jinja -->
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 
                 <div class="mb-3">
-                    <label class="form-label text-tekfix-main fw-semibold small">Nombre Completo</label>
-                    <input type="text" name="nombre" class="form-control bg-tekfix-card border-0 py-2 text-tekfix-main" required placeholder="Ej. Ana Pérez">
+                    <label class="form-label text-dtavo-main fw-semibold small">Nombre Completo</label>
+                    <input type="text" name="nombre" class="form-control bg-dtavo-card border-0 py-2 text-dtavo-main" required placeholder="Ej. Ana Pérez">
                 </div>
                 
                 <div class="mb-3">
-                    <label class="form-label text-tekfix-main fw-semibold small">Correo Empresarial (Login)</label>
-                    <input type="email" name="email" class="form-control bg-tekfix-card border-0 py-2 text-tekfix-main" required placeholder="ventas@benditoencanto.com">
+                    <label class="form-label text-dtavo-main fw-semibold small">Correo Empresarial (Login)</label>
+                    <input type="email" name="email" class="form-control bg-dtavo-card border-0 py-2 text-dtavo-main" required placeholder="ventas@dtavoencanto.com">
                 </div>
                 
                 <div class="mb-3">
-                    <label class="form-label text-tekfix-main fw-semibold small">Celular / Móvil de Contacto</label>
-                    <input type="text" name="telefono" class="form-control bg-tekfix-card border-0 py-2 text-tekfix-main" placeholder="Ej. 300 123 4567">
+                    <label class="form-label text-dtavo-main fw-semibold small">Celular / Móvil de Contacto</label>
+                    <input type="text" name="telefono" class="form-control bg-dtavo-card border-0 py-2 text-dtavo-main" placeholder="Ej. 300 123 4567">
                 </div>
                 
                 <div class="mb-4">
-                    <label class="form-label text-tekfix-main fw-semibold small">Contraseña (PIN)</label>
-                    <input type="password" name="password" class="form-control bg-tekfix-card border-0 py-2 text-tekfix-main" required placeholder="••••••••">
+                    <label class="form-label text-dtavo-main fw-semibold small">Contraseña (PIN)</label>
+                    <input type="password" name="password" class="form-control bg-dtavo-card border-0 py-2 text-dtavo-main" required placeholder="••••••••">
                 </div>
                 
                 <div class="d-grid mt-auto">
                     <!-- Sólida Llamada a la Acción (Azul Turquesa según Identidad Gráfica) -->
-                    <button type="submit" class="btn btn-tekfix-secondary py-3 fw-bold text-tekfix-main rounded-3 shadow-sm text-uppercase">
+                    <button type="submit" class="btn btn-dtavo-secondary py-3 fw-bold text-dtavo-main rounded-3 shadow-sm text-uppercase">
                         <i class="fa-solid fa-user-plus me-1"></i> Otorgar Acceso
                     </button>
                 </div>
@@ -56,8 +56,8 @@
     <div class="col-md-8">
         <div class="card card-custom p-0 overflow-hidden h-100">
             <!-- Título de cabecera adherido a la tabla -->
-            <div class="bg-tekfix-card p-4 border-bottom">
-                 <h5 class="fw-bold text-tekfix-main m-0 mt-2">Plantilla de Vendedores Activos en Sistema</h5>
+            <div class="bg-dtavo-card p-4 border-bottom">
+                 <h5 class="fw-bold text-dtavo-main m-0 mt-2">Plantilla de Vendedores Activos en Sistema</h5>
             </div>
             <div class="table-responsive p-0">
                 <table class="table table-hover table-custom align-middle m-0">
@@ -72,9 +72,9 @@
                     <tbody>
                         {% for vendedor in vendedores %}
                         <tr>
-                            <td class="fw-bold text-tekfix-main ps-4">{{ vendedor.nombre }}</td>
-                            <td class="text-tekfix-sec">{{ vendedor.email }}</td>
-                            <td class="text-tekfix-sec">{{ vendedor.telefono or '-- No registrado --' }}</td>
+                            <td class="fw-bold text-dtavo-main ps-4">{{ vendedor.nombre }}</td>
+                            <td class="text-dtavo-sec">{{ vendedor.email }}</td>
+                            <td class="text-dtavo-sec">{{ vendedor.telefono or '-- No registrado --' }}</td>
                             <td class="text-center pe-4">
                                 <div class="d-flex justify-content-center align-items-center gap-2">
                                     <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#editModal{{ vendedor.id }}" title="Editar Vendedor">
@@ -91,34 +91,34 @@
                                 <!-- Modal Editar Vendedor -->
                                 <div class="modal fade" id="editModal{{ vendedor.id }}" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered text-start">
-                                        <div class="modal-content border-0 shadow-lg rounded-4 bg-tekfix-card">
+                                        <div class="modal-content border-0 shadow-lg rounded-4 bg-dtavo-card">
                                             <div class="modal-header border-bottom-0 pb-0">
-                                                <h5 class="fw-bold text-tekfix-main"><i class="fa-solid fa-user-pen me-2 text-tekfix-primary"></i> Modificar Vendedor</h5>
+                                                <h5 class="fw-bold text-dtavo-main"><i class="fa-solid fa-user-pen me-2 text-dtavo-primary"></i> Modificar Vendedor</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                             </div>
                                             <form action="{{ url_for('admin_bp.editar_vendedor', id=vendedor.id) }}" method="POST">
                                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                                 <div class="modal-body py-4">
                                                     <div class="mb-3">
-                                                        <label class="form-label text-tekfix-main fw-bold small">Nombre Completo</label>
-                                                        <input type="text" name="nombre" class="form-control bg-tekfix-card border-0 text-tekfix-main" value="{{ vendedor.nombre }}" required>
+                                                        <label class="form-label text-dtavo-main fw-bold small">Nombre Completo</label>
+                                                        <input type="text" name="nombre" class="form-control bg-dtavo-card border-0 text-dtavo-main" value="{{ vendedor.nombre }}" required>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label class="form-label text-tekfix-main fw-bold small">Correo Empresarial</label>
-                                                        <input type="email" name="email" class="form-control bg-tekfix-card border-0 text-tekfix-main" value="{{ vendedor.email }}" required>
+                                                        <label class="form-label text-dtavo-main fw-bold small">Correo Empresarial</label>
+                                                        <input type="email" name="email" class="form-control bg-dtavo-card border-0 text-dtavo-main" value="{{ vendedor.email }}" required>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label class="form-label text-tekfix-main fw-bold small">Teléfono</label>
-                                                        <input type="text" name="telefono" class="form-control bg-tekfix-card border-0 text-tekfix-main" value="{{ vendedor.telefono or '' }}">
+                                                        <label class="form-label text-dtavo-main fw-bold small">Teléfono</label>
+                                                        <input type="text" name="telefono" class="form-control bg-dtavo-card border-0 text-dtavo-main" value="{{ vendedor.telefono or '' }}">
                                                     </div>
                                                     <div class="mb-0">
-                                                        <label class="form-label text-tekfix-main fw-bold small">Nueva Contraseña (Dejar en blanco para no cambiar)</label>
-                                                        <input type="password" name="password" class="form-control bg-tekfix-card border-0 text-tekfix-main" placeholder="••••••••">
+                                                        <label class="form-label text-dtavo-main fw-bold small">Nueva Contraseña (Dejar en blanco para no cambiar)</label>
+                                                        <input type="password" name="password" class="form-control bg-dtavo-card border-0 text-dtavo-main" placeholder="••••••••">
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer border-top-0 pt-0">
                                                     <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cerrar</button>
-                                                    <button type="submit" class="btn btn-tekfix-secondary rounded-pill px-4 fw-bold text-tekfix-main">Actualizar Datos</button>
+                                                    <button type="submit" class="btn btn-dtavo-secondary rounded-pill px-4 fw-bold text-dtavo-main">Actualizar Datos</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -128,7 +128,7 @@
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="4" class="text-center py-5 text-tekfix-sec">
+                            <td colspan="4" class="text-center py-5 text-dtavo-sec">
                                 <i class="fa-solid fa-users-slash fs-1 mb-3 opacity-25"></i>
                                 <p class="mb-0">Aún no has dado de alta a ningún Vendedor/Cajero.</p>
                             </td>

@@ -19,7 +19,7 @@
     }
     
     .glow-header-container {
-        border-left: 4px solid var(--tekfix-primary);
+        border-left: 4px solid var(--dtavo-primary);
         padding-left: 15px;
     }
 
@@ -37,7 +37,7 @@
         color: #1a1a1a !important;
     }
     .form-control-premium:focus {
-        border-color: var(--tekfix-primary) !important;
+        border-color: var(--dtavo-primary) !important;
         box-shadow: 0 0 12px rgba(197, 159, 96, 0.25) !important;
     }
 
@@ -99,22 +99,22 @@
     }
 
     /* BUTTONS LEGIBILITY */
-    .btn-outline-tekfix {
+    .btn-outline-dtavo {
         background-color: transparent !important;
-        color: var(--tekfix-primary) !important;
-        border: 1.5px solid var(--tekfix-primary) !important;
+        color: var(--dtavo-primary) !important;
+        border: 1.5px solid var(--dtavo-primary) !important;
         transition: all 0.3s ease !important;
     }
-    .btn-outline-tekfix:hover {
-        background-color: var(--tekfix-primary) !important;
+    .btn-outline-dtavo:hover {
+        background-color: var(--dtavo-primary) !important;
         color: #000 !important;
         box-shadow: 0 4px 12px rgba(197, 159, 96, 0.25) !important;
     }
-    [data-theme="light"] .btn-outline-tekfix {
+    [data-theme="light"] .btn-outline-dtavo {
         color: #8b6830 !important; /* Darker gold for higher contrast in day mode */
         border-color: #8b6830 !important;
     }
-    [data-theme="light"] .btn-outline-tekfix:hover {
+    [data-theme="light"] .btn-outline-dtavo:hover {
         background-color: #8b6830 !important;
         color: #fff !important;
     }
@@ -142,14 +142,14 @@
     <!-- Header -->
     <div class="d-flex flex-column flex-md-row align-items-md-center gap-3 mb-5">
         <div class="glow-header-container">
-            <h2 class="fw-black text-tekfix-main m-0"><i class="fa-solid fa-scale-balanced me-3 text-tekfix-primary"></i>Reporte Contable de Caja</h2>
-            <p class="text-tekfix-sec m-0 mt-1">Conciliación de arqueos de caja, sobrantes y faltantes de inventario financiero.</p>
+            <h2 class="fw-black text-dtavo-main m-0"><i class="fa-solid fa-scale-balanced me-3 text-dtavo-primary"></i>Reporte Contable de Caja</h2>
+            <p class="text-dtavo-sec m-0 mt-1">Conciliación de arqueos de caja, sobrantes y faltantes de inventario financiero.</p>
         </div>
         <div class="ms-md-auto d-flex flex-wrap align-items-center gap-2">
-            <a href="{{ url_for('arqueo_bp.index') }}" class="btn btn-outline-tekfix rounded-pill px-4 py-2 shadow-sm fw-bold">
+            <a href="{{ url_for('arqueo_bp.index') }}" class="btn btn-outline-dtavo rounded-pill px-4 py-2 shadow-sm fw-bold">
                 <i class="fa-solid fa-cash-register me-2"></i> Realizar Arqueo
             </a>
-            <a href="{{ url_for('arqueo_bp.historial') }}" class="btn btn-tekfix-secondary rounded-pill px-4 py-2 shadow-sm fw-bold">
+            <a href="{{ url_for('arqueo_bp.historial') }}" class="btn btn-dtavo-secondary rounded-pill px-4 py-2 shadow-sm fw-bold">
                 <i class="fa-solid fa-clock-rotate-left me-2"></i> Historial Completo
             </a>
         </div>
@@ -160,15 +160,15 @@
         <div class="card-body p-4">
             <form method="GET" action="{{ url_for('arqueo_bp.reporte') }}" class="row g-3 align-items-end">
                 <div class="col-md-4">
-                    <label class="form-label small fw-bold text-tekfix-primary"><i class="fa-solid fa-calendar-days me-1"></i>Fecha de Inicio</label>
+                    <label class="form-label small fw-bold text-dtavo-primary"><i class="fa-solid fa-calendar-days me-1"></i>Fecha de Inicio</label>
                     <input type="date" name="fecha_inicio" class="form-control form-control-premium" value="{{ fecha_inicio }}" required>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label small fw-bold text-tekfix-primary"><i class="fa-solid fa-calendar-days me-1"></i>Fecha de Finalización</label>
+                    <label class="form-label small fw-bold text-dtavo-primary"><i class="fa-solid fa-calendar-days me-1"></i>Fecha de Finalización</label>
                     <input type="date" name="fecha_fin" class="form-control form-control-premium" value="{{ fecha_fin }}" required>
                 </div>
                 <div class="col-md-4">
-                    <button type="submit" class="btn btn-tekfix w-100 py-2 fw-bold rounded-pill text-uppercase shadow-sm">
+                    <button type="submit" class="btn btn-dtavo w-100 py-2 fw-bold rounded-pill text-uppercase shadow-sm">
                         <i class="fa-solid fa-filter me-2"></i> Filtrar Arqueos
                     </button>
                 </div>
@@ -182,12 +182,12 @@
         <div class="col-sm-6 col-lg-3">
             <div class="p-3 stat-card-gold text-center">
                 <div class="mb-2">
-                    <span class="p-2 rounded-circle bg-tekfix-primary bg-opacity-10 text-tekfix-primary">
+                    <span class="p-2 rounded-circle bg-dtavo-primary bg-opacity-10 text-dtavo-primary">
                         <i class="fa-solid fa-sack-dollar fa-lg"></i>
                     </span>
                 </div>
-                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Ventas en Periodo</small>
-                <h4 class="fw-black text-tekfix-primary m-0">${{ total_ventas_brutas|cop }}</h4>
+                <small class="text-dtavo-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Ventas en Periodo</small>
+                <h4 class="fw-black text-dtavo-primary m-0">${{ total_ventas_brutas|cop }}</h4>
             </div>
         </div>
         <!-- Egresos de Caja -->
@@ -198,7 +198,7 @@
                         <i class="fa-solid fa-receipt fa-lg"></i>
                     </span>
                 </div>
-                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Egresos de Caja</small>
+                <small class="text-dtavo-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Egresos de Caja</small>
                 <h4 class="fw-black text-danger m-0">-${{ total_gastos|cop }}</h4>
             </div>
         </div>
@@ -210,7 +210,7 @@
                         <i class="fa-solid fa-money-bill-1-wave fa-lg"></i>
                     </span>
                 </div>
-                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Efectivo Contado</small>
+                <small class="text-dtavo-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Efectivo Contado</small>
                 <h4 class="fw-black text-success m-0">${{ total_efectivo_fisico|cop }}</h4>
             </div>
         </div>
@@ -223,8 +223,8 @@
                 {% set diff_class = 'text-danger' %}
                 {% set icon_class = 'text-danger bg-danger' %}
             {% else %}
-                {% set diff_class = 'text-tekfix-sec' %}
-                {% set icon_class = 'text-tekfix-sec bg-secondary' %}
+                {% set diff_class = 'text-dtavo-sec' %}
+                {% set icon_class = 'text-dtavo-sec bg-secondary' %}
             {% endif %}
             <div class="p-3 stat-card-blue text-center" style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.12) 0%, rgba(17, 17, 17, 0.95) 100%) !important;">
                 <div class="mb-2">
@@ -232,7 +232,7 @@
                         <i class="fa-solid fa-scale-unbalanced-flip fa-lg"></i>
                     </span>
                 </div>
-                <small class="text-tekfix-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Diferencia Neta</small>
+                <small class="text-dtavo-sec text-uppercase fw-bold d-block mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Diferencia Neta</small>
                 <h4 class="fw-black {{ diff_class }} m-0">
                     {% if total_diferencia > 0 %}+{% endif %}${{ total_diferencia|cop }}
                 </h4>
@@ -243,7 +243,7 @@
     <!-- Reconciliations Detailed Table -->
     <div class="card glass-card border-0">
         <div class="card-body p-0">
-            <h4 class="fw-bold text-tekfix-primary px-4 pt-4 mb-3"><i class="fa-solid fa-list-check me-2"></i>Auditoría de Arqueos Registrados</h4>
+            <h4 class="fw-bold text-dtavo-primary px-4 pt-4 mb-3"><i class="fa-solid fa-list-check me-2"></i>Auditoría de Arqueos Registrados</h4>
             <div class="table-responsive">
                 <table class="table table-hover table-custom mb-0">
                     <thead>
@@ -262,19 +262,19 @@
                         {% for cierre in arqueos %}
                         <tr>
                             <td class="ps-4 align-middle">
-                                <div class="text-tekfix-main fw-bold">{{ cierre.fecha_arqueo.strftime('%d/%m/%Y') }}</div>
-                                <small class="text-tekfix-sec">{{ cierre.fecha_creacion.strftime('%I:%M %p') }}</small>
+                                <div class="text-dtavo-main fw-bold">{{ cierre.fecha_arqueo.strftime('%d/%m/%Y') }}</div>
+                                <small class="text-dtavo-sec">{{ cierre.fecha_creacion.strftime('%I:%M %p') }}</small>
                             </td>
-                            <td class="align-middle text-tekfix-main">
-                                <i class="fa-solid fa-user-circle me-1 text-tekfix-primary"></i> {{ cierre.cajero.nombre if cierre.cajero else 'Cajero' }}
+                            <td class="align-middle text-dtavo-main">
+                                <i class="fa-solid fa-user-circle me-1 text-dtavo-primary"></i> {{ cierre.cajero.nombre if cierre.cajero else 'Cajero' }}
                             </td>
-                            <td class="align-middle text-tekfix-sec">${{ (cierre.base_inicial)|cop }}</td>
-                            <td class="align-middle text-tekfix-main fw-bold">${{ (cierre.total_efectivo_sistema)|cop }}</td>
+                            <td class="align-middle text-dtavo-sec">${{ (cierre.base_inicial)|cop }}</td>
+                            <td class="align-middle text-dtavo-main fw-bold">${{ (cierre.total_efectivo_sistema)|cop }}</td>
                             <td class="align-middle text-danger">-${{ (cierre.gastos_del_dia)|cop }}</td>
                             <td class="align-middle text-success fw-black">${{ (cierre.efectivo_fisico)|cop }}</td>
                             <td class="align-middle">
                                 {% if cierre.diferencia == 0 %}
-                                    <span class="badge bg-secondary bg-opacity-10 text-tekfix-sec border border-secondary border-opacity-25 rounded-pill px-3 py-2 fw-bold">
+                                    <span class="badge bg-secondary bg-opacity-10 text-dtavo-sec border border-secondary border-opacity-25 rounded-pill px-3 py-2 fw-bold">
                                         <i class="fa-solid fa-circle-check me-1"></i> Cuadrada
                                     </span>
                                 {% elif cierre.diferencia > 0 %}
@@ -288,7 +288,7 @@
                                 {% endif %}
                             </td>
                             <td class="text-center align-middle">
-                                <button class="btn btn-sm btn-outline-tekfix rounded-pill px-3 btn-detalle" 
+                                <button class="btn btn-sm btn-outline-dtavo rounded-pill px-3 btn-detalle" 
                                         data-cierre='{{ {
                                             "id": cierre.id,
                                             "fecha": cierre.fecha_arqueo.strftime("%d/%m/%Y"),
@@ -304,7 +304,7 @@
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="8" class="text-center py-5 text-tekfix-sec">
+                            <td colspan="8" class="text-center py-5 text-dtavo-sec">
                                 <i class="fa-solid fa-folder-open fs-1 mb-3 d-block opacity-25"></i>
                                 No se encontraron arqueos registrados en el rango de fechas seleccionado.
                             </td>
@@ -320,33 +320,33 @@
 <!-- Modal de Detalles de Auditoría -->
 <div class="modal fade" id="modalAudit" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-tekfix-card border border-tekfix-border shadow-lg rounded-4">
+        <div class="modal-content bg-dtavo-card border border-dtavo-border shadow-lg rounded-4">
             <div class="modal-header border-0 p-4 pb-0">
-                <h5 class="modal-title fw-bold text-tekfix-primary"><i class="fa-solid fa-shield-halved me-2"></i>Auditoría de Arqueo #<span id="modal-id"></span></h5>
+                <h5 class="modal-title fw-bold text-dtavo-primary"><i class="fa-solid fa-shield-halved me-2"></i>Auditoría de Arqueo #<span id="modal-id"></span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
                 <!-- Observaciones Gastos -->
                 <div class="mb-3">
-                    <h6 class="small fw-bold text-tekfix-sec text-uppercase mb-2"><i class="fa-solid fa-receipt me-1"></i>Observaciones de Gastos del Turno</h6>
-                    <p class="text-tekfix-main mb-0 p-3 bg-tekfix-input rounded-3 border border-tekfix-border" id="modal-obs-gastos"></p>
+                    <h6 class="small fw-bold text-dtavo-sec text-uppercase mb-2"><i class="fa-solid fa-receipt me-1"></i>Observaciones de Gastos del Turno</h6>
+                    <p class="text-dtavo-main mb-0 p-3 bg-dtavo-input rounded-3 border border-dtavo-border" id="modal-obs-gastos"></p>
                 </div>
 
                 <!-- Observaciones Diferencia -->
                 <div class="mb-4" id="modal-obs-diferencia-container">
-                    <h6 class="small fw-bold text-tekfix-sec text-uppercase mb-2"><i class="fa-solid fa-scale-balanced me-1"></i>Justificación de la Diferencia</h6>
-                    <p class="text-tekfix-main mb-0 p-3 bg-tekfix-input rounded-3 border" id="modal-obs-diferencia"></p>
+                    <h6 class="small fw-bold text-dtavo-sec text-uppercase mb-2"><i class="fa-solid fa-scale-balanced me-1"></i>Justificación de la Diferencia</h6>
+                    <p class="text-dtavo-main mb-0 p-3 bg-dtavo-input rounded-3 border" id="modal-obs-diferencia"></p>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-4">
-                        <h6 class="small fw-bold text-tekfix-sec text-uppercase mb-3"><i class="fa-solid fa-tags me-1 text-tekfix-primary"></i>Ventas por Nicho</h6>
+                        <h6 class="small fw-bold text-dtavo-sec text-uppercase mb-3"><i class="fa-solid fa-tags me-1 text-dtavo-primary"></i>Ventas por Nicho</h6>
                         <div id="modal-cat-list" class="small">
                             <!-- JS -->
                         </div>
                     </div>
                     <div class="col-md-6 mb-4">
-                        <h6 class="small fw-bold text-tekfix-sec text-uppercase mb-3"><i class="fa-solid fa-wallet me-1 text-tekfix-primary"></i>Ventas por Método</h6>
+                        <h6 class="small fw-bold text-dtavo-sec text-uppercase mb-3"><i class="fa-solid fa-wallet me-1 text-dtavo-primary"></i>Ventas por Método</h6>
                         <div id="modal-pag-list" class="small">
                             <!-- JS -->
                         </div>
@@ -354,10 +354,10 @@
                 </div>
             </div>
             <div class="modal-footer border-0 p-4 pt-0 gap-2">
-                <button type="button" class="btn btn-outline-tekfix rounded-pill fw-bold px-4" id="btn-imprimir-cierre">
+                <button type="button" class="btn btn-outline-dtavo rounded-pill fw-bold px-4" id="btn-imprimir-cierre">
                     <i class="fa-solid fa-print me-2"></i>Imprimir Comprobante
                 </button>
-                <button type="button" class="btn btn-tekfix-secondary flex-grow-1 rounded-pill fw-bold" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-dtavo-secondary flex-grow-1 rounded-pill fw-bold" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -381,11 +381,11 @@ document.addEventListener('DOMContentLoaded', () => {
             obsDiffEl.innerText = data.obs_diferencia || 'Caja cuadrada sin observaciones de diferencia.';
             
             if (data.diferencia == 0) {
-                obsDiffEl.className = 'text-tekfix-sec mb-0 p-3 bg-tekfix-input rounded-3 border border-tekfix-border';
+                obsDiffEl.className = 'text-dtavo-sec mb-0 p-3 bg-dtavo-input rounded-3 border border-dtavo-border';
             } else if (data.diferencia > 0) {
-                obsDiffEl.className = 'text-info mb-0 p-3 bg-tekfix-input rounded-3 border border-info border-opacity-30';
+                obsDiffEl.className = 'text-info mb-0 p-3 bg-dtavo-input rounded-3 border border-info border-opacity-30';
             } else {
-                obsDiffEl.className = 'text-danger mb-0 p-3 bg-tekfix-input rounded-3 border border-danger border-opacity-30';
+                obsDiffEl.className = 'text-danger mb-0 p-3 bg-dtavo-input rounded-3 border border-danger border-opacity-30';
             }
 
             // Configurar botón de impresión
@@ -399,9 +399,9 @@ document.addEventListener('DOMContentLoaded', () => {
             catList.innerHTML = '';
             for (const [name, total] of Object.entries(data.categorias || {})) {
                 catList.innerHTML += `
-                    <div class="d-flex justify-content-between border-bottom border-tekfix-border border-opacity-40 py-2">
-                        <span class="text-tekfix-sec">${name}</span>
-                        <span class="text-tekfix-main fw-bold">${formatCOP(total)}</span>
+                    <div class="d-flex justify-content-between border-bottom border-dtavo-border border-opacity-40 py-2">
+                        <span class="text-dtavo-sec">${name}</span>
+                        <span class="text-dtavo-main fw-bold">${formatCOP(total)}</span>
                     </div>
                 `;
             }
@@ -411,9 +411,9 @@ document.addEventListener('DOMContentLoaded', () => {
             pagList.innerHTML = '';
             for (const [metodo, total] of Object.entries(data.pagos || {})) {
                 pagList.innerHTML += `
-                    <div class="d-flex justify-content-between border-bottom border-tekfix-border border-opacity-40 py-2">
-                        <span class="text-tekfix-sec text-capitalize">${metodo}</span>
-                        <span class="text-tekfix-main fw-bold">${formatCOP(total)}</span>
+                    <div class="d-flex justify-content-between border-bottom border-dtavo-border border-opacity-40 py-2">
+                        <span class="text-dtavo-sec text-capitalize">${metodo}</span>
+                        <span class="text-dtavo-main fw-bold">${formatCOP(total)}</span>
                     </div>
                 `;
             }

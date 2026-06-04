@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 from flask import current_app, Blueprint, render_template, request, redirect, url_for, flash, abort, send_file, jsonify, session
 from flask_login import login_required, current_user
 from models import db, Product, StockAdjustment, ProductVariant, Category, ProductSeries
-from decorators import admin_or_bodega_required
+from decorators import admin_or_bodega_required, inventory_access_required
 import pandas as pd
 from io import BytesIO
 
@@ -21,7 +21,7 @@ def validate_prices(*prices):
 
 @inventory_bp.route('/', methods=['GET'])
 @login_required
-@admin_or_bodega_required
+@inventory_access_required
 def index():
     cat_id = session.get('categoria_actual')
     tipo = 'bodega' if current_user.rol == 'bodega' else 'tienda'
@@ -65,7 +65,7 @@ def index():
 
 @inventory_bp.route('/nuevo', methods=['GET', 'POST'])
 @login_required
-@admin_or_bodega_required
+@inventory_access_required
 def nuevo():
     categorias = Category.query.order_by(Category.nombre).all()
     if request.method == 'POST':
@@ -154,7 +154,7 @@ def nuevo():
 
 @inventory_bp.route('/editar/<int:id>', methods=['GET', 'POST'])
 @login_required
-@admin_or_bodega_required
+@inventory_access_required
 def editar_producto(id):
     producto = Product.query.get_or_404(id)
     categorias = Category.query.order_by(Category.nombre).all()
@@ -264,7 +264,7 @@ def editar_producto(id):
 
 @inventory_bp.route('/historial-ajustes')
 @login_required
-@admin_or_bodega_required
+@inventory_access_required
 def historial_ajustes():
     tipo = 'bodega' if current_user.rol == 'bodega' else 'tienda'
     ajustes = StockAdjustment.query.join(Product).filter(Product.tipo_inventario == tipo).order_by(StockAdjustment.fecha_ajuste.desc()).all()
@@ -272,7 +272,7 @@ def historial_ajustes():
 
 @inventory_bp.route('/ver/<int:id>', methods=['GET'])
 @login_required
-@admin_or_bodega_required
+@inventory_access_required
 def ver_producto(id):
     producto = Product.query.get_or_404(id)
     tipo = 'bodega' if current_user.rol == 'bodega' else 'tienda'
@@ -324,7 +324,7 @@ def eliminar_producto(id):
 
 @inventory_bp.route('/producto/<int:id>/agregar_variante', methods=['POST'])
 @login_required
-@admin_or_bodega_required
+@inventory_access_required
 def agregar_variante(id):
     producto = Product.query.get_or_404(id)
     nombre_variante = request.form.get('nombre_variante')
@@ -368,7 +368,7 @@ def agregar_variante(id):
 
 @inventory_bp.route('/variante/<int:id>/editar', methods=['POST'])
 @login_required
-@admin_or_bodega_required
+@inventory_access_required
 def editar_variante(id):
     variante = ProductVariant.query.get_or_404(id)
     
@@ -425,7 +425,7 @@ def eliminar_variante(id):
 
 @inventory_bp.route('/plantilla-importacion')
 @login_required
-@admin_or_bodega_required
+@inventory_access_required
 def descargar_plantilla():
     # Crear la estructura de datos
     cols = ['sku', 'nombre', 'subcategoria', 'cantidad_stock', 'precio_costo', 'precio_minimo', 'precio_sugerido', 'observacion']
@@ -440,12 +440,12 @@ def descargar_plantilla():
     
     # Usar XlsxWriter como motor para aplicar estilos profesionales
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False, sheet_name='Plantilla Tekfix')
+        df.to_excel(writer, index=False, sheet_name='Plantilla Dtavo')
         
         workbook  = writer.book
-        worksheet = writer.sheets['Plantilla Tekfix']
+        worksheet = writer.sheets['Plantilla Dtavo']
         
-        # Formato para el encabezado (Dorado Tekfix)
+        # Formato para el encabezado (Dorado Dtavo)
         header_format = workbook.add_format({
             'bold': True,
             'text_wrap': True,
@@ -464,11 +464,11 @@ def descargar_plantilla():
             worksheet.set_column(col_num, col_num, column_len)
 
     output.seek(0)
-    return send_file(output, download_name="plantilla_importacion_tekfix.xlsx", as_attachment=True)
+    return send_file(output, download_name="plantilla_importacion_dtavo.xlsx", as_attachment=True)
 
 @inventory_bp.route('/importar', methods=['POST'])
 @login_required
-@admin_or_bodega_required
+@inventory_access_required
 def importar_inventario():
     if 'archivo' not in request.files:
         flash('No se seleccionó ningún archivo.', 'danger')
@@ -619,7 +619,7 @@ def importar_inventario():
 
 @inventory_bp.route('/search_attr', methods=['GET'])
 @login_required
-@admin_or_bodega_required
+@inventory_access_required
 def buscar_por_atributo():
     key = request.args.get('key')
     value = request.args.get('value')
@@ -687,7 +687,7 @@ def obtener_variantes(id):
 
 @inventory_bp.route('/producto/<int:id>/seriales/agregar', methods=['POST'])
 @login_required
-@admin_or_bodega_required
+@inventory_access_required
 def agregar_serial(id):
     Product.query.get_or_404(id)
     serial_str = request.form.get('serial', '').strip()
@@ -729,7 +729,7 @@ def eliminar_serial(id):
 
 @inventory_bp.route('/retomas', methods=['GET'])
 @login_required
-@admin_or_bodega_required
+@inventory_access_required
 def retomas_index():
     retomas = ProductSeries.query.filter_by(estado='En Evaluación', origen='retoma').all()
     if not retomas:
@@ -740,7 +740,7 @@ def retomas_index():
 
 @inventory_bp.route('/retomas/aprobadas', methods=['GET'])
 @login_required
-@admin_or_bodega_required
+@inventory_access_required
 def retomas_aprobadas():
     # Obtener retomas que ya pasaron la cuarentena (estado != 'En Evaluación')
     retomas = ProductSeries.query.filter(
@@ -751,7 +751,7 @@ def retomas_aprobadas():
 
 @inventory_bp.route('/retomas/aprobar/<int:serie_id>', methods=['POST'])
 @login_required
-@admin_or_bodega_required
+@inventory_access_required
 def aprobar_retoma(serie_id):
     serie = ProductSeries.query.get_or_404(serie_id)
     if serie.estado != 'En Evaluación':

@@ -3,8 +3,8 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-10 text-center mb-5">
-        <h1 class="display-4 fw-bold text-tekfix-main animate__animated animate__fadeInDown">¡Hola, {{ current_user.rol | capitalize }}!</h1>
-        <p class="lead text-tekfix-sec animate__animated animate__fadeInUp">Bienvenido al panel central de DTAVO. Selecciona un módulo para comenzar.</p>
+        <h1 class="display-4 fw-bold text-dtavo-main animate__animated animate__fadeInDown">¡Hola, {{ current_user.rol | capitalize }}!</h1>
+        <p class="lead text-dtavo-sec animate__animated animate__fadeInUp">Bienvenido al panel central de DTAVO. Selecciona un módulo para comenzar.</p>
     </div>
 </div>
 
@@ -12,52 +12,52 @@
     {% if current_user.rol == 'admin' %}
     <div class="col-md-4 col-lg-3">
         <a href="/admin/dashboard" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
-            <div class="icon-shape bg-tekfix-primary text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+            <div class="icon-shape bg-dtavo-primary text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
                 <i class="fa-solid fa-chart-line fs-3"></i>
             </div>
-            <h5 class="fw-bold text-tekfix-main">Dashboard</h5>
-            <p class="small text-tekfix-sec mb-0">Estadísticas y control general.</p>
+            <h5 class="fw-bold text-dtavo-main">Dashboard</h5>
+            <p class="small text-dtavo-sec mb-0">Estadísticas y control general.</p>
         </a>
     <div class="col-md-4 col-lg-3">
         <a href="/proveedores" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
-            <div class="icon-shape bg-tekfix-primary text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+            <div class="icon-shape bg-dtavo-primary text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
                 <i class="fa-solid fa-truck-field fs-3"></i>
             </div>
-            <h5 class="fw-bold text-tekfix-main">Proveedores</h5>
-            <p class="small text-tekfix-sec mb-0">Cuentas por pagar y abonos.</p>
+            <h5 class="fw-bold text-dtavo-main">Proveedores</h5>
+            <p class="small text-dtavo-sec mb-0">Cuentas por pagar y abonos.</p>
         </a>
     </div>
     {% endif %}
 
     <div class="col-md-4 col-lg-3">
         <a href="/sales/pos_visual" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
-            <div class="icon-shape bg-tekfix-hover text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+            <div class="icon-shape bg-dtavo-hover text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
                 <i class="fa-solid fa-cash-register fs-3"></i>
             </div>
-            <h5 class="fw-bold text-tekfix-main">Ventas / POS</h5>
-            <p class="small text-tekfix-sec mb-0">Realizar ventas y facturación.</p>
+            <h5 class="fw-bold text-dtavo-main">Ventas / POS</h5>
+            <p class="small text-dtavo-sec mb-0">Realizar ventas y facturación.</p>
         </a>
     </div>
 
     {% if current_user.rol in ['admin', 'bodega'] %}
     <div class="col-md-4 col-lg-3">
         <a href="/inventory" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
-            <div class="icon-shape bg-tekfix-primary text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+            <div class="icon-shape bg-dtavo-primary text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
                 <i class="fa-solid fa-boxes-stacked fs-3"></i>
             </div>
-            <h5 class="fw-bold text-tekfix-main">Inventario</h5>
-            <p class="small text-tekfix-sec mb-0">Control de stock y productos.</p>
+            <h5 class="fw-bold text-dtavo-main">Inventario</h5>
+            <p class="small text-dtavo-sec mb-0">Control de stock y productos.</p>
         </a>
     </div>
     {% endif %}
 
     <div class="col-md-4 col-lg-3">
         <a href="/gastos" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
-            <div class="icon-shape bg-tekfix-hover text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+            <div class="icon-shape bg-dtavo-hover text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
                 <i class="fa-solid fa-money-bill-transfer fs-3"></i>
             </div>
-            <h5 class="fw-bold text-tekfix-main">Gastos</h5>
-            <p class="small text-tekfix-sec mb-0">Control de egresos y caja.</p>
+            <h5 class="fw-bold text-dtavo-main">Gastos</h5>
+            <p class="small text-dtavo-sec mb-0">Control de egresos y caja.</p>
         </a>
     </div>
 </div>
@@ -70,7 +70,7 @@
         transform: translateY(-10px);
         box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important;
     }
-    .bg-tekfix-hover { background-color: var(--tekfix-hover) !important; }
-    .bg-tekfix-secondary { background-color: #7ED1DB !important; }
+    .bg-dtavo-hover { background-color: var(--dtavo-hover) !important; }
+    .bg-dtavo-secondary { background-color: #7ED1DB !important; }
 </style>
 {% endblock %}

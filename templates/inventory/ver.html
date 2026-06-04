@@ -6,9 +6,9 @@
         <a href="{{ url_for('inventory_bp.index') }}" class="btn btn-light rounded-circle me-3 border-0">
             <i class="fa-solid fa-arrow-left"></i>
         </a>
-        <h2 class="fw-bold text-tekfix-main mb-0">Detalle de Producto: <span class="text-tekfix-sec">{{ producto.sku }}</span></h2>
+        <h2 class="fw-bold text-dtavo-main mb-0">Detalle de Producto: <span class="text-dtavo-sec">{{ producto.sku }}</span></h2>
         <div class="ms-auto">
-            <a href="{{ url_for('inventory_bp.editar_producto', id=producto.id) }}" class="btn btn-tekfix-secondary rounded-pill px-4">
+            <a href="{{ url_for('inventory_bp.editar_producto', id=producto.id) }}" class="btn btn-dtavo-secondary rounded-pill px-4">
                 <i class="fa-solid fa-pen me-2"></i>Editar Producto
             </a>
         </div>
@@ -21,29 +21,29 @@
                 {% if producto.imagen %}
                     <img src="{{ url_for('static', filename='uploads/' ~ producto.imagen) }}" alt="{{ producto.nombre }}" class="img-fluid rounded mb-4 shadow-sm" style="max-height: 280px; object-fit: contain;">
                 {% else %}
-                    <div class="bg-tekfix-card rounded d-flex align-items-center justify-content-center mb-4 border" style="height: 250px;">
-                        <i class="fa-solid fa-image fa-4x text-tekfix-sec opacity-50"></i>
+                    <div class="bg-dtavo-card rounded d-flex align-items-center justify-content-center mb-4 border" style="height: 250px;">
+                        <i class="fa-solid fa-image fa-4x text-dtavo-sec opacity-50"></i>
                     </div>
                 {% endif %}
                 
-                <h4 class="fw-bold text-tekfix-main mb-1">{{ producto.nombre }}</h4>
-                <p class="text-tekfix-sec mb-4 fs-6">SKU: <strong>{{ producto.sku }}</strong></p>
+                <h4 class="fw-bold text-dtavo-main mb-1">{{ producto.nombre }}</h4>
+                <p class="text-dtavo-sec mb-4 fs-6">SKU: <strong>{{ producto.sku }}</strong></p>
 
-                <div class="d-flex justify-content-between px-4 py-3 bg-tekfix-card rounded mb-3">
-                    <span class="text-tekfix-sec">Stock Actual</span>
+                <div class="d-flex justify-content-between px-4 py-3 bg-dtavo-card rounded mb-3">
+                    <span class="text-dtavo-sec">Stock Actual</span>
                     <span class="fw-bold fs-5 {% if producto.cantidad_stock <= 3 %}text-danger{% else %}text-success{% endif %}">
                         {{ producto.cantidad_stock }} uds
                     </span>
                 </div>
-                <div class="d-flex justify-content-between px-4 py-3 bg-tekfix-card rounded mb-3">
-                    <span class="text-tekfix-sec">Precio Sugerido</span>
-                    <span class="fw-bold fs-5 text-tekfix-main">${{ (producto.precio_sugerido)|cop }}</span>
+                <div class="d-flex justify-content-between px-4 py-3 bg-dtavo-card rounded mb-3">
+                    <span class="text-dtavo-sec">Precio Sugerido</span>
+                    <span class="fw-bold fs-5 text-dtavo-main">${{ (producto.precio_sugerido)|cop }}</span>
                 </div>
                 
                 {% if producto.observacion %}
                 <div class="text-start mt-4 pt-4 border-top">
-                    <h6 class="fw-bold text-tekfix-primary mb-3"><i class="fa-solid fa-note-sticky me-2"></i>Observaciones</h6>
-                    <div class="p-3 bg-tekfix-card rounded text-tekfix-sec small lh-base border border-light shadow-sm">
+                    <h6 class="fw-bold text-dtavo-primary mb-3"><i class="fa-solid fa-note-sticky me-2"></i>Observaciones</h6>
+                    <div class="p-3 bg-dtavo-card rounded text-dtavo-sec small lh-base border border-light shadow-sm">
                         {{ producto.observacion }}
                     </div>
                 </div>
@@ -54,13 +54,13 @@
         <!-- Trazabilidad de Inventario (Derecha) -->
         <div class="col-lg-8">
             <div class="card card-custom border-0 shadow-sm overflow-hidden h-100">
-                <div class="card-header bg-tekfix-card border-bottom p-4 pb-3">
-                    <h5 class="fw-bold text-tekfix-main mb-0"><i class="fa-solid fa-clock-rotate-left text-tekfix-primary me-2"></i>Trazabilidad de Inventario</h5>
+                <div class="card-header bg-dtavo-card border-bottom p-4 pb-3">
+                    <h5 class="fw-bold text-dtavo-main mb-0"><i class="fa-solid fa-clock-rotate-left text-dtavo-primary me-2"></i>Trazabilidad de Inventario</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover table-custom table-dark mb-0">
-                            <thead class="bg-tekfix-card">
+                            <thead class="bg-dtavo-card">
                                 <tr>
                                     <th class="ps-4">FECHA Y HORA</th>
                                     <th>USUARIO</th>
@@ -73,19 +73,19 @@
                             <tbody>
                                 {% for ajuste in ajustes %}
                                 <tr>
-                                    <td class="ps-4 text-tekfix-sec"><small>{{ ajuste.fecha_ajuste.strftime('%Y-%m-%d %H:%M') }}</small></td>
-                                    <td><span class="badge bg-tekfix-card text-tekfix-main border px-2 py-1"><i class="fa-solid fa-user-tie me-1"></i>{{ ajuste.admin.nombre }}</span></td>
+                                    <td class="ps-4 text-dtavo-sec"><small>{{ ajuste.fecha_ajuste.strftime('%Y-%m-%d %H:%M') }}</small></td>
+                                    <td><span class="badge bg-dtavo-card text-dtavo-main border px-2 py-1"><i class="fa-solid fa-user-tie me-1"></i>{{ ajuste.admin.nombre }}</span></td>
                                     <td>
                                         {% if ajuste.tipo_movimiento == 'Creación Inicial' %}
                                             <span class="badge bg-success rounded-pill px-3 py-2"><i class="fa-solid fa-plus-circle me-1"></i>{{ ajuste.tipo_movimiento }}</span>
                                         {% elif ajuste.tipo_movimiento == 'Venta' %}
-                                            <span class="badge bg-info text-tekfix-main rounded-pill px-3 py-2"><i class="fa-solid fa-cash-register me-1"></i>{{ ajuste.tipo_movimiento }}</span>
+                                            <span class="badge bg-info text-dtavo-main rounded-pill px-3 py-2"><i class="fa-solid fa-cash-register me-1"></i>{{ ajuste.tipo_movimiento }}</span>
                                         {% else %}
-                                            <span class="badge bg-warning text-tekfix-main rounded-pill px-3 py-2"><i class="fa-solid fa-wrench me-1"></i>{{ ajuste.tipo_movimiento }}</span>
+                                            <span class="badge bg-warning text-dtavo-main rounded-pill px-3 py-2"><i class="fa-solid fa-wrench me-1"></i>{{ ajuste.tipo_movimiento }}</span>
                                         {% endif %}
                                     </td>
-                                    <td class="text-center fw-bold text-tekfix-sec">{{ ajuste.stock_anterior }}</td>
-                                    <td class="text-center fw-bold text-tekfix-main">{{ ajuste.stock_nuevo }}</td>
+                                    <td class="text-center fw-bold text-dtavo-sec">{{ ajuste.stock_anterior }}</td>
+                                    <td class="text-center fw-bold text-dtavo-main">{{ ajuste.stock_nuevo }}</td>
                                     <td class="text-center pe-4">
                                         {% set diff = ajuste.stock_nuevo - ajuste.stock_anterior %}
                                         {% if diff > 0 %}
@@ -93,14 +93,14 @@
                                         {% elif diff < 0 %}
                                             <span class="text-danger fw-bold"><i class="fa-solid fa-arrow-down me-1"></i>{{ diff }}</span>
                                         {% else %}
-                                            <span class="text-tekfix-sec fw-bold">0</span>
+                                            <span class="text-dtavo-sec fw-bold">0</span>
                                         {% endif %}
                                     </td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="6" class="text-center py-5 text-tekfix-sec">
-                                        <i class="fa-solid fa-box-open fs-2 mb-3 text-tekfix-primary"></i>
+                                    <td colspan="6" class="text-center py-5 text-dtavo-sec">
+                                        <i class="fa-solid fa-box-open fs-2 mb-3 text-dtavo-primary"></i>
                                         <p class="mb-0">No hay movimientos registrados para este producto.</p>
                                     </td>
                                 </tr>
@@ -116,9 +116,9 @@
         <!-- Gestión de Variantes (Abajo) -->
         <div class="col-12">
             <div class="card card-custom border-0 shadow-sm overflow-hidden">
-                <div class="card-header bg-tekfix-card border-bottom p-4 d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold text-tekfix-main mb-0"><i class="fa-solid fa-layer-group text-tekfix-primary me-2"></i>Variantes y Subcategorías (Tallas / Colores)</h5>
-                    <button type="button" class="btn btn-sm btn-tekfix-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#variantesModal{{ producto.id }}">
+                <div class="card-header bg-dtavo-card border-bottom p-4 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold text-dtavo-main mb-0"><i class="fa-solid fa-layer-group text-dtavo-primary me-2"></i>Variantes y Subcategorías (Tallas / Colores)</h5>
+                    <button type="button" class="btn btn-sm btn-dtavo-secondary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#variantesModal{{ producto.id }}">
                         <i class="fa-solid fa-plus me-1"></i>Gestionar Variantes
                     </button>
                 </div>
@@ -127,12 +127,12 @@
                         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
                             {% for v in producto.variantes %}
                                 <div class="col">
-                                    <div class="p-3 bg-tekfix-card rounded border border-light shadow-xs h-100">
+                                    <div class="p-3 bg-dtavo-card rounded border border-light shadow-xs h-100">
                                         <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <span class="badge bg-tekfix-primary rounded-pill px-3">{{ v.nombre_variante }}</span>
-                                            <span class="fw-bold fs-5 text-tekfix-main">{{ v.cantidad_stock }} <small class="fw-normal text-muted" style="font-size: 0.7rem;">uds</small></span>
+                                            <span class="badge bg-dtavo-primary rounded-pill px-3">{{ v.nombre_variante }}</span>
+                                            <span class="fw-bold fs-5 text-dtavo-main">{{ v.cantidad_stock }} <small class="fw-normal text-muted" style="font-size: 0.7rem;">uds</small></span>
                                         </div>
-                                        <div class="small text-tekfix-sec">
+                                        <div class="small text-dtavo-sec">
                                             <div class="d-flex justify-content-between mt-2">
                                                 <span>Costo:</span>
                                                 <span class="text-danger">${{ (v.precio_costo or producto.precio_costo)|cop }}</span>
@@ -148,8 +148,8 @@
                         </div>
                     {% else %}
                         <div class="text-center py-4 opacity-75">
-                            <i class="fa-solid fa-boxes-stacked fs-2 mb-2 text-tekfix-sec"></i>
-                            <p class="text-tekfix-sec mb-0">Este producto no tiene variantes configuradas. Se gestiona como stock plano.</p>
+                            <i class="fa-solid fa-boxes-stacked fs-2 mb-2 text-dtavo-sec"></i>
+                            <p class="text-dtavo-sec mb-0">Este producto no tiene variantes configuradas. Se gestiona como stock plano.</p>
                         </div>
                     {% endif %}
                 </div>
@@ -162,39 +162,39 @@
 <div class="modal fade" id="variantesModal{{ producto.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
-            <div class="modal-header border-0 bg-tekfix-card">
-                <h5 class="modal-title fw-bold text-tekfix-main">Gestión de Variantes - {{ producto.nombre }}</h5>
+            <div class="modal-header border-0 bg-dtavo-card">
+                <h5 class="modal-title fw-bold text-dtavo-main">Gestión de Variantes - {{ producto.nombre }}</h5>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4 text-start bg-tekfix-card rounded-bottom">
+            <div class="modal-body p-4 text-start bg-dtavo-card rounded-bottom">
                 
                 <!-- Sección para Añadir Nueva Variante -->
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-body p-3">
-                        <h6 class="fw-bold mb-3 text-tekfix-main"><i class="fa-solid fa-plus-circle text-success me-2"></i>Añadir Subcategoría Nueva</h6>
+                        <h6 class="fw-bold mb-3 text-dtavo-main"><i class="fa-solid fa-plus-circle text-success me-2"></i>Añadir Subcategoría Nueva</h6>
                         <form method="POST" action="{{ url_for('inventory_bp.agregar_variante', id=producto.id) }}">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <div class="row g-2 mb-3">
                                 <div class="col-md-9">
-                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">Talla / Medida</label>
+                                    <label class="form-label small text-dtavo-sec mb-1 fw-bold">Talla / Medida</label>
                                     <input type="text" name="nombre_variante" class="form-control form-control-sm" placeholder="Ej: Talla M, Color Rojo..." required>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">Stock Inicial</label>
+                                    <label class="form-label small text-dtavo-sec mb-1 fw-bold">Stock Inicial</label>
                                     <input type="number" name="cantidad_stock" class="form-control form-control-sm" placeholder="0" required min="0">
                                 </div>
                             </div>
                             <div class="row g-2 mb-3">
                                 <div class="col-md-4">
-                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">P. Costo</label>
+                                    <label class="form-label small text-dtavo-sec mb-1 fw-bold">P. Costo</label>
                                     <input type="text" name="precio_costo" class="form-control form-control-sm money-input" value="{{ "%.0f"|format(producto.precio_costo) }}" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label small text-tekfix-sec mb-1 fw-bold">P. Mínimo</label>
+                                    <label class="form-label small text-dtavo-sec mb-1 fw-bold">P. Mínimo</label>
                                     <input type="text" name="precio_minimo" class="form-control form-control-sm money-input" value="{{ "%.0f"|format(producto.precio_minimo) }}" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label small fw-bold mb-1 text-tekfix-primary">P. Sugerido</label>
+                                    <label class="form-label small fw-bold mb-1 text-dtavo-primary">P. Sugerido</label>
                                     <input type="text" name="precio_sugerido" class="form-control form-control-sm money-input" value="{{ "%.0f"|format(producto.precio_sugerido) }}" required>
                                 </div>
                             </div>
@@ -203,11 +203,11 @@
                     </div>
                 </div>
                 
-                <h6 class="fw-bold mb-3 text-tekfix-main"><i class="fa-solid fa-boxes-stacked text-primary me-2"></i>Variantes Registradas</h6>
+                <h6 class="fw-bold mb-3 text-dtavo-main"><i class="fa-solid fa-boxes-stacked text-primary me-2"></i>Variantes Registradas</h6>
                 {% if producto.variantes %}
                 <div class="d-flex flex-column gap-3" style="max-height: 400px; overflow-y: auto;">
                     {% for v in producto.variantes %}
-                    <div class="card border border-light shadow-sm bg-tekfix-card rounded-3">
+                    <div class="card border border-light shadow-sm bg-dtavo-card rounded-3">
                         <div class="card-body p-3">
                             <form method="POST" action="{{ url_for('inventory_bp.editar_variante', id=v.id) }}">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -229,8 +229,8 @@
                                         <input type="text" name="precio_minimo" class="form-control form-control-sm money-input" value="{{ "%.0f"|format(v.precio_minimo|float) if v.precio_minimo else "%.0f"|format(producto.precio_minimo|float) }}">
                                     </div>
                                     <div class="col-4">
-                                        <label class="form-label x-small text-tekfix-primary mb-0">SUGERIDO</label>
-                                        <input type="text" name="precio_sugerido" class="form-control form-control-sm money-input fw-bold text-tekfix-primary" value="{{ "%.0f"|format(v.precio_sugerido|float) if v.precio_sugerido else "%.0f"|format(producto.precio_sugerido|float) }}">
+                                        <label class="form-label x-small text-dtavo-primary mb-0">SUGERIDO</label>
+                                        <input type="text" name="precio_sugerido" class="form-control form-control-sm money-input fw-bold text-dtavo-primary" value="{{ "%.0f"|format(v.precio_sugerido|float) if v.precio_sugerido else "%.0f"|format(producto.precio_sugerido|float) }}">
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">

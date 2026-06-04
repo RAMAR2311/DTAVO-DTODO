@@ -2,9 +2,9 @@
 
 {% block content %}
 <style>
-    /* Fondo aplicando colores Tekfix establecidos */
+    /* Fondo aplicando colores Dtavo establecidos */
     body {
-        background-color: var(--tekfix-bg) !important;
+        background-color: var(--dtavo-bg) !important;
         background-image: none !important;
     }
 
@@ -17,26 +17,26 @@
 <div class="row align-items-center justify-content-evenly" style="min-height: 85vh;">
     <!-- Columna Izquierda: Cuadro de Acceso Segregado -->
     <div class="col-md-6 col-lg-5 mb-4">
-        <div class="card card-custom p-5 border-0 shadow-lg rounded-4 bg-tekfix-card" style="border-top: 5px solid var(--tekfix-primary) !important;">
+        <div class="card card-custom p-5 border-0 shadow-lg rounded-4 bg-dtavo-card" style="border-top: 5px solid var(--dtavo-primary) !important;">
             <div class="text-center mb-5">
-                <h3 class="fw-bold text-tekfix-main">Acceso al Panel</h3>
-                <p class="text-tekfix-sec">Introduce tus credenciales operativas</p>
+                <h3 class="fw-bold text-dtavo-main">Acceso al Panel</h3>
+                <p class="text-dtavo-sec">Introduce tus credenciales operativas</p>
             </div>
             
             <form method="POST" action="/auth/login">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="mb-4">
-                    <label class="form-label fw-bold text-tekfix-main">Correo Electrónico</label>
-                    <input type="email" class="form-control form-control-lg bg-tekfix-card border-0" name="email" required placeholder="tu@dtavo.com">
+                    <label class="form-label fw-bold text-dtavo-main">Correo Electrónico</label>
+                    <input type="email" class="form-control form-control-lg bg-dtavo-card border-0" name="email" required placeholder="tu@dtavo.com">
                 </div>
                 
                 <div class="mb-5">
-                    <label class="form-label fw-bold text-tekfix-main">Contraseña</label>
-                    <input type="password" class="form-control form-control-lg bg-tekfix-card border-0" name="password" required placeholder="••••••••">
+                    <label class="form-label fw-bold text-dtavo-main">Contraseña</label>
+                    <input type="password" class="form-control form-control-lg bg-dtavo-card border-0" name="password" required placeholder="••••••••">
                 </div>
                 
                 <div class="d-grid">
-                    <button type="submit" class="btn btn-tekfix btn-lg rounded-pill shadow-sm">
+                    <button type="submit" class="btn btn-dtavo btn-lg rounded-pill shadow-sm">
                         Ingresar <i class="fa-solid fa-arrow-right ms-2"></i>
                     </button>
                 </div>

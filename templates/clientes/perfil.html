@@ -9,7 +9,7 @@
                 <li class="breadcrumb-item active">Perfil del Cliente</li>
             </ol>
         </nav>
-        <h2 class="fw-bold text-tekfix-main mb-0">
+        <h2 class="fw-bold text-dtavo-main mb-0">
             {{ cliente.nombre_completo }}
             {% if cliente.estado_cartera == 'Al día' %}
                 <span class="badge bg-success-subtle text-success border border-success-subtle ms-2 fs-6 fw-normal"><i class="fa-solid fa-check-circle me-1"></i> Al día</span>
@@ -19,7 +19,7 @@
                 <span class="badge bg-danger ms-2 fs-6 pulse-animation">EN MORA (>15 días)</span>
             {% endif %}
         </h2>
-        <p class="text-tekfix-sec mb-0"><i class="fa-solid fa-phone me-2"></i>{{ cliente.telefono }} | Registrado el {{ cliente.fecha_registro.strftime('%d/%m/%Y') }}</p>
+        <p class="text-dtavo-sec mb-0"><i class="fa-solid fa-phone me-2"></i>{{ cliente.telefono }} | Registrado el {{ cliente.fecha_registro.strftime('%d/%m/%Y') }}</p>
         
         {% set tiene_vencidos = false %}
         {% for f in cliente.facturas %}{% for a in f.acuerdos %}{% if not a.cumplido and a.fecha_acordada < today %}{% set tiene_vencidos = true %}{% endif %}{% endfor %}{% endfor %}
@@ -40,7 +40,7 @@
         <button class="btn btn-outline-secondary shadow-sm px-3" type="button" data-bs-toggle="modal" data-bs-target="#modalEditarCliente">
             <i class="fa-solid fa-user-pen me-1"></i> Editar Perfil
         </button>
-        <button class="btn btn-tekfix shadow-sm px-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFacturacion">
+        <button class="btn btn-dtavo shadow-sm px-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFacturacion">
             <i class="fa-solid fa-cash-register me-2"></i> Nueva Factura POS
         </button>
     </div>
@@ -49,7 +49,7 @@
 <!-- Resumen de Saldo -->
 <div class="row g-4 mb-4">
     <div class="col-md-4">
-        <div class="card card-custom p-4 border-0 shadow-sm bg-tekfix-secondary text-white">
+        <div class="card card-custom p-4 border-0 shadow-sm bg-dtavo-secondary text-white">
             <h6 class="small fw-bold text-uppercase mb-1 opacity-75">Saldo Total Pendiente</h6>
             <h2 class="fw-bolder mb-0">${{ cliente.saldo_total | cop }}</h2>
         </div>
@@ -77,11 +77,11 @@
             <div class="card-header bg-white border-bottom-0 pt-4 px-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <span class="badge bg-light text-tekfix-sec border px-3 py-1 rounded-pill mb-2">Factura #{{ factura.id }}</span>
-                        <h6 class="fw-bold text-tekfix-main mb-0">Emitida: {{ factura.fecha_emision.strftime('%d/%m/%Y %H:%M') }}</h6>
+                        <span class="badge bg-light text-dtavo-sec border px-3 py-1 rounded-pill mb-2">Factura #{{ factura.id }}</span>
+                        <h6 class="fw-bold text-dtavo-main mb-0">Emitida: {{ factura.fecha_emision.strftime('%d/%m/%Y %H:%M') }}</h6>
                     </div>
                     <div class="text-end">
-                        <span class="text-tekfix-sec small d-block">Saldo Pendiente</span>
+                        <span class="text-dtavo-sec small d-block">Saldo Pendiente</span>
                         <h5 class="fw-bold {% if factura.saldo_pendiente > 0 %}text-danger{% else %}text-success{% endif %} mb-0">
                             ${{ factura.saldo_pendiente | cop }}
                         </h5>
@@ -91,23 +91,23 @@
             <div class="card-body px-4 pb-4">
                 <div class="rounded-4 mb-3 overflow-hidden border border-light-subtle shadow-sm">
                     <div class="bg-light px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
-                        <h6 class="small fw-bold text-tekfix-sec mb-0"><i class="fa-solid fa-list-check me-2"></i>Detalle de Productos</h6>
-                        <span class="badge bg-white text-tekfix-sec border fw-normal">{{ factura.detalles | length }} items</span>
+                        <h6 class="small fw-bold text-dtavo-sec mb-0"><i class="fa-solid fa-list-check me-2"></i>Detalle de Productos</h6>
+                        <span class="badge bg-white text-dtavo-sec border fw-normal">{{ factura.detalles | length }} items</span>
                     </div>
                     <div class="p-3 bg-white">
                         <ul class="list-unstyled mb-0 small">
                             {% for d in factura.detalles %}
                             <li class="d-flex justify-content-between mb-2 pb-1 border-bottom border-light-subtle last-border-0">
                                 <div class="pe-3">
-                                    <span class="d-block fw-semibold text-tekfix-main">{{ d.cantidad }}x {{ d.producto.nombre if d.producto else d.nombre_manual }}</span>
+                                    <span class="d-block fw-semibold text-dtavo-main">{{ d.cantidad }}x {{ d.producto.nombre if d.producto else d.nombre_manual }}</span>
                                     {% if d.variante %}<small class="text-muted">{{ d.variante.nombre_variante }}</small>{% endif %}
                                 </div>
-                                <span class="fw-bold text-tekfix-primary align-self-center">${{ d.subtotal | cop }}</span>
+                                <span class="fw-bold text-dtavo-primary align-self-center">${{ d.subtotal | cop }}</span>
                             </li>
                             {% endfor %}
                             <li class="pt-2 d-flex justify-content-between align-items-center">
-                                <span class="text-tekfix-sec fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Total de esta Venta:</span>
-                                <span class="h5 fw-bolder mb-0 text-tekfix-main">${{ factura.total_factura | cop }}</span>
+                                <span class="text-dtavo-sec fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing: 1px;">Total de esta Venta:</span>
+                                <span class="h5 fw-bolder mb-0 text-dtavo-main">${{ factura.total_factura | cop }}</span>
                             </li>
                         </ul>
                     </div>
@@ -115,7 +115,7 @@
 
                 <div class="row align-items-center">
                     <div class="col-md-6">
-                        <small class="text-tekfix-sec d-block">Días sin abono</small>
+                        <small class="text-dtavo-sec d-block">Días sin abono</small>
                         <span class="badge {% if factura.dias_sin_abono > 15 %}bg-danger{% else %}bg-secondary{% endif %}">
                             {{ factura.dias_sin_abono }} días
                         </span>
@@ -128,7 +128,7 @@
                             <i class="fa-solid fa-pen-to-square me-1"></i> Editar
                         </a>
                         {% if factura.saldo_pendiente > 0 %}
-                        <button class="btn btn-sm btn-tekfix-secondary rounded-pill px-3" 
+                        <button class="btn btn-sm btn-dtavo-secondary rounded-pill px-3" 
                                 data-id="{{ factura.id }}" 
                                 data-saldo="{{ factura.saldo_pendiente }}"
                                 onclick="prepararAbonoFromBtn(this)" data-bs-toggle="modal" data-bs-target="#modalNuevoAbono">
@@ -145,14 +145,14 @@
                 </div>
 
                 {% if factura.abonos %}
-                <div class="mt-4 p-3 bg-tekfix-secondary bg-opacity-10 rounded-3">
-                    <h6 class="small fw-bold text-tekfix-sec mb-3">Historial de Abonos (Ingresos a Caja)</h6>
+                <div class="mt-4 p-3 bg-dtavo-secondary bg-opacity-10 rounded-3">
+                    <h6 class="small fw-bold text-dtavo-sec mb-3">Historial de Abonos (Ingresos a Caja)</h6>
                     <ul class="list-unstyled mb-0">
                         {% for abono in factura.abonos | sort(attribute='fecha_abono', reverse=True) %}
                         <li class="d-flex justify-content-between align-items-center border-bottom border-white pb-2 mb-2">
                             <div class="d-flex align-items-center gap-3">
                                 <div class="text-end">
-                                    <small class="d-block text-tekfix-sec">{{ abono.fecha_abono.strftime('%d/%m/%Y') }}</small>
+                                    <small class="d-block text-dtavo-sec">{{ abono.fecha_abono.strftime('%d/%m/%Y') }}</small>
                                     <span class="fw-bold text-success">+ ${{ abono.monto_abono | cop }}</span>
                                 </div>
                                 <form action="{{ url_for('clientes_bp.eliminar_abono', id=abono.id) }}" method="POST" onsubmit="return confirm('¿Eliminar este abono? El saldo de la factura se reversará.')">
@@ -170,7 +170,7 @@
         </div>
         {% else %}
         <div class="text-center py-5">
-            <p class="text-tekfix-sec italic">Este cliente no tiene facturas a crédito registradas.</p>
+            <p class="text-dtavo-sec italic">Este cliente no tiene facturas a crédito registradas.</p>
         </div>
         {% endfor %}
     </div>
@@ -198,7 +198,7 @@
                                 {{ acuerdo.fecha_acordada.strftime('%d/%m/%Y') }}
                                 {% if es_vencido %}<span class="badge bg-danger ms-1 small" style="font-size: 0.6rem;">VENCIDO</span>{% endif %}
                             </h6>
-                            <small class="text-tekfix-sec">Esperado: ${{ acuerdo.monto_esperado | cop if acuerdo.monto_esperado else 'Pendiente' }}</small>
+                            <small class="text-dtavo-sec">Esperado: ${{ acuerdo.monto_esperado | cop if acuerdo.monto_esperado else 'Pendiente' }}</small>
                         </div>
                         <div class="d-flex gap-2">
                             <button class="btn btn-sm btn-outline-warning rounded-circle" 
@@ -221,7 +221,7 @@
             </div>
             {% endfor %}
         {% else %}
-            <div class="alert bg-tekfix-secondary text-tekfix-sec small border-0">
+            <div class="alert bg-dtavo-secondary text-dtavo-sec small border-0">
                 No hay fechas de pago acordadas.
             </div>
         {% endfor %}
@@ -230,7 +230,7 @@
 
 <!-- OFF CANVAS: POS CRÉDITO -->
 <div class="offcanvas offcanvas-end w-50" tabindex="-1" id="offcanvasFacturacion" aria-labelledby="offcanvasFacturacionLabel">
-    <div class="offcanvas-header bg-tekfix-main text-white">
+    <div class="offcanvas-header bg-dtavo-main text-white">
         <h5 class="offcanvas-title fw-bold" id="offcanvasFacturacionLabel"><i class="fa-solid fa-cart-shopping me-2"></i> POS a Crédito - {{ cliente.nombre_completo }}</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
@@ -253,15 +253,15 @@
         <!-- Carrito -->
         <div class="flex-grow-1 overflow-auto mb-3 px-1">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="fw-bold text-tekfix-main mb-0"><i class="fa-solid fa-cart-flatbed me-2"></i>Items a Facturar</h6>
-                <span class="badge bg-tekfix-primary rounded-pill px-3" id="contadorItems">0 Items</span>
+                <h6 class="fw-bold text-dtavo-main mb-0"><i class="fa-solid fa-cart-flatbed me-2"></i>Items a Facturar</h6>
+                <span class="badge bg-dtavo-primary rounded-pill px-3" id="contadorItems">0 Items</span>
             </div>
             
             <div id="carritoItems" class="pe-1">
                 <!-- Items del carrito -->
                 <div class="text-center py-5 border-dashed rounded-4 bg-light bg-opacity-50" id="carritoVacio" style="border: 2px dashed #dee2e6;">
-                    <i class="fa-solid fa-basket-shopping fs-1 mb-3 opacity-25 d-block text-tekfix-primary"></i>
-                    <p class="mb-0 text-tekfix-sec fw-medium">Agregue productos para comenzar</p>
+                    <i class="fa-solid fa-basket-shopping fs-1 mb-3 opacity-25 d-block text-dtavo-primary"></i>
+                    <p class="mb-0 text-dtavo-sec fw-medium">Agregue productos para comenzar</p>
                     <small class="text-muted">Busque por SKU o Nombre arriba</small>
                 </div>
             </div>
@@ -269,16 +269,16 @@
 
         <!-- Totales y Abono Inicial -->
         <div class="border-top pt-4 bg-white mt-auto">
-            <div class="p-3 rounded-4 bg-tekfix-main bg-opacity-10 border border-tekfix-primary border-opacity-10 mb-3 shadow-sm">
+            <div class="p-3 rounded-4 bg-dtavo-main bg-opacity-10 border border-dtavo-primary border-opacity-10 mb-3 shadow-sm">
                 <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-tekfix-sec fw-bold small text-uppercase">Total de Factura:</div>
-                    <div class="h3 fw-bolder mb-0 text-tekfix-primary" id="totalFactura">$0</div>
+                    <div class="text-dtavo-sec fw-bold small text-uppercase">Total de Factura:</div>
+                    <div class="h3 fw-bolder mb-0 text-dtavo-primary" id="totalFactura">$0</div>
                 </div>
             </div>
             
             <div id="resumenFinancieroPOS" class="mb-3 px-2 d-none">
                 <div class="d-flex justify-content-between small mb-1">
-                    <span class="text-tekfix-sec">Saldo Cartera:</span>
+                    <span class="text-dtavo-sec">Saldo Cartera:</span>
                     <span class="fw-bold" id="resumenSaldoPendiente">$0</span>
                 </div>
             </div>
@@ -290,7 +290,7 @@
             </div>
             
             <div id="contenedorMetodoAbonoInicial" style="display: none;" class="animate__animated animate__fadeIn">
-                <label class="form-label small fw-bold text-tekfix-sec mb-1">¿Cómo se realizó el pago?</label>
+                <label class="form-label small fw-bold text-dtavo-sec mb-1">¿Cómo se realizó el pago?</label>
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-light"><i class="fa-solid fa-wallet"></i></span>
                     <select id="metodoAbonoInicial" class="form-select">
@@ -321,7 +321,7 @@
             <small class="text-muted italic">Estipula fechas para llevar un mejor control.</small>
         </div>
 
-        <button class="btn btn-tekfix w-100 py-3 fw-bold shadow-sm mb-5" id="btnFinalizarVenta" disabled>
+        <button class="btn btn-dtavo w-100 py-3 fw-bold shadow-sm mb-5" id="btnFinalizarVenta" disabled>
             <i class="fa-solid fa-check-circle me-2"></i> EMITIR FACTURA A CRÉDITO
         </button>
         </div>
@@ -400,7 +400,7 @@
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-tekfix px-4 py-2">Agendar Acuerdo</button>
+                    <button type="submit" class="btn btn-dtavo px-4 py-2">Agendar Acuerdo</button>
                 </div>
             </form>
         </div>
@@ -429,7 +429,7 @@
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-tekfix px-4 py-2">Guardar Cambios</button>
+                    <button type="submit" class="btn btn-dtavo px-4 py-2">Guardar Cambios</button>
                 </div>
             </form>
         </div>
@@ -508,7 +508,7 @@ inputBusqueda.addEventListener('input', async (e) => {
                     <strong class="d-block">${p.nombre}</strong>
                     <small class="text-muted">SKU: ${p.sku} | Stock: ${p.stock}</small>
                 </div>
-                <span class="fw-bold text-tekfix-primary">$${new Intl.NumberFormat('en-US').format(p.precio)}</span>
+                <span class="fw-bold text-dtavo-primary">$${new Intl.NumberFormat('en-US').format(p.precio)}</span>
             </div>
         </button>
     `).join('');
@@ -580,8 +580,8 @@ function renderCarrito() {
     if (carrito.length === 0) {
         carritoItems.innerHTML = `
             <div class="text-center py-5 border-dashed rounded-4 bg-light bg-opacity-50" id="carritoVacio" style="border: 2px dashed #dee2e6;">
-                <i class="fa-solid fa-basket-shopping fs-1 mb-3 opacity-25 d-block text-tekfix-primary"></i>
-                <p class="mb-0 text-tekfix-sec fw-medium">Agregue productos para comenzar</p>
+                <i class="fa-solid fa-basket-shopping fs-1 mb-3 opacity-25 d-block text-dtavo-primary"></i>
+                <p class="mb-0 text-dtavo-sec fw-medium">Agregue productos para comenzar</p>
                 <small class="text-muted">Busque por SKU o Nombre arriba</small>
             </div>`;
         totalFacturaDisplay.innerText = '$0';
@@ -597,13 +597,13 @@ function renderCarrito() {
         total += subtotal;
         totalUnidades += item.cantidad;
         return `
-            <div class="card border-0 shadow-sm mb-2 rounded-3 overflow-hidden border-start border-4 border-tekfix-primary">
+            <div class="card border-0 shadow-sm mb-2 rounded-3 overflow-hidden border-start border-4 border-dtavo-primary">
                 <div class="card-body p-2 d-flex align-items-center">
                     <div class="flex-grow-1">
-                        <span class="fw-bold d-block text-tekfix-main" style="font-size: 0.85rem;">${item.nombre}</span>
+                        <span class="fw-bold d-block text-dtavo-main" style="font-size: 0.85rem;">${item.nombre}</span>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-light text-tekfix-sec border fw-normal">$${new Intl.NumberFormat('en-US').format(item.precio)}</span>
-                            <span class="text-tekfix-primary fw-bold small">$${new Intl.NumberFormat('en-US').format(subtotal)}</span>
+                            <span class="badge bg-light text-dtavo-sec border fw-normal">$${new Intl.NumberFormat('en-US').format(item.precio)}</span>
+                            <span class="text-dtavo-primary fw-bold small">$${new Intl.NumberFormat('en-US').format(subtotal)}</span>
                         </div>
                     </div>
                     <div class="d-flex align-items-center gap-1 ms-2">

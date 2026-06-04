@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold text-tekfix-main m-0"><i class="fa-solid fa-address-book text-tekfix-sec me-2"></i> Directorio de Clientes</h2>
-    <a href="{{ url_for('bodega_bp.nuevo_cliente') }}" class="btn btn-tekfix-secondary rounded-pill px-4 shadow-sm">
+    <h2 class="fw-bold text-dtavo-main m-0"><i class="fa-solid fa-address-book text-dtavo-sec me-2"></i> Directorio de Clientes</h2>
+    <a href="{{ url_for('bodega_bp.nuevo_cliente') }}" class="btn btn-dtavo-secondary rounded-pill px-4 shadow-sm">
         <i class="fa-solid fa-plus me-1"></i> Registrar Cliente
     </a>
 </div>
@@ -11,7 +11,7 @@
 <div class="card card-custom p-0 border-0 shadow-sm overflow-hidden">
     <div class="table-responsive">
         <table class="table table-hover table-custom table-dark mb-0 align-middle">
-            <thead class="bg-tekfix-card">
+            <thead class="bg-dtavo-card">
                 <tr>
                     <th class="ps-4">RAZÓN SOCIAL / NOMBRE</th>
                     <th>DOCUMENTO</th>
@@ -23,16 +23,16 @@
             <tbody>
                 {% for c in clientes %}
                 <tr>
-                    <td class="ps-4 fw-bold text-tekfix-main">{{ c.nombre_o_razon_social }}</td>
-                    <td class="text-tekfix-sec">{{ c.documento_o_nit }}</td>
+                    <td class="ps-4 fw-bold text-dtavo-main">{{ c.nombre_o_razon_social }}</td>
+                    <td class="text-dtavo-sec">{{ c.documento_o_nit }}</td>
                     <td class="text-center fw-bolder {% if c.deuda_total > 0 %}text-danger{% else %}text-success{% endif %}">
                         ${{ (c.deuda_total)|cop }}
                     </td>
                     <td class="text-center">
                         {% if c.estado_global == 'Al Día' %}
-                            <span class="badge bg-tekfix-card text-success border border-success rounded-pill px-3 py-2"><i class="fa-solid fa-check-circle me-1"></i> Al Día</span>
+                            <span class="badge bg-dtavo-card text-success border border-success rounded-pill px-3 py-2"><i class="fa-solid fa-check-circle me-1"></i> Al Día</span>
                         {% else %}
-                            <span class="badge bg-tekfix-card text-danger border border-danger rounded-pill px-3 py-2"><i class="fa-solid fa-circle-exclamation me-1"></i> Con Deuda</span>
+                            <span class="badge bg-dtavo-card text-danger border border-danger rounded-pill px-3 py-2"><i class="fa-solid fa-circle-exclamation me-1"></i> Con Deuda</span>
                         {% endif %}
                     </td>
                     <td class="text-center">
@@ -43,8 +43,8 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="5" class="text-center py-5 text-tekfix-sec">
-                        <i class="fa-solid fa-users-slash fs-2 mb-3 text-tekfix-primary opacity-50"></i>
+                    <td colspan="5" class="text-center py-5 text-dtavo-sec">
+                        <i class="fa-solid fa-users-slash fs-2 mb-3 text-dtavo-primary opacity-50"></i>
                         <p class="mb-0">No hay clientes en el directorio. Registra uno para comenzar.</p>
                     </td>
                 </tr>

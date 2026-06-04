@@ -5,8 +5,8 @@
     <!-- Cabecera -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold text-tekfix-main mb-1">Gestión de Personal</h2>
-            <p class="text-tekfix-sec mb-0">Controla los accesos y roles de tu equipo de trabajo.</p>
+            <h2 class="fw-bold text-dtavo-main mb-1">Gestión de Personal</h2>
+            <p class="text-dtavo-sec mb-0">Controla los accesos y roles de tu equipo de trabajo.</p>
         </div>
     </div>
 
@@ -15,42 +15,42 @@
         <div class="col-lg-4">
             <div class="card card-custom border-0 shadow-sm overflow-hidden">
                 <div class="card-header bg-transparent border-0 p-4 pb-0">
-                    <h5 class="fw-bold text-tekfix-main mb-0"><i class="fa-solid fa-user-plus me-2 text-tekfix-primary"></i>Alta de Nuevo Vendedor</h5>
+                    <h5 class="fw-bold text-dtavo-main mb-0"><i class="fa-solid fa-user-plus me-2 text-dtavo-primary"></i>Alta de Nuevo Vendedor</h5>
                 </div>
                 <div class="card-body p-4">
                     <form action="{{ url_for('personal_bp.crear') }}" method="POST">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-tekfix-sec">Nombre Completo</label>
+                            <label class="form-label small fw-bold text-dtavo-sec">Nombre Completo</label>
                             <input type="text" name="nombre" class="form-control rounded-3" placeholder="Ej: Roberto Sánchez" required>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-tekfix-sec">Correo Empresarial</label>
+                            <label class="form-label small fw-bold text-dtavo-sec">Correo Empresarial</label>
                             <input type="email" name="email" class="form-control rounded-3" placeholder="email@dtavo.com" required>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-tekfix-sec">Celular / WhatsApp</label>
+                            <label class="form-label small fw-bold text-dtavo-sec">Celular / WhatsApp</label>
                             <input type="text" name="telefono" class="form-control rounded-3" placeholder="Ej: 300 123 4567">
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label small fw-bold text-tekfix-sec">Contraseña Temporal</label>
+                            <label class="form-label small fw-bold text-dtavo-sec">Contraseña Temporal</label>
                             <input type="password" name="password" class="form-control rounded-3" placeholder="••••••••" required>
                             <small class="text-muted" style="font-size: 10px;">El vendedor podrá cambiarla después.</small>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label small fw-bold text-tekfix-sec">Rol de Usuario</label>
+                            <label class="form-label small fw-bold text-dtavo-sec">Rol de Usuario</label>
                             <select name="rol" class="form-select rounded-3">
                                 <option value="vendedor">Vendedor (Estándar)</option>
                                 <option value="admin">Administrador (Acceso Total)</option>
                             </select>
                         </div>
 
-                        <button type="submit" class="btn btn-outline-tekfix w-100 rounded-pill py-2 fw-bold shadow-sm">
+                        <button type="submit" class="btn btn-outline-dtavo w-100 rounded-pill py-2 fw-bold shadow-sm">
                             <i class="fa-solid fa-key me-2"></i>OTORGAR ACCESO
                         </button>
                     </form>
@@ -62,7 +62,7 @@
         <div class="col-lg-8">
             <div class="card card-custom border-0 shadow-sm overflow-hidden">
                 <div class="card-header bg-transparent border-0 p-4 pb-0">
-                    <h5 class="fw-bold text-tekfix-main mb-0"><i class="fa-solid fa-users-gear me-2 text-tekfix-primary"></i>Plantilla de Colaboradores</h5>
+                    <h5 class="fw-bold text-dtavo-main mb-0"><i class="fa-solid fa-users-gear me-2 text-dtavo-primary"></i>Plantilla de Colaboradores</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -81,20 +81,20 @@
                                     <td class="ps-4">
                                         <div class="d-flex align-items-center">
                                             <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
-                                                <i class="fa-solid fa-user text-tekfix-primary"></i>
+                                                <i class="fa-solid fa-user text-dtavo-primary"></i>
                                             </div>
                                             <div>
-                                                <div class="fw-bold text-tekfix-main">{{ u.nombre }}</div>
-                                                <div class="small text-tekfix-sec">{{ u.email }}</div>
+                                                <div class="fw-bold text-dtavo-main">{{ u.nombre }}</div>
+                                                <div class="small text-dtavo-sec">{{ u.email }}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge {{ 'bg-tekfix-primary' if u.rol == 'admin' else 'bg-light text-tekfix-sec border' }} rounded-pill px-3">
+                                        <span class="badge {{ 'bg-dtavo-primary' if u.rol == 'admin' else 'bg-light text-dtavo-sec border' }} rounded-pill px-3">
                                             {{ u.rol | upper }}
                                         </span>
                                     </td>
-                                    <td class="small fw-semibold text-tekfix-sec">
+                                    <td class="small fw-semibold text-dtavo-sec">
                                         {{ u.telefono or 'N/A' }}
                                     </td>
                                     <td class="pe-4 text-end">
@@ -106,7 +106,7 @@
                                                     data-telefono="{{ u.telefono or '' }}"
                                                     data-rol="{{ u.rol }}"
                                                     title="Editar">
-                                                <i class="fa-solid fa-pen-to-square text-tekfix-sec"></i>
+                                                <i class="fa-solid fa-pen-to-square text-dtavo-sec"></i>
                                             </button>
                                             <button class="btn btn-sm btn-light rounded-circle btn-delete-user" 
                                                     data-id="{{ u.id }}"
@@ -133,9 +133,9 @@
 <!-- MODAL EDITAR USUARIO -->
 <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="background: var(--tekfix-card-bg);">
+        <div class="modal-content border-0 shadow-lg" style="background: var(--dtavo-card-bg);">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold text-tekfix-primary"><i class="fa-solid fa-user-pen me-2"></i>Editar Usuario</h5>
+                <h5 class="modal-title fw-bold text-dtavo-primary"><i class="fa-solid fa-user-pen me-2"></i>Editar Usuario</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
@@ -143,22 +143,22 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-tekfix-sec">Nombre Completo</label>
+                        <label class="form-label small fw-bold text-dtavo-sec">Nombre Completo</label>
                         <input type="text" name="nombre" id="edit-nombre" class="form-control rounded-3" required>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-tekfix-sec">Correo Empresarial</label>
+                        <label class="form-label small fw-bold text-dtavo-sec">Correo Empresarial</label>
                         <input type="email" name="email" id="edit-email" class="form-control rounded-3" required>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-tekfix-sec">Celular / WhatsApp</label>
+                        <label class="form-label small fw-bold text-dtavo-sec">Celular / WhatsApp</label>
                         <input type="text" name="telefono" id="edit-telefono" class="form-control rounded-3">
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-tekfix-sec">Rol de Usuario</label>
+                        <label class="form-label small fw-bold text-dtavo-sec">Rol de Usuario</label>
                         <select name="rol" id="edit-rol" class="form-select rounded-3">
                             <option value="vendedor">Vendedor</option>
                             <option value="admin">Administrador</option>
@@ -166,11 +166,11 @@
                     </div>
                     
                     <div class="mb-4">
-                        <label class="form-label small fw-bold text-tekfix-sec">Nueva Contraseña (Opcional)</label>
+                        <label class="form-label small fw-bold text-dtavo-sec">Nueva Contraseña (Opcional)</label>
                         <input type="password" name="password" class="form-control rounded-3" placeholder="Dejar en blanco para no cambiar">
                     </div>
 
-                    <button type="submit" class="btn btn-tekfix w-100 rounded-pill py-2 fw-bold shadow-sm">
+                    <button type="submit" class="btn btn-dtavo w-100 rounded-pill py-2 fw-bold shadow-sm">
                         GUARDAR CAMBIOS
                     </button>
                 </form>
@@ -180,13 +180,13 @@
 </div>
 
 <style>
-    .btn-outline-tekfix {
-        color: var(--tekfix-primary);
-        border: 2px solid var(--tekfix-primary);
+    .btn-outline-dtavo {
+        color: var(--dtavo-primary);
+        border: 2px solid var(--dtavo-primary);
         transition: all 0.3s ease;
     }
-    .btn-outline-tekfix:hover {
-        background-color: var(--tekfix-primary);
+    .btn-outline-dtavo:hover {
+        background-color: var(--dtavo-primary);
         color: white;
     }
     .card-custom {

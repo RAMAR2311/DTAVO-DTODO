@@ -3,8 +3,8 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div class="mb-4">
-        <h2 class="fw-bold text-tekfix-main m-0">Revisión de Retomas</h2>
-        <p class="text-tekfix-sec small mb-0"><i class="fa-solid fa-mobile-retro me-1"></i> Cuarentena Técnica y Aprobaciones</p>
+        <h2 class="fw-bold text-dtavo-main m-0">Revisión de Retomas</h2>
+        <p class="text-dtavo-sec small mb-0"><i class="fa-solid fa-mobile-retro me-1"></i> Cuarentena Técnica y Aprobaciones</p>
     </div>
     <div class="d-flex gap-2">
         <a href="{{ url_for('inventory_bp.retomas_aprobadas') }}" class="btn btn-outline-success rounded-pill px-4 fw-bold shadow-sm">
@@ -19,7 +19,7 @@
 <div class="card card-custom p-0 overflow-hidden">
     <div class="table-responsive">
         <table class="table table-hover table-custom mb-0">
-            <thead class="bg-tekfix-card">
+            <thead class="bg-dtavo-card">
                 <tr>
                     <th width="150" class="ps-4">IMEI</th>
                     <th>MODELO RECIBIDO (PROVISIONAL)</th>
@@ -31,11 +31,11 @@
             <tbody>
                 {% for r in retomas %}
                 <tr>
-                    <td class="text-tekfix-sec ps-4"><small><strong>{{ r.serial }}</strong></small></td>
-                    <td class="fw-semibold text-tekfix-main">
+                    <td class="text-dtavo-sec ps-4"><small><strong>{{ r.serial }}</strong></small></td>
+                    <td class="fw-semibold text-dtavo-main">
                         {{ r.producto.nombre }}
                     </td>
-                    <td class="text-end fw-bold" style="color: var(--tekfix-hover);">${{ (r.producto.precio_costo)|cop }}</td>
+                    <td class="text-end fw-bold" style="color: var(--dtavo-hover);">${{ (r.producto.precio_costo)|cop }}</td>
                     <td class="text-center">
                         <span class="badge bg-warning text-dark rounded-pill px-3 py-2"><i class="fa-solid fa-clock me-1"></i> {{ r.estado }}</span>
                     </td>
@@ -55,7 +55,7 @@
                 <!-- Modal de Aprobación -->
                 <div class="modal fade" id="modalAprobar{{ r.id }}" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content border-0 shadow-lg" style="background: var(--tekfix-card-bg);">
+                        <div class="modal-content border-0 shadow-lg" style="background: var(--dtavo-card-bg);">
                             <form method="POST" action="{{ url_for('inventory_bp.aprobar_retoma', serie_id=r.id) }}">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <div class="modal-header border-0 pb-0">
@@ -63,7 +63,7 @@
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body p-4">
-                                    <p class="text-tekfix-sec small">IMEI: <strong>{{ r.serial }}</strong></p>
+                                    <p class="text-dtavo-sec small">IMEI: <strong>{{ r.serial }}</strong></p>
                                     
                                     <ul class="nav nav-pills nav-fill mb-3" id="pills-tab-{{ r.id }}" role="tablist">
                                         <li class="nav-item" role="presentation">
@@ -80,33 +80,33 @@
                                         <!-- Vincular Existente -->
                                         <div class="tab-pane fade show active" id="panel-existente-{{ r.id }}">
                                             <div class="mb-3">
-                                                <label class="form-label small fw-bold text-tekfix-sec">Seleccionar Producto Destino</label>
-                                                <select name="product_id" class="form-select bg-tekfix-input border-0 text-tekfix-main" onchange="document.getElementById('detalle-existente-{{ r.id }}').classList.remove('d-none')">
+                                                <label class="form-label small fw-bold text-dtavo-sec">Seleccionar Producto Destino</label>
+                                                <select name="product_id" class="form-select bg-dtavo-input border-0 text-dtavo-main" onchange="document.getElementById('detalle-existente-{{ r.id }}').classList.remove('d-none')">
                                                     <option value="" selected disabled>Selecciona el modelo oficial...</option>
                                                     {% for p in productos %}
                                                         <option value="{{ p.id }}">{{ p.nombre }} (SKU: {{ p.sku }})</option>
                                                     {% endfor %}
                                                 </select>
-                                                <small class="text-tekfix-sec mt-1 d-block">El IMEI se guardará dentro del catálogo de este producto.</small>
+                                                <small class="text-dtavo-sec mt-1 d-block">El IMEI se guardará dentro del catálogo de este producto.</small>
                                             </div>
                                             
                                             <!-- Sección Desplegable -->
                                             <div id="detalle-existente-{{ r.id }}" class="d-none border border-light rounded-3 p-3 bg-light mt-3 shadow-sm">
-                                                <h6 class="fw-bold text-tekfix-main small mb-3 border-bottom pb-2"><i class="fa-solid fa-tags text-tekfix-primary me-2"></i>Ajustes Comerciales y Atributos Técnicos</h6>
+                                                <h6 class="fw-bold text-dtavo-main small mb-3 border-bottom pb-2"><i class="fa-solid fa-tags text-dtavo-primary me-2"></i>Ajustes Comerciales y Atributos Técnicos</h6>
                                                 <div class="row g-2 mb-3">
                                                     <div class="col-6">
-                                                        <label class="form-label small fw-bold text-tekfix-sec">Costo Compra ($)</label>
+                                                        <label class="form-label small fw-bold text-dtavo-sec">Costo Compra ($)</label>
                                                         <input type="number" name="costo_compra" class="form-control form-control-sm bg-white border-0" value="{{ r.producto.precio_costo }}">
                                                     </div>
                                                     <div class="col-6">
-                                                        <label class="form-label small fw-bold text-tekfix-sec">Precio Sugerido ($)</label>
+                                                        <label class="form-label small fw-bold text-dtavo-sec">Precio Sugerido ($)</label>
                                                         <input type="number" name="precio_sugerido" class="form-control form-control-sm bg-white border-0" placeholder="Ej. 1500000">
                                                     </div>
                                                 </div>
                                                 
                                                 <div class="row g-2 mb-3">
                                                     <div class="col-6">
-                                                        <label class="form-label small fw-bold text-tekfix-sec">Condición Estética</label>
+                                                        <label class="form-label small fw-bold text-dtavo-sec">Condición Estética</label>
                                                         <select name="atributo_condicion" class="form-select form-select-sm bg-white border-0">
                                                             <option value="Usado - Excelente">Usado - Excelente</option>
                                                             <option value="Usado - Buen Estado">Usado - Buen Estado</option>
@@ -114,18 +114,18 @@
                                                         </select>
                                                     </div>
                                                     <div class="col-6">
-                                                        <label class="form-label small fw-bold text-tekfix-sec">Color</label>
+                                                        <label class="form-label small fw-bold text-dtavo-sec">Color</label>
                                                         <input type="text" name="atributo_color" class="form-control form-control-sm bg-white border-0" placeholder="Ej. Azul Sierra">
                                                     </div>
                                                 </div>
 
                                                 <div class="mb-0">
-                                                    <label class="form-label small fw-bold text-tekfix-sec">Observación Técnica (Opcional)</label>
+                                                    <label class="form-label small fw-bold text-dtavo-sec">Observación Técnica (Opcional)</label>
                                                     <textarea name="observacion" class="form-control form-control-sm bg-white border-0" rows="2" placeholder="Ej. Rayón superficial en pantalla"></textarea>
                                                 </div>
 
                                                 <div class="mt-3 pt-2 border-top">
-                                                    <label class="form-label small fw-bold text-tekfix-sec"><i class="fa-solid fa-tag me-1"></i>Categoría en Inventario</label>
+                                                    <label class="form-label small fw-bold text-dtavo-sec"><i class="fa-solid fa-tag me-1"></i>Categoría en Inventario</label>
                                                     <select name="categoria_id" class="form-select form-select-sm bg-white border-0">
                                                         <option value="">Sin categoría</option>
                                                         {% for cat in categorias %}
@@ -139,16 +139,16 @@
                                         <!-- Crear Nuevo -->
                                         <div class="tab-pane fade" id="panel-nuevo-{{ r.id }}">
                                             <div class="mb-3">
-                                                <label class="form-label small fw-bold text-tekfix-sec">Nombre Oficial del Producto</label>
-                                                <input type="text" name="nuevo_nombre" class="form-control bg-tekfix-input border-0 text-tekfix-main" value="{{ r.producto.nombre }}">
+                                                <label class="form-label small fw-bold text-dtavo-sec">Nombre Oficial del Producto</label>
+                                                <input type="text" name="nuevo_nombre" class="form-control bg-dtavo-input border-0 text-dtavo-main" value="{{ r.producto.nombre }}">
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label small fw-bold text-tekfix-sec">Precio Sugerido Venta</label>
-                                                <input type="number" name="nuevo_precio" class="form-control bg-tekfix-input border-0 text-tekfix-main" value="{{ r.producto.precio_sugerido }}">
+                                                <label class="form-label small fw-bold text-dtavo-sec">Precio Sugerido Venta</label>
+                                                <input type="number" name="nuevo_precio" class="form-control bg-dtavo-input border-0 text-dtavo-main" value="{{ r.producto.precio_sugerido }}">
                                             </div>
                                             <div class="mb-0">
-                                                <label class="form-label small fw-bold text-tekfix-sec"><i class="fa-solid fa-tag me-1"></i>Categoría en Inventario</label>
-                                                <select name="nueva_categoria_id" class="form-select bg-tekfix-input border-0 text-tekfix-main">
+                                                <label class="form-label small fw-bold text-dtavo-sec"><i class="fa-solid fa-tag me-1"></i>Categoría en Inventario</label>
+                                                <select name="nueva_categoria_id" class="form-select bg-dtavo-input border-0 text-dtavo-main">
                                                     <option value="">Sin categoría</option>
                                                     {% for cat in categorias %}
                                                         <option value="{{ cat.id }}">{{ cat.nombre }}</option>
@@ -169,7 +169,7 @@
 
                 {% else %}
                 <tr>
-                    <td colspan="5" class="text-center py-5 text-tekfix-sec">
+                    <td colspan="5" class="text-center py-5 text-dtavo-sec">
                         <i class="fa-solid fa-clipboard-check fs-1 mb-3 text-success opacity-50"></i>
                         <p class="mb-0">No hay retomas pendientes por aprobar en la cuarentena técnica.</p>
                     </td>

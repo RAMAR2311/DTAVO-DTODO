@@ -3,11 +3,11 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-5">
     <div>
-        <h2 class="fw-bold text-tekfix-main mb-0">Módulo de Mermas y Pérdidas</h2>
-        <p class="text-tekfix-sec">Registra la deducción de inventario por robos, averías o vencimientos.</p>
+        <h2 class="fw-bold text-dtavo-main mb-0">Módulo de Mermas y Pérdidas</h2>
+        <p class="text-dtavo-sec">Registra la deducción de inventario por robos, averías o vencimientos.</p>
     </div>
     <div>
-        <a href="{{ url_for('admin_bp.dashboard') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold" style="border-color: var(--tekfix-border); color: var(--tekfix-text-main);">
+        <a href="{{ url_for('admin_bp.dashboard') }}" class="btn btn-outline-secondary rounded-pill px-4 fw-bold" style="border-color: var(--dtavo-border); color: var(--dtavo-text-main);">
             <i class="fa-solid fa-arrow-left me-2"></i>Volver al Dashboard
         </a>
     </div>
@@ -17,36 +17,36 @@
     <!-- Formulario de Registro -->
     <div class="col-xl-5">
         <div class="card card-custom p-4 h-100 border-top border-warning border-3">
-            <h5 class="fw-bold text-tekfix-main mb-4"><i class="fa-solid fa-barcode me-2 text-warning"></i> Cargar Nueva Pérdida</h5>
+            <h5 class="fw-bold text-dtavo-main mb-4"><i class="fa-solid fa-barcode me-2 text-warning"></i> Cargar Nueva Pérdida</h5>
             <form action="{{ url_for('admin_bp.registrar_perdida') }}" method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <input type="hidden" name="product_id" id="loss_product_id" required>
                 
                 <div class="mb-3">
-                    <label class="form-label text-tekfix-sec small fw-bold">1. Escanea o digita el SKU</label>
-                    <input type="text" id="loss_sku" class="form-control form-control-lg bg-tekfix-card text-tekfix-main border-0" placeholder="SKU del producto" autocomplete="off" autofocus required>
+                    <label class="form-label text-dtavo-sec small fw-bold">1. Escanea o digita el SKU</label>
+                    <input type="text" id="loss_sku" class="form-control form-control-lg bg-dtavo-card text-dtavo-main border-0" placeholder="SKU del producto" autocomplete="off" autofocus required>
                     <div id="loss_status" class="form-text text-warning mt-1" style="display: none;">Buscando...</div>
                 </div>
                 
                 <div class="row mb-3">
                     <div class="col-8">
-                        <label class="form-label text-tekfix-sec small fw-bold">Producto Detectado</label>
-                        <input type="text" id="loss_name" class="form-control bg-tekfix-card border-0 text-tekfix-main opacity-75" readonly placeholder="---">
+                        <label class="form-label text-dtavo-sec small fw-bold">Producto Detectado</label>
+                        <input type="text" id="loss_name" class="form-control bg-dtavo-card border-0 text-dtavo-main opacity-75" readonly placeholder="---">
                     </div>
                     <div class="col-4">
-                        <label class="form-label text-tekfix-sec small fw-bold">Costo Und.</label>
-                        <input type="text" id="loss_cost" class="form-control bg-tekfix-card border-0 text-danger fw-bold fs-6" readonly placeholder="$0">
+                        <label class="form-label text-dtavo-sec small fw-bold">Costo Und.</label>
+                        <input type="text" id="loss_cost" class="form-control bg-dtavo-card border-0 text-danger fw-bold fs-6" readonly placeholder="$0">
                     </div>
                 </div>
                 
                 <div class="row mb-4">
                     <div class="col-4">
-                        <label class="form-label text-tekfix-sec small fw-bold">Cantidad</label>
-                        <input type="number" name="cantidad" class="form-control border-0 bg-tekfix-card text-tekfix-main" min="1" value="1" required>
+                        <label class="form-label text-dtavo-sec small fw-bold">Cantidad</label>
+                        <input type="number" name="cantidad" class="form-control border-0 bg-dtavo-card text-dtavo-main" min="1" value="1" required>
                     </div>
                     <div class="col-8">
-                        <label class="form-label text-tekfix-sec small fw-bold">Motivo Explícito</label>
-                        <input type="text" name="motivo" class="form-control border-0 bg-tekfix-card text-tekfix-main" placeholder="Ej: Pantalla estrellada vitrina" required>
+                        <label class="form-label text-dtavo-sec small fw-bold">Motivo Explícito</label>
+                        <input type="text" name="motivo" class="form-control border-0 bg-dtavo-card text-dtavo-main" placeholder="Ej: Pantalla estrellada vitrina" required>
                     </div>
                 </div>
                 
@@ -60,9 +60,9 @@
     <!-- Historial de Pérdidas -->
     <div class="col-xl-7">
         <div class="card card-custom p-0 overflow-hidden h-100">
-            <div class="bg-tekfix-card p-4 border-bottom d-flex justify-content-between align-items-center">
-                 <h5 class="fw-bold text-tekfix-main m-0"><i class="fa-solid fa-clock-rotate-left me-2"></i> Auditoría de Pérdidas Históricas</h5>
-                 <span class="badge bg-tekfix-hover text-dark">{{ ultimas_perdidas|length }} registros</span>
+            <div class="bg-dtavo-card p-4 border-bottom d-flex justify-content-between align-items-center">
+                 <h5 class="fw-bold text-dtavo-main m-0"><i class="fa-solid fa-clock-rotate-left me-2"></i> Auditoría de Pérdidas Históricas</h5>
+                 <span class="badge bg-dtavo-hover text-dark">{{ ultimas_perdidas|length }} registros</span>
             </div>
             <div class="table-responsive p-0 h-100">
                 <table class="table table-hover table-custom align-middle m-0">
@@ -78,20 +78,20 @@
                         {% for p in ultimas_perdidas %}
                         <tr>
                             <td class="ps-4">
-                                <span class="fw-bold text-tekfix-main">{{ p.producto.nombre }}</span><br>
+                                <span class="fw-bold text-dtavo-main">{{ p.producto.nombre }}</span><br>
                                 <small class="text-danger"><i class="fa-solid fa-arrow-down fs-7 me-1"></i>{{ p.quantity }} uds restadas</small>
                             </td>
-                            <td class="text-tekfix-sec">
+                            <td class="text-dtavo-sec">
                                 <i>{{ p.reason }}</i>
                             </td>
                             <td>
-                                <span class="badge bg-tekfix-card text-tekfix-sec border fw-bold" style="border-color: var(--tekfix-border) !important;">
+                                <span class="badge bg-dtavo-card text-dtavo-sec border fw-bold" style="border-color: var(--dtavo-border) !important;">
                                     <i class="fa-solid fa-user me-1"></i>{{ p.usuario.username if p.usuario else 'Sistema' }}
                                 </span>
                             </td>
                             <td class="pe-4 text-end">
                                 <span class="badge border border-danger text-danger bg-danger bg-opacity-10 rounded-pill px-2 py-1 mb-1 fs-6">- ${{ (p.cost_at_loss * p.quantity)|cop }}</span><br>
-                                <small class="text-tekfix-sec" style="font-size: 0.70rem;">{{ p.date.strftime('%d/%m/%Y %H:%M') }}</small>
+                                <small class="text-dtavo-sec" style="font-size: 0.70rem;">{{ p.date.strftime('%d/%m/%Y %H:%M') }}</small>
                             </td>
                         </tr>
                         {% else %}

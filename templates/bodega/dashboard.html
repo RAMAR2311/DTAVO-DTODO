@@ -2,24 +2,24 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold text-tekfix-main m-0"><i class="fa-solid fa-boxes-stacked text-tekfix-sec me-2"></i> Área de Bodega</h2>
+    <h2 class="fw-bold text-dtavo-main m-0"><i class="fa-solid fa-boxes-stacked text-dtavo-sec me-2"></i> Área de Bodega</h2>
 </div>
 
 <div class="row g-4 mb-4">
     <div class="col-md-6 col-lg-4">
         <div class="card card-custom h-100 border-0 p-4 text-center">
-            <h5 class="text-tekfix-sec fw-bold">Total Clientes</h5>
-            <h1 class="display-4 fw-bolder text-tekfix-main" style="color: var(--tekfix-primary) !important;">{{ clientes_count }}</h1>
-            <a href="{{ url_for('bodega_bp.nuevo_cliente') }}" class="btn btn-tekfix-secondary rounded-pill mt-3"><i class="fa-solid fa-plus me-1"></i> Nuevo Cliente</a>
+            <h5 class="text-dtavo-sec fw-bold">Total Clientes</h5>
+            <h1 class="display-4 fw-bolder text-dtavo-main" style="color: var(--dtavo-primary) !important;">{{ clientes_count }}</h1>
+            <a href="{{ url_for('bodega_bp.nuevo_cliente') }}" class="btn btn-dtavo-secondary rounded-pill mt-3"><i class="fa-solid fa-plus me-1"></i> Nuevo Cliente</a>
         </div>
     </div>
     
     <div class="col-md-6 col-lg-8">
         <div class="card card-custom border-0 p-0 overflow-hidden h-100">
-            <h5 class="fw-bold p-4 bg-tekfix-card mb-0 border-bottom"><i class="fa-solid fa-file-pdf text-tekfix-primary me-2"></i> Últimas Facturas</h5>
+            <h5 class="fw-bold p-4 bg-dtavo-card mb-0 border-bottom"><i class="fa-solid fa-file-pdf text-dtavo-primary me-2"></i> Últimas Facturas</h5>
             <div class="table-responsive">
                 <table class="table table-hover table-custom table-dark mb-0">
-                    <thead class="bg-tekfix-card text-tekfix-sec">
+                    <thead class="bg-dtavo-card text-dtavo-sec">
                         <tr>
                             <th class="ps-4">TICKET/DOC</th>
                             <th>CLIENTE</th>
@@ -31,13 +31,13 @@
                         {% for f in facturas %}
                         <tr>
                             <td class="ps-4 fw-bold">#{{ f.numero_factura }}</td>
-                            <td><a href="{{ url_for('bodega_bp.cliente_detalle', id=f.cliente.id) }}" class="text-decoration-none text-tekfix-main fw-bold"><i class="fa-solid fa-user-circle text-tekfix-sec me-1"></i> {{ f.cliente.nombre_o_razon_social }}</a></td>
-                            <td class="text-tekfix-sec"><small>{{ f.fecha_subida.strftime('%d/%m/%Y %H:%M') }}</small></td>
+                            <td><a href="{{ url_for('bodega_bp.cliente_detalle', id=f.cliente.id) }}" class="text-decoration-none text-dtavo-main fw-bold"><i class="fa-solid fa-user-circle text-dtavo-sec me-1"></i> {{ f.cliente.nombre_o_razon_social }}</a></td>
+                            <td class="text-dtavo-sec"><small>{{ f.fecha_subida.strftime('%d/%m/%Y %H:%M') }}</small></td>
                             <td class="text-center">
                                 {% if f.estado == 'Pagado' %}
                                     <span class="badge bg-success rounded-pill px-2 py-1">Pagado</span>
                                 {% elif f.estado == 'Parcial' %}
-                                    <span class="badge bg-warning text-tekfix-main rounded-pill px-2 py-1">Parcial</span>
+                                    <span class="badge bg-warning text-dtavo-main rounded-pill px-2 py-1">Parcial</span>
                                 {% else %}
                                     <span class="badge bg-danger rounded-pill px-2 py-1">Pend.</span>
                                 {% endif %}
@@ -46,14 +46,14 @@
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="4" class="text-center py-5 text-tekfix-sec">Aún no has registrado facturas para los clientes.</td>
+                            <td colspan="4" class="text-center py-5 text-dtavo-sec">Aún no has registrado facturas para los clientes.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            <div class="p-3 text-end bg-tekfix-card border-top">
-                <a href="{{ url_for('bodega_bp.nueva_factura') }}" class="btn btn-tekfix rounded-pill"><i class="fa-solid fa-upload me-1"></i> Subir Documento</a>
+            <div class="p-3 text-end bg-dtavo-card border-top">
+                <a href="{{ url_for('bodega_bp.nueva_factura') }}" class="btn btn-dtavo rounded-pill"><i class="fa-solid fa-upload me-1"></i> Subir Documento</a>
             </div>
         </div>
     </div>
