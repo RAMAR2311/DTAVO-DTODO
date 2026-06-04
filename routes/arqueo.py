@@ -5,7 +5,7 @@ from models import db, Sale, SalePayment, SaleDetail, Product, Category, ArqueoC
 from datetime import datetime, time, timedelta, date
 import pytz
 from sqlalchemy import func
-from decorators import admin_required
+from decorators import admin_required, admin_or_vendedor_required
 
 arqueo_bp = Blueprint('arqueo_bp', __name__)
 
@@ -14,7 +14,7 @@ def obtener_hora_bogota():
 
 @arqueo_bp.route('/')
 @login_required
-@admin_required
+@admin_or_vendedor_required
 def index():
     # Por defecto sugerimos el día de hoy en Bogotá
     hoy = obtener_hora_bogota().strftime('%Y-%m-%d')
@@ -22,7 +22,7 @@ def index():
 
 @arqueo_bp.route('/datos-dia', methods=['GET'])
 @login_required
-@admin_required
+@admin_or_vendedor_required
 def datos_dia():
     fecha_str = request.args.get('fecha')
     if not fecha_str:
@@ -119,7 +119,7 @@ def datos_dia():
 
 @arqueo_bp.route('/guardar', methods=['POST'])
 @login_required
-@admin_required
+@admin_or_vendedor_required
 def guardar():
     data = request.form
     fecha_str = data.get('fecha_arqueo')
@@ -221,7 +221,7 @@ def guardar():
 
 @arqueo_bp.route('/reporte', methods=['GET'])
 @login_required
-@admin_required
+@admin_or_vendedor_required
 def reporte():
     fecha_inicio_str = request.args.get('fecha_inicio')
     fecha_fin_str = request.args.get('fecha_fin')
@@ -272,14 +272,14 @@ def reporte():
 
 @arqueo_bp.route('/historial')
 @login_required
-@admin_required
+@admin_or_vendedor_required
 def historial():
     cierres = ArqueoCaja.query.order_by(ArqueoCaja.fecha_arqueo.desc()).all()
     return render_template('admin/arqueo_historial.html', cierres=cierres)
 
 @arqueo_bp.route('/recibo/<int:arqueo_id>')
 @login_required
-@admin_required
+@admin_or_vendedor_required
 def imprimir_recibo(arqueo_id):
     arqueo = ArqueoCaja.query.get_or_404(arqueo_id)
     return render_template('admin/arqueo_recibo.html', arqueo=arqueo)

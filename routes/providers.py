@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from models import db, Provider, ProviderInvoice, ProviderPayment, Expense
-from decorators import admin_required
+from decorators import admin_required, admin_or_vendedor_required
 import os
 import time
 
@@ -16,14 +16,14 @@ def allowed_file(filename):
 
 @providers_bp.route('/', methods=['GET'])
 @login_required
-@admin_required
+@admin_or_vendedor_required
 def index():
     proveedores = Provider.query.order_by(Provider.nombre).all()
     return render_template('providers/index.html', proveedores=proveedores)
 
 @providers_bp.route('/crear', methods=['POST'])
 @login_required
-@admin_required
+@admin_or_vendedor_required
 def crear():
     nombre = request.form.get('nombre')
     empresa = request.form.get('empresa')
@@ -46,7 +46,7 @@ def crear():
 
 @providers_bp.route('/<int:id>', methods=['GET'])
 @login_required
-@admin_required
+@admin_or_vendedor_required
 def cuenta(id):
     proveedor = Provider.query.get_or_404(id)
     
@@ -69,7 +69,7 @@ def cuenta(id):
 
 @providers_bp.route('/<int:id>/invoice', methods=['POST'])
 @login_required
-@admin_required
+@admin_or_vendedor_required
 def registrar_factura(id):
     Provider.query.get_or_404(id)
     
@@ -105,7 +105,7 @@ def registrar_factura(id):
 
 @providers_bp.route('/<int:id>/payment', methods=['POST'])
 @login_required
-@admin_required
+@admin_or_vendedor_required
 def registrar_abono(id):
     proveedor = Provider.query.get_or_404(id)
     
@@ -140,7 +140,7 @@ def registrar_abono(id):
 
 @providers_bp.route('/abono/<int:id>/imprimir')
 @login_required
-@admin_required
+@admin_or_vendedor_required
 def imprimir_abono(id):
     abono = ProviderPayment.query.get_or_404(id)
     return render_template('providers/imprimir_abono.html', abono=abono, proveedor=abono.provider)

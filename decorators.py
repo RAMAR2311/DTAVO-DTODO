@@ -45,3 +45,15 @@ def inventory_access_required(f):
             abort(403)
         return f(*args, **kwargs)
     return decorated_function
+
+def admin_or_vendedor_required(f):
+    """
+    Decorador para proteger rutas que comparten administradores y vendedores
+    (por ejemplo, Arqueo de Caja y Proveedores).
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if current_user.rol not in ['admin', 'vendedor']:
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
