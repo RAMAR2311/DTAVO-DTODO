@@ -252,48 +252,46 @@
 </head>
 <body>
     <!-- Navbar Dtavo -->
-    <nav class="navbar navbar-custom mb-5 position-relative">
-        <div class="container-fluid px-3 d-flex justify-content-between align-items-center">
+    <nav class="navbar navbar-custom mb-4 mb-md-5">
+        <div class="container-fluid px-2 px-sm-3 d-flex justify-content-between align-items-center gap-2">
             
-            {% if current_user.is_authenticated %}
-            <!-- Botón Hamburguesa (Izquierda) -->
-            <button class="navbar-toggler border-0 shadow-none p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
-                <i class="fa-solid fa-bars fs-3 text-dtavo-main"></i>
-            </button>
-            {% else %}
-            <!-- Spacer if not authenticated -->
-            <div style="width: 40px;"></div>
-            {% endif %}
+            <!-- Izquierda: Hamburguesa + Logo -->
+            <div class="d-flex align-items-center gap-2">
+                {% if current_user.is_authenticated %}
+                <button class="navbar-toggler border-0 shadow-none p-1 p-sm-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+                    <i class="fa-solid fa-bars fs-4 fs-sm-3 text-dtavo-main"></i>
+                </button>
+                {% endif %}
 
-            <!-- Brand Logo (Centro) -->
-            <div class="navbar-brand d-flex align-items-center fw-bold m-0 position-absolute start-50 translate-middle-x">
-                <a class="d-flex align-items-center fw-bold m-0 text-decoration-none" style="color: inherit;" href="{{ url_for('salir_nicho') }}">
-                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="me-2" style="height: 32px; width: auto;"> DTAVO
+                <a class="d-flex align-items-center fw-bold m-0 text-decoration-none fs-5 fs-sm-4" style="color: inherit;" href="{{ url_for('salir_nicho') }}">
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="me-1 me-sm-2" style="height: 28px; width: auto;">
+                    <span class="fw-bold text-dtavo-main">DTAVO</span>
                 </a>
+
                 {% if session.categoria_actual %}
-                <span class="ms-3 badge rounded-pill bg-dtavo-primary text-dark fw-bold px-3 py-2 animate__animated animate__pulse animate__infinite d-none d-sm-inline-block">
+                <span class="ms-2 badge rounded-pill bg-dtavo-primary text-dark fw-bold px-2 py-1 d-none d-md-inline-block" style="font-size: 0.75rem;">
                     <i class="fa-solid fa-store me-1"></i> {{ session.categoria_nombre }}
                 </span>
                 {% endif %}
             </div>
 
-            <!-- Acciones Derecha -->
-            <div class="d-flex align-items-center gap-2">
-                <button id="theme-toggle" class="btn btn-link p-0 me-2 border-0 shadow-none text-dtavo-main" style="text-decoration: none;">
-                    <i class="fa-solid fa-sun fs-4" id="theme-icon"></i>
+            <!-- Derecha: Tema + Selector de Nicho -->
+            <div class="d-flex align-items-center gap-1 gap-sm-2">
+                <button id="theme-toggle" class="btn btn-link p-1 me-1 border-0 shadow-none text-dtavo-main" style="text-decoration: none;">
+                    <i class="fa-solid fa-sun fs-5" id="theme-icon"></i>
                 </button>
 
                 <!-- Desplegable de Nicho en Navbar -->
                 <div class="dropdown">
-                    <button class="btn btn-sm btn-dtavo-secondary rounded-pill px-3 dropdown-toggle shadow-sm fw-bold" type="button" id="nichoDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button class="btn btn-sm btn-dtavo-secondary rounded-pill px-2 px-sm-3 dropdown-toggle shadow-sm fw-bold" type="button" id="nichoDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.8rem;">
                         <i class="fa-solid fa-store me-1"></i>
                         {% if session.categoria_actual %}
                             {{ session.categoria_nombre }}
                         {% else %}
-                            Todos los Nichos
+                            <span class="d-none d-sm-inline">Todos los </span>Nichos
                         {% endif %}
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2 bg-dtavo-card" aria-labelledby="nichoDropdown" style="min-width: 230px; border-radius: 12px; z-index: 1060;">
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2 bg-dtavo-card" aria-labelledby="nichoDropdown" style="min-width: 210px; border-radius: 12px; z-index: 1060;">
                         <li>
                             <a class="dropdown-item rounded-2 py-2 fw-bold text-dtavo-main {% if not session.categoria_actual %}active{% endif %}" href="{{ url_for('salir_nicho') }}">
                                 <i class="fa-solid fa-globe me-2 text-dtavo-primary"></i> Todos los Nichos (Global)
@@ -312,7 +310,6 @@
                         {% endif %}
                     </ul>
                 </div>
-                <div style="width: 10px;" class="d-md-none"></div>
             </div>
         </div>
     </nav>
