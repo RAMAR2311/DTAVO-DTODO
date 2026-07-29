@@ -135,14 +135,35 @@
                 <tr data-imeis="{{ imeis_str }}" data-nicho="{{ p.categoria_id or '' }}">
                     <td class="text-dtavo-sec"><small><strong>{{ p.sku }}</strong></small></td>
                     <td class="fw-semibold text-dtavo-main">
-                        {{ p.nombre }}
-                        {% if p.atributos %}
-                            <div class="mt-1 d-flex flex-wrap gap-1">
-                                {% for k, v in p.atributos.items() %}
-                                    <span class="badge bg-dtavo-card text-dtavo-sec border fw-normal" style="font-size: 0.65rem;">{{ k }}: {{ v }}</span>
-                                {% endfor %}
+                        <div class="d-flex align-items-center gap-2">
+                            {% if p.imagen %}
+                                <a href="{{ url_for('static', filename='uploads/' ~ p.imagen) }}" target="_blank" title="Ver foto a tamaño completo">
+                                    <img src="{{ url_for('static', filename='uploads/' ~ p.imagen) }}" alt="Foto" class="rounded border shadow-xs" style="width: 36px; height: 36px; object-fit: cover;">
+                                </a>
+                            {% endif %}
+                            <div>
+                                <div>{{ p.nombre }}</div>
+                                <div class="mt-1 d-flex align-items-center gap-1 flex-wrap">
+                                    {% if p.imagen %}
+                                        <span class="badge bg-success-subtle text-success border border-success rounded-pill px-2 py-1" style="font-size: 0.65rem;">
+                                            <i class="fa-solid fa-camera me-1"></i>Con Foto
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary rounded-pill px-2 py-1" style="font-size: 0.65rem;">
+                                            <i class="fa-solid fa-image-slash me-1"></i>Sin Foto
+                                        </span>
+                                    {% endif %}
+
+                                    {% if p.atributos %}
+                                        {% for k, v in p.atributos.items() %}
+                                            {% if k != 'stock_minimo_alerta' %}
+                                                <span class="badge bg-dtavo-card text-dtavo-sec border fw-normal" style="font-size: 0.65rem;">{{ k }}: {{ v }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
                             </div>
-                        {% endif %}
+                        </div>
                     </td>
                     <td>
                         {% if p.es_stock_bajo %}
