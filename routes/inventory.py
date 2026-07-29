@@ -184,13 +184,16 @@ def nuevo():
             # --- NUEVO: Procesar Variantes desde el Formulario ---
             var_names = request.form.getlist('variant_name[]')
             var_stocks = request.form.getlist('variant_stock[]')
+            var_entrantes = request.form.getlist('variant_stock_entrante[]')
             
-            for v_name, v_stock in zip(var_names, var_stocks):
+            for idx, (v_name, v_stock) in enumerate(zip(var_names, var_stocks)):
                 if v_name.strip():
+                    stock_base = int(v_stock or 0)
+                    stock_ent = int(var_entrantes[idx] or 0) if idx < len(var_entrantes) else 0
                     nueva_v = ProductVariant()
                     nueva_v.product_id = nuevo_p.id
                     nueva_v.nombre_variante = v_name.strip()
-                    nueva_v.cantidad_stock = int(v_stock or 0)
+                    nueva_v.cantidad_stock = stock_base + stock_ent
                     nueva_v.precio_costo = nuevo_p.precio_costo
                     nueva_v.precio_minimo = nuevo_p.precio_minimo
                     nueva_v.precio_sugerido = nuevo_p.precio_sugerido
@@ -282,27 +285,30 @@ def editar_producto(id):
                 db.session.add(ajuste)
             var_names = request.form.getlist('variant_name[]')
             var_stocks = request.form.getlist('variant_stock[]')
+            var_entrantes = request.form.getlist('variant_stock_entrante[]')
             
             if var_names:
                 # 1. Obtener variantes actuales
                 variantes_actuales = {v.nombre_variante: v for v in producto.variantes}
                 nombres_en_form = set()
                 
-                for v_name, v_stock in zip(var_names, var_stocks):
+                for idx, (v_name, v_stock) in enumerate(zip(var_names, var_stocks)):
                     name = v_name.strip()
                     if not name: continue
                     nombres_en_form.add(name)
-                    stock = int(v_stock or 0)
+                    stock_base = int(v_stock or 0)
+                    stock_ent = int(var_entrantes[idx] or 0) if idx < len(var_entrantes) else 0
+                    stock_final = stock_base + stock_ent
                     
                     if name in variantes_actuales:
                         # Actualizar
-                        variantes_actuales[name].cantidad_stock = stock
+                        variantes_actuales[name].cantidad_stock = stock_final
                     else:
                         # Crear
                         nueva_v = ProductVariant()
                         nueva_v.product_id = producto.id
                         nueva_v.nombre_variante = name
-                        nueva_v.cantidad_stock = stock
+                        nueva_v.cantidad_stock = stock_final
                         nueva_v.precio_costo = producto.precio_costo
                         nueva_v.precio_minimo = producto.precio_minimo
                         nueva_v.precio_sugerido = producto.precio_sugerido

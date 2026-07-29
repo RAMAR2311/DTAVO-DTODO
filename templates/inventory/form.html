@@ -143,11 +143,22 @@
                             {% if producto and producto.variantes %}
                                 {% for v in producto.variantes %}
                                 <div class="row g-2 mb-2 variant-row align-items-center">
-                                    <div class="col-md-7">
+                                    <div class="col-md-5">
                                         <input type="text" name="variant_name[]" class="form-control bg-white border-0 shadow-sm" placeholder="Ej: Talla M, Color Rojo..." value="{{ v.nombre_variante }}">
                                     </div>
-                                    <div class="col-md-4">
-                                        <input type="number" name="variant_stock[]" class="form-control bg-white border-0 shadow-sm" placeholder="Stock" value="{{ v.cantidad_stock }}">
+                                    <div class="col-md-3">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text bg-light text-muted border-0 fw-bold" style="font-size: 0.72rem;">Stock</span>
+                                            <input type="number" name="variant_stock[]" class="form-control bg-white border-0 shadow-sm fw-bold variant-stock-input" placeholder="0" value="{{ v.cantidad_stock }}" min="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="input-group input-group-sm shadow-xs rounded overflow-hidden">
+                                            <input type="number" name="variant_stock_entrante[]" class="form-control bg-white border-success text-success fw-bold variant-entrante-input" placeholder="➕ Llegó..." value="0" min="0">
+                                            <button type="button" class="btn btn-sm btn-success fw-bold px-2" onclick="sumarStockVarianteQuick(this)" title="Sumar inmediatamente al stock de esta variante">
+                                                <i class="fa-solid fa-plus"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="col-md-1 text-center">
                                         <button type="button" class="btn btn-link text-danger p-0" onclick="this.closest('.variant-row').remove()"><i class="fa-solid fa-trash-can"></i></button>
@@ -156,7 +167,7 @@
                                 {% endfor %}
                             {% endif %}
                         </div>
-                        <p class="text-dtavo-sec small mt-2 mb-0"><i class="fa-solid fa-circle-info me-1"></i>Usa esta sección para productos que se dividen en tallas o colores (ej. Ropa).</p>
+                        <p class="text-dtavo-sec small mt-2 mb-0"><i class="fa-solid fa-circle-info me-1"></i>Usa la columna verde <strong>➕ Llegó...</strong> para sumar nuevas existencias recibidas a cada variante.</p>
                     </div>
                 </div>
 
@@ -232,17 +243,45 @@ document.addEventListener('DOMContentLoaded', function() {
      const row = document.createElement('div');
      row.className = 'row g-2 mb-2 variant-row align-items-center';
      row.innerHTML = `
-         <div class="col-md-7">
+         <div class="col-md-5">
              <input type="text" name="variant_name[]" class="form-control bg-white border-0 shadow-sm" placeholder="Ej: Talla M, Color Rojo...">
          </div>
-         <div class="col-md-4">
-             <input type="number" name="variant_stock[]" class="form-control bg-white border-0 shadow-sm" placeholder="Stock" value="0">
+         <div class="col-md-3">
+             <div class="input-group input-group-sm">
+                 <span class="input-group-text bg-light text-muted border-0 fw-bold" style="font-size: 0.72rem;">Stock</span>
+                 <input type="number" name="variant_stock[]" class="form-control bg-white border-0 shadow-sm fw-bold variant-stock-input" placeholder="0" value="0" min="0">
+             </div>
+         </div>
+         <div class="col-md-3">
+             <div class="input-group input-group-sm shadow-xs rounded overflow-hidden">
+                 <input type="number" name="variant_stock_entrante[]" class="form-control bg-white border-success text-success fw-bold variant-entrante-input" placeholder="➕ Llegó..." value="0" min="0">
+                 <button type="button" class="btn btn-sm btn-success fw-bold px-2" onclick="sumarStockVarianteQuick(this)" title="Sumar inmediatamente al stock de esta variante">
+                     <i class="fa-solid fa-plus"></i>
+                 </button>
+             </div>
          </div>
          <div class="col-md-1 text-center">
              <button type="button" class="btn btn-link text-danger p-0" onclick="this.closest('.variant-row').remove()"><i class="fa-solid fa-trash-can"></i></button>
          </div>
      `;
      container.appendChild(row);
+ }
+
+ function sumarStockVarianteQuick(btn) {
+     const row = btn.closest('.variant-row');
+     const stockInput = row.querySelector('.variant-stock-input');
+     const entranteInput = row.querySelector('.variant-entrante-input');
+     
+     let actual = parseInt(stockInput.value || '0', 10);
+     let entrante = parseInt(entranteInput.value || '0', 10);
+     
+     if (entrante > 0) {
+         const nuevoTotal = actual + entrante;
+         stockInput.value = nuevoTotal;
+         entranteInput.value = '0';
+         stockInput.classList.add('bg-warning');
+         setTimeout(() => stockInput.classList.remove('bg-warning'), 600);
+     }
  }
 
  // Lógica para mostrar sección de variantes automáticamente
