@@ -202,7 +202,7 @@
                         {% endif %}
                     </td>
                     <td class="text-center">
-                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill me-1" title="Agregar al Carrito de Inventario" onclick="agregarAlCarritoInventario({{ p.id }}, '{{ p.nombre|replace('\"', '')|replace('\'', '') }}', {{ p.precio_sugerido or 0 }}, '{{ p.sku }}', {{ p.total_stock }}, '{{ p.imagen or '' }}')">
+                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill me-1" title="Agregar al Carrito de Inventario" data-id="{{ p.id }}" data-nombre="{{ p.nombre }}" data-precio="{{ p.precio_sugerido or 0 }}" data-sku="{{ p.sku }}" data-stock="{{ p.total_stock }}" data-imagen="{{ p.imagen or '' }}" onclick="agregarAlCarritoInventario(this.dataset.id, this.dataset.nombre, this.dataset.precio, this.dataset.sku, this.dataset.stock, this.dataset.imagen)">
                             <i class="fa-solid fa-cart-plus"></i>
                         </button>
                         {% if p.es_serializado %}
@@ -544,6 +544,11 @@ document.addEventListener('DOMContentLoaded', function() {
             this.setSelectionRange(cursor, cursor);
         });
     });
+
+    // Restaurar carrito de inventario en la interfaz tras cualquier cambio de página
+    if (typeof renderInvCart === 'function') {
+        renderInvCart();
+    }
 });
 
 // --- Lógica de Gestión de Seriales ---
@@ -648,20 +653,38 @@ async function eliminarSerial(serialId) {
 
 // --- Lógica del Carrito de Selección de Inventario ---
 let invCart = [];
+try {
+    const savedInvCart = localStorage.getItem('dtavo_inv_cart');
+    if (savedInvCart) {
+        invCart = JSON.parse(savedInvCart) || [];
+    }
+} catch (e) {
+    console.error("Error al cargar carrito guardado:", e);
+    invCart = [];
+}
+
+function saveInvCartToStorage() {
+    try {
+        localStorage.setItem('dtavo_inv_cart', JSON.stringify(invCart));
+    } catch (e) {
+        console.error("Error al guardar carrito:", e);
+    }
+}
 
 function agregarAlCarritoInventario(id, nombre, precio, sku, stock, imagen) {
-    const existingIndex = invCart.findIndex(item => item.id === id);
+    const prodId = parseInt(id, 10);
+    const existingIndex = invCart.findIndex(item => parseInt(item.id, 10) === prodId);
     if (existingIndex > -1) {
         invCart[existingIndex].cantidad += 1;
     } else {
         invCart.push({
-            id: id,
+            id: prodId,
             nombre: nombre,
             precio: parseFloat(precio) || 0,
             precio_final: parseFloat(precio) || 0,
             precio_minimo: parseFloat(precio) || 0,
             sku: sku,
-            cantidad_stock: stock,
+            cantidad_stock: parseInt(stock, 10) || 0,
             imagen: imagen,
             cantidad: 1
         });
@@ -719,6 +742,8 @@ function renderInvCart() {
     countEl.textContent = totalCount;
     totalEl.textContent = '$' + new Intl.NumberFormat('en-US').format(totalPrice);
     if (modalTotalEl) modalTotalEl.textContent = '$' + new Intl.NumberFormat('en-US').format(totalPrice);
+
+    saveInvCartToStorage();
 }
 
 function cambiarCantCart(index, change) {
@@ -746,6 +771,8 @@ function facturarEnCajaRapida() {
         return;
     }
     localStorage.setItem('pos_carrito_importado', JSON.stringify(invCart));
+    invCart = [];
+    saveInvCartToStorage();
     window.location.href = "{{ url_for('sales_bp.pos_visual') }}";
 }
 

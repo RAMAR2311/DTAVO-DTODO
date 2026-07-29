@@ -558,6 +558,7 @@ def pos_visual():
             'requiere_imei': requiere_imei,
             'tiene_variantes': tiene_variantes,
             'atributos': p.atributos or {},
+            'seriales': [s.serial for s in seriales_disponibles],
             'requiere_seleccion': tiene_variantes or tiene_seriales,
             'variantes': [
                 {
@@ -589,8 +590,12 @@ def pos_buscar_api():
     
     tipo_inv = 'tienda'
     
-    # 1. Búsqueda por SERIAL exacto disponible (Escáner de código de barras)
-    serial_match = ProductSeries.query.filter_by(serial=q, estado='disponible').first()
+    # 1. Búsqueda por SERIAL exacto disponible (Escáner de código de barras / Búsqueda exacta case-insensitive y sin espacios)
+    serial_match = ProductSeries.query.filter(
+        func.lower(func.trim(ProductSeries.serial)) == q.lower(),
+        ProductSeries.estado == 'disponible'
+    ).first()
+    
     if serial_match:
         p = serial_match.producto
         # Para serial_exacto, devolvemos un objeto específico para agregarlo directo al carrito
@@ -609,13 +614,14 @@ def pos_buscar_api():
             }
         })
 
-    # 2. Búsqueda normal por Nombre o SKU
+    # 2. Búsqueda normal por Nombre, SKU, Atributos o IMEI en ProductSeries
     search_term = f"%{q}%"
     productos = Product.query.filter(
         Product.tipo_inventario == tipo_inv,
         db.or_(
             Product.nombre.ilike(search_term),
             Product.sku.ilike(search_term),
+            Product.series.any(db.and_(ProductSeries.serial.ilike(search_term), ProductSeries.estado == 'disponible')),
             db.text("EXISTS (SELECT 1 FROM jsonb_each_text(products.atributos) WHERE value ILIKE :q)").bindparams(q=search_term)
         )
     ).limit(20).all()
@@ -654,6 +660,7 @@ def pos_buscar_api():
             'tiene_variantes': tiene_variantes,
             'es_serializado': es_serializado,
             'atributos': p.atributos or {},
+            'seriales': [s.serial for s in seriales_disponibles],
             'variantes': [
                 {
                     'id': v.id,
