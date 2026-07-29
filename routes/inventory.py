@@ -1,5 +1,6 @@
 from decimal import Decimal
 import os
+from sqlalchemy import func
 from werkzeug.utils import secure_filename
 from flask import current_app, Blueprint, render_template, request, redirect, url_for, flash, abort, send_file, jsonify, session
 from flask_login import login_required, current_user
@@ -489,14 +490,14 @@ def eliminar_variante(id):
 @login_required
 @inventory_access_required
 def descargar_plantilla():
-    # Crear la estructura de datos
-    cols = ['sku', 'nombre', 'subcategoria', 'cantidad_stock', 'precio_costo', 'precio_minimo', 'precio_sugerido', 'observacion']
+    # Crear la estructura de datos incluyendo la casilla de nicho
+    cols = ['sku', 'nombre', 'nicho', 'subcategoria', 'cantidad_stock', 'precio_costo', 'precio_minimo', 'precio_sugerido', 'observacion']
     df = pd.DataFrame(columns=cols)
     
     # Filas de ejemplo instructivas
-    df.loc[0] = ['SKU-001', 'Camiseta Polo', 'Azul / M', 50, 15000, 25000, 35000, 'Algodón Premium']
-    df.loc[1] = ['SKU-001', 'Camiseta Polo', 'Rojo / L', 30, 15000, 25000, 35000, 'Algodón Premium']
-    df.loc[2] = ['SKU-002', 'Protector Pantalla G7', '', 100, 2000, 5000, 8000, 'Sin subcategorías']
+    df.loc[0] = ['SKU-001', 'Camiseta Polo', 'Ropa', 'Azul / M', 50, 15000, 25000, 35000, 'Algodón Premium']
+    df.loc[1] = ['SKU-001', 'Camiseta Polo', 'Ropa', 'Rojo / L', 30, 15000, 25000, 35000, 'Algodón Premium']
+    df.loc[2] = ['SKU-002', 'Protector Pantalla G7', 'Accesorios', '', 100, 2000, 5000, 8000, 'Sin subcategorías']
     
     output = BytesIO()
     
@@ -553,14 +554,14 @@ def importar_inventario():
             df = pd.read_excel(archivo)
             
         required_cols = ['sku', 'nombre', 'cantidad_stock', 'precio_costo', 'precio_minimo', 'precio_sugerido', 'observacion']
-        # 'subcategoria' es opcional pero la normalizamos si existe
+        # 'nicho' / 'categoria' y 'subcategoria' son opcionales pero las procesamos dinámicamente
         
         # Limpieza de encabezados para evitar problemas por mayúsculas o espacios accidentales
         df.columns = [str(c).strip().lower() for c in df.columns]
         
         missing = [c for c in required_cols if c not in df.columns]
         if missing:
-            flash(f"El archivo rechazado. Faltan las siguientes columnas: {', '.join(missing)}", 'danger')
+            flash(f"El archivo fue rechazado. Faltan las siguientes columnas: {', '.join(missing)}", 'danger')
             return redirect(url_for('inventory_bp.index'))
             
         tipo = 'bodega' if current_user.rol == 'bodega' else 'tienda'
@@ -589,6 +590,22 @@ def importar_inventario():
             if obs_val.lower() == 'nan':
                 obs_val = ''
 
+            # Procesamiento de Nicho / Categoría desde el Excel
+            nicho_val = ''
+            if 'nicho' in row and pd.notna(row['nicho']):
+                nicho_val = str(row['nicho']).strip()
+            elif 'categoria' in row and pd.notna(row['categoria']):
+                nicho_val = str(row['categoria']).strip()
+
+            categoria_id_asignar = None
+            if nicho_val and nicho_val.lower() not in ['nan', 'none', '']:
+                cat_match = Category.query.filter(func.lower(Category.nombre) == func.lower(nicho_val)).first()
+                if not cat_match:
+                    cat_match = Category(nombre=nicho_val.strip().title())
+                    db.session.add(cat_match)
+                    db.session.flush()
+                categoria_id_asignar = cat_match.id
+
             sub_raw = str(row['subcategoria']).strip() if 'subcategoria' in row else ''
             if sub_raw.lower() in ['nan', 'none', '']:
                 sub_raw = None
@@ -606,6 +623,8 @@ def importar_inventario():
                 nuevo_p.precio_minimo = Decimal(str(minimo))
                 nuevo_p.precio_sugerido = Decimal(str(sugerido))
                 nuevo_p.observacion = obs_val
+                if categoria_id_asignar:
+                    nuevo_p.categoria_id = categoria_id_asignar
                 db.session.add(nuevo_p)
                 db.session.flush()
                 creados += 1
@@ -614,6 +633,9 @@ def importar_inventario():
                 # Actualizar información general del producto existente
                 prod.nombre = nombre_val
                 prod.observacion = obs_val
+                if categoria_id_asignar:
+                    prod.categoria_id = categoria_id_asignar
+
                 if not sub_raw: # Si es producto base, actualizamos precios y PROPAGAMOS a variantes
                     prod.precio_costo = Decimal(str(costo))
                     prod.precio_minimo = Decimal(str(minimo))
