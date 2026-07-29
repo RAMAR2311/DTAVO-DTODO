@@ -527,8 +527,8 @@ def pos_visual():
     # Pre-estructurar los datos para enviarlos como JSON al frontend
     productos_data = []
     for p in productos:
-        # Excluir de la caja rápida productos sin existencias en stock
-        if p.cantidad_stock <= 0:
+        # Excluir de la caja rápida productos sin existencias en stock (usando total_stock que suma variantes)
+        if p.total_stock <= 0:
             continue
 
         cat_nombre = p.categoria.nombre if p.categoria else 'Otros'
@@ -552,7 +552,7 @@ def pos_visual():
             'categoria': cat_nombre,
             'precio_final': float(p.precio_sugerido),
             'precio_minimo': float(p.precio_minimo),
-            'cantidad_stock': p.cantidad_stock,
+            'cantidad_stock': p.total_stock,
             'imagen': p.imagen,
             'es_serializado': es_serializado,
             'requiere_imei': requiere_imei,
@@ -622,6 +622,9 @@ def pos_buscar_api():
 
     resultados = []
     for p in productos:
+        if p.total_stock <= 0:
+            continue
+
         cat_nombre = p.categoria.nombre if p.categoria else 'Otros'
         
         # Contar seriales disponibles reales
@@ -645,7 +648,7 @@ def pos_buscar_api():
             'categoria': cat_nombre,
             'precio_final': float(p.precio_sugerido),
             'precio_minimo': float(p.precio_minimo),
-            'cantidad_stock': p.cantidad_stock,
+            'cantidad_stock': p.total_stock,
             'imagen': p.imagen or 'default_product.png',
             'requiere_imei': requiere_imei,
             'tiene_variantes': tiene_variantes,
