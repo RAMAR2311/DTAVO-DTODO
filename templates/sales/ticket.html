@@ -222,11 +222,24 @@
         {% endif %}
     </div>
 
+    {% set ns = namespace(es_ropa=False) %}
+    {% if venta.categoria and ('ropa' in venta.categoria.nombre.lower() or 'vestuario' in venta.categoria.nombre.lower() or 'calzado' in venta.categoria.nombre.lower()) %}
+        {% set ns.es_ropa = True %}
+    {% else %}
+        {% for d in venta.detalles %}
+            {% if d.producto and d.producto.categoria and ('ropa' in d.producto.categoria.nombre.lower() or 'vestuario' in d.producto.categoria.nombre.lower() or 'calzado' in d.producto.categoria.nombre.lower()) %}
+                {% set ns.es_ropa = True %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    {% if not ns.es_ropa %}
     <!-- Políticas de Garantía -->
     <div class="garantia-box" style="margin-top: 20px; font-size: 0.68rem; line-height: 1.35; border-top: 1px dashed #1A1A1A; padding-top: 10px; text-align: justify;">
         <p style="font-weight: bold; margin: 0 0 5px 0; text-align: center; text-transform: uppercase; font-size: 0.75rem;">Políticas de Garantía</p>
         <p style="margin: 0;">Equipos nuevos: garantía de 1 año. Equipos de exhibición: garantía de 3 meses. La remoción, rotura o alteración del sticker de seguridad de la tienda en el equipo anula automáticamente la garantía. No cubre equipos con garantía vencida, reportados por operador, IMEI o serial alterado, daños por golpes, caídas, humedad, líquidos, polvo, manipulación indebida, software modificado, instalaciones o actualizaciones no autorizadas, equipos intervenidos por terceros, pantallas despegadas, manchas negras, líneas en pantalla, rayones o cualquier daño físico. Para hacer efectiva la garantía es obligatorio presentar la factura original. El tiempo de revisión y diagnóstico es de 2 a 3 días hábiles. Si la garantía procede, se reemplazará la pieza defectuosa; si el equipo no puede ser reparado, se realizará el cambio del mismo. El tiempo máximo de reparación es de hasta 15 días hábiles, de conformidad con la Ley 1480 de 2011.</p>
     </div>
+    {% endif %}
 
     <div class="footer">
         <p style="font-size: 0.95rem; font-weight: bold; margin: 0 0 4px 0;">¡Gracias por tu compra!</p>
