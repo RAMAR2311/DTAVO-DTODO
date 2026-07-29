@@ -84,11 +84,17 @@
             <label class="form-label small fw-bold text-dtavo-main">
                 <i class="fa-regular fa-calendar me-1 text-dtavo-primary"></i>Mes a consultar
             </label>
-            <input type="month" name="mes" id="filtro-mes"
-                   class="form-control border-0 shadow-sm"
-                   value="{{ mes_filtro_str }}"
-                   max="{{ mes_filtro_str }}"
-                   style="background: var(--bs-body-bg);">
+            <select name="mes" id="filtro-mes" class="form-select border-0 shadow-sm fw-bold text-dtavo-main">
+                {% if opciones_meses %}
+                    {% for m in opciones_meses %}
+                        <option value="{{ m.val }}" {% if mes_filtro_str == m.val %}selected{% endif %}>
+                            {{ m.nombre }}
+                        </option>
+                    {% endfor %}
+                {% else %}
+                    <option value="{{ mes_filtro_str }}" selected>{{ mes_nombre }}</option>
+                {% endif %}
+            </select>
         </div>
 
         <!-- Botón Aplicar -->
@@ -178,7 +184,7 @@
         </div>
     </div>
 
-    <!-- 4. Alertas de Stock Bajo -->
+    <!-- 4. Alertas de Stock Bajo (Solo Celulares y Accesorios) -->
     <div class="col-md-3">
         <div class="card card-custom h-100 p-4 border-0 shadow-sm">
             <div class="d-flex justify-content-between align-items-start mb-2">
@@ -188,10 +194,10 @@
             <h3 class="fw-bolder {{ 'text-dtavo-hover' if productos_bajo_stock > 0 else 'text-dtavo-primary' }}">
                 {{ productos_bajo_stock }} items
             </h3>
-            <p class="text-dtavo-sec small m-0 mb-3">Menos de 3 unidades en tienda.</p>
+            <p class="text-dtavo-sec small m-0 mb-3">Celulares y Accesorios bajo su mínimo.</p>
             <div class="mt-auto pt-2">
                 <a href="/inventory/" class="btn btn-dtavo-secondary w-100 rounded-pill fw-bold">
-                    <i class="fa-solid fa-eye me-2"></i>Ver Críticos
+                    <i class="fa-solid fa-eye me-2"></i>Ver Inventario
                 </a>
             </div>
         </div>

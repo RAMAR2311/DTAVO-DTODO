@@ -104,6 +104,28 @@ class Product(db.Model):
         return self.cantidad_stock
 
     @property
+    def stock_minimo_alerta(self):
+        if self.atributos and 'stock_minimo_alerta' in self.atributos:
+            try:
+                return int(self.atributos['stock_minimo_alerta'])
+            except (ValueError, TypeError):
+                pass
+        return 3
+
+    @property
+    def requiere_alerta_stock(self):
+        if not self.categoria:
+            return False
+        cat_nombre = self.categoria.nombre.lower()
+        return ('celular' in cat_nombre) or ('accesorio' in cat_nombre)
+
+    @property
+    def es_stock_bajo(self):
+        if not self.requiere_alerta_stock:
+            return False
+        return self.total_stock <= self.stock_minimo_alerta
+
+    @property
     def rango_precios(self):
         if not self.variantes:
             return None

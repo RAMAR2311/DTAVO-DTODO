@@ -624,6 +624,11 @@ def pos_buscar_api():
         
         # Lógica estricta de banderas para el Modal
         es_serializado = p.es_serializado or tiene_seriales
+        
+        # Excluir celulares / productos serializados sin IMEIs disponibles para mantener limpia la caja
+        if es_serializado and not tiene_seriales:
+            continue
+            
         requiere_imei = p.categoria_id in [1, 6] or es_serializado
         
         resultados.append({

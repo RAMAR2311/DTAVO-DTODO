@@ -264,7 +264,23 @@ def dashboard():
     # Cálculos de inventario (independientes del mes)
     productos_tienda = query_prod.all()
     total_productos = len(productos_tienda)
-    productos_bajo_stock = sum(1 for p in productos_tienda if p.total_stock <= 3)
+    productos_bajo_stock = sum(1 for p in productos_tienda if p.es_stock_bajo)
+
+    # Generar opciones de meses legibles para el selector desplegable
+    opciones_meses = []
+    cursor_anio, cursor_mes = hoy.year, hoy.month
+    for _ in range(24):
+        m_str = f"{cursor_anio:04d}-{cursor_mes:02d}"
+        m_nombre = f"{MESES_ES[cursor_mes - 1]} {cursor_anio}"
+        opciones_meses.append({'val': m_str, 'nombre': m_nombre})
+        if cursor_mes == 1:
+            cursor_mes = 12
+            cursor_anio -= 1
+        else:
+            cursor_mes -= 1
+
+    if not any(m['val'] == mes_filtro_str for m in opciones_meses):
+        opciones_meses.insert(0, {'val': mes_filtro_str, 'nombre': mes_nombre})
 
     return render_template('admin/dashboard.html',
                            # Inventario
@@ -279,6 +295,7 @@ def dashboard():
                            # Contexto de fecha
                            mes_filtro_str=mes_filtro_str,
                            mes_nombre=mes_nombre,
+                           opciones_meses=opciones_meses,
                            # Nicho
                            nicho_nombre=nicho_nombre_sesion,
                            nicho_activo=nicho_sesion,

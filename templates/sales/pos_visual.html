@@ -745,6 +745,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.removeCartItem = (idx) => { carrito.splice(idx, 1); renderCart(); };
 
+    const currentUserRole = "{{ current_user.rol }}";
+
     window.updateCartPrice = (idx, newVal) => {
         const item = carrito[idx];
         const val = parseFloat(newVal);
@@ -754,9 +756,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (val < item.precio_minimo) {
+        if (currentUserRole !== 'admin' && val < item.precio_minimo) {
             // Usar Toast si está disponible, sino alert
-            alert(`Acción denegada: El precio mínimo permitido para este producto es ${formatoCOP(item.precio_minimo)}`);
+            alert(`Acción denegada: El precio mínimo permitido para vendedores en este producto es ${formatoCOP(item.precio_minimo)}`);
             renderCart(); // Revertir visualmente
             return;
         }
@@ -993,6 +995,26 @@ document.addEventListener('DOMContentLoaded', () => {
             statusCliente.style.display = 'none';
         }
     });
+
+    // Verificación de Carrito Importado desde Gestión de Inventario
+    const importedCartStr = localStorage.getItem('pos_carrito_importado');
+    if (importedCartStr) {
+        try {
+            const importedItems = JSON.parse(importedCartStr);
+            if (Array.isArray(importedItems) && importedItems.length > 0) {
+                importedItems.forEach(item => {
+                    addToCart(item.id, item.nombre, item.variant_id || null, item.nombre_variante || null, item.precio_final || item.precio, item.precio_minimo || item.precio, item.cantidad_stock || 99, item.cantidad || 1);
+                });
+                setTimeout(() => {
+                    alert(`Se cargaron ${importedItems.length} producto(s) desde la Gestión de Inventario al Carrito de Caja Rápida.`);
+                }, 300);
+            }
+        } catch(e) {
+            console.error("Error al importar el carrito de inventario:", e);
+        } finally {
+            localStorage.removeItem('pos_carrito_importado');
+        }
+    }
 
     // Iniciar
     const today = new Date();

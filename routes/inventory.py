@@ -3,7 +3,7 @@ import os
 from werkzeug.utils import secure_filename
 from flask import current_app, Blueprint, render_template, request, redirect, url_for, flash, abort, send_file, jsonify, session
 from flask_login import login_required, current_user
-from models import db, Product, StockAdjustment, ProductVariant, Category, ProductSeries
+from models import db, Product, StockAdjustment, ProductVariant, Category, ProductSeries, obtener_hora_bogota
 from decorators import admin_or_bodega_required, inventory_access_required
 import pandas as pd
 from io import BytesIO
@@ -19,10 +19,31 @@ def validate_prices(*prices):
             return False
     return True
 
+def limpiar_celulares_sin_stock():
+    """Elimina automáticamente productos serializados sin stock ni IMEIs disponibles."""
+    try:
+        prods_serializados = Product.query.filter_by(es_serializado=True).all()
+        hubo_cambios = False
+        for p in prods_serializados:
+            cant_disp = ProductSeries.query.filter_by(product_id=p.id, estado='disponible').count()
+            if cant_disp == 0:
+                # Intentar eliminar el producto huérfano sin IMEIs disponibles
+                try:
+                    db.session.delete(p)
+                    db.session.flush()
+                    hubo_cambios = True
+                except Exception:
+                    db.session.rollback()
+        if hubo_cambios:
+            db.session.commit()
+    except Exception:
+        db.session.rollback()
+
 @inventory_bp.route('/', methods=['GET'])
 @login_required
 @inventory_access_required
 def index():
+    limpiar_celulares_sin_stock()
     cat_id = session.get('categoria_actual')
     tipo = 'bodega' if current_user.rol == 'bodega' else 'tienda'
     titulo_contexto = "Inventario Unificado"
@@ -35,7 +56,13 @@ def index():
             titulo_contexto = f"Nicho: {categoria.nombre}"
             query = query.filter_by(categoria_id=cat_id)
             
-    productos = query.order_by(Product.categoria_id, Product.nombre).all()
+    raw_productos = query.order_by(Product.categoria_id, Product.nombre).all()
+    # Filtrar estrictamente productos serializados con 0 IMEIs disponibles
+    productos = []
+    for p in raw_productos:
+        if p.es_serializado and p.cantidad_stock == 0:
+            continue
+        productos.append(p)
     
     total_unidades = 0
     total_costo = 0.0
@@ -98,6 +125,13 @@ def nuevo():
         for k, v in zip(attr_keys, attr_values):
             if k.strip():
                 atributos_dict[k.strip()] = v.strip()
+
+        stock_min_alerta = request.form.get('stock_minimo_alerta')
+        if stock_min_alerta is not None and stock_min_alerta.strip() != '':
+            try:
+                atributos_dict['stock_minimo_alerta'] = int(stock_min_alerta.strip())
+            except ValueError:
+                atributos_dict['stock_minimo_alerta'] = 3
 
         # Se crean los objetos y luego se asignan atributos explícitamente para evitar advertencias de linter
         nuevo_p = Product()
@@ -164,7 +198,9 @@ def editar_producto(id):
     
     if request.method == 'POST':
         stock_anterior = producto.cantidad_stock
-        cantidad_stock_nueva = int(request.form.get('cantidad_stock', 0))
+        cantidad_base = int(request.form.get('cantidad_stock', 0))
+        stock_entrante = int(request.form.get('stock_entrante', '0') or 0)
+        cantidad_stock_nueva = cantidad_base + stock_entrante
         
         if 'imagen' in request.files:
             file = request.files['imagen']
@@ -189,6 +225,13 @@ def editar_producto(id):
         for k, v in zip(attr_keys, attr_values):
             if k.strip():
                 atributos_dict[k.strip()] = v.strip()
+
+        stock_min_alerta = request.form.get('stock_minimo_alerta')
+        if stock_min_alerta is not None and stock_min_alerta.strip() != '':
+            try:
+                atributos_dict['stock_minimo_alerta'] = int(stock_min_alerta.strip())
+            except ValueError:
+                atributos_dict['stock_minimo_alerta'] = 3
 
         producto.sku = request.form.get('sku').strip()
         producto.nombre = request.form.get('nombre').strip()
@@ -881,3 +924,147 @@ def eliminar_retoma_aprobada(serie_id):
         flash(f'Error al eliminar: {str(e)}', 'danger')
 
     return redirect(url_for('inventory_bp.retomas_aprobadas'))
+
+@inventory_bp.route('/catalogo_pdf', methods=['POST'])
+@login_required
+def catalogo_pdf():
+    import json
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle, HRFlowable
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib import colors
+    from io import BytesIO
+
+    raw_ids = request.form.get('product_ids', '[]')
+    try:
+        product_ids = json.loads(raw_ids)
+    except Exception:
+        product_ids = []
+
+    if not product_ids:
+        flash("No se seleccionaron productos para el catálogo.", "warning")
+        return redirect(url_for('inventory_bp.index'))
+
+    productos = Product.query.filter(Product.id.in_(product_ids)).all()
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
+    story = []
+
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'DocTitle',
+        parent=styles['Heading1'],
+        fontSize=20,
+        leading=24,
+        textColor=colors.HexColor('#1A1A1A'),
+        alignment=1,
+        fontName='Helvetica-Bold'
+    )
+    subtitle_style = ParagraphStyle(
+        'DocSubTitle',
+        parent=styles['Normal'],
+        fontSize=10,
+        leading=13,
+        textColor=colors.HexColor('#666666'),
+        alignment=1,
+        fontName='Helvetica'
+    )
+    prod_desc = ParagraphStyle(
+        'ProdDesc',
+        parent=styles['Normal'],
+        fontSize=9,
+        leading=12,
+        textColor=colors.HexColor('#222222'),
+        fontName='Helvetica'
+    )
+    price_style = ParagraphStyle(
+        'ProdPrice',
+        parent=styles['Normal'],
+        fontSize=12,
+        leading=15,
+        textColor=colors.HexColor('#16A34A'),
+        fontName='Helvetica-Bold'
+    )
+    footer_style = ParagraphStyle(
+        'DocFooter',
+        parent=styles['Normal'],
+        fontSize=9,
+        leading=11,
+        textColor=colors.HexColor('#444444'),
+        alignment=1,
+        fontName='Helvetica-Bold'
+    )
+
+    story.append(Paragraph("<b>DTAVO — CATÁLOGO DE PRODUCTOS</b>", title_style))
+    story.append(Spacer(1, 4))
+    fecha_str = obtener_hora_bogota().strftime('%d/%m/%Y %H:%M')
+    story.append(Paragraph(f"Generado el {fecha_str} | Aliado tecnológico ZENIC SAS", subtitle_style))
+    story.append(Spacer(1, 10))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor('#C59F60'), spaceAfter=15))
+
+    for p in productos:
+        img_element = None
+        if p.imagen:
+            img_path = os.path.join(current_app.root_path, 'static', 'uploads', p.imagen)
+            if os.path.exists(img_path):
+                try:
+                    from PIL import Image as PILImage
+                    with PILImage.open(img_path) as pil_img:
+                        w, h = pil_img.size
+                        aspect = h / float(w)
+                        target_w = 120
+                        target_h = int(target_w * aspect)
+                        if target_h > 120:
+                            target_h = 120
+                            target_w = int(target_h / aspect)
+                        img_element = Image(img_path, width=target_w, height=target_h)
+                except Exception:
+                    try:
+                        img_element = Image(img_path, width=110, height=110)
+                    except Exception:
+                        img_element = None
+
+        if not img_element:
+            img_element = Paragraph("<br/><br/><font color='#9CA3AF' size=9><b>[ Sin imagen disponible ]</b></font>", subtitle_style)
+
+        # Atributos visibles para el cliente (excluyendo datos internos como stock_minimo_alerta)
+        user_attrs = []
+        if p.atributos:
+            for k, v in p.atributos.items():
+                if k != 'stock_minimo_alerta' and str(v).strip():
+                    user_attrs.append(f"<b>{k}:</b> {v}")
+        
+        attr_text = ""
+        if user_attrs:
+            attr_text = "<br/><font size=9 color='#374151'>" + " &nbsp;•&nbsp; ".join(user_attrs) + "</font>"
+        
+        cat_info = f"<font size=9 color='#6B7280'>Categoría: {p.categoria.nombre if p.categoria else 'General'}</font>"
+        obs_info = f"<br/><font size=9 color='#4B5563'><i>{p.observacion}</i></font>" if (p.observacion and p.observacion.strip()) else ""
+
+        detail_html = f"<b><font size=13 color='#111827'>{p.nombre}</font></b><br/>{cat_info}{attr_text}{obs_info}"
+        detail_p = Paragraph(detail_html, prod_desc)
+
+        precio_cop = "{:,.0f}".format(float(p.precio_sugerido or 0))
+        price_p = Paragraph(f"<b><font size=13 color='#C59F60'>PRECIO: ${precio_cop}</font></b>", price_style)
+
+        right_flowables = [detail_p, Spacer(1, 10), price_p]
+
+        table_data = [[img_element, right_flowables]]
+        t = Table(table_data, colWidths=[130, 410])
+        t.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#FFFFFF')),
+            ('BOX', (0, 0), (-1, -1), 0.75, colors.HexColor('#E5E7EB')),
+            ('PADDING', (0, 0), (-1, -1), 10),
+        ]))
+        story.append(t)
+        story.append(Spacer(1, 12))
+
+    story.append(Spacer(1, 10))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#C59F60'), spaceAfter=8))
+    story.append(Paragraph("<b>Aliado tecnológico ZENIC SAS</b>", footer_style))
+
+    doc.build(story)
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name=f"catalogo_dtavo_{obtener_hora_bogota().strftime('%Y%m%d_%H%M')}.pdf", mimetype='application/pdf')

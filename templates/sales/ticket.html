@@ -136,7 +136,7 @@
         @media print {
             body { background-color: #FFFFFF; padding: 0; display: block; }
             .ticket { box-shadow: none; max-width: 100%; padding: 0; margin: 0 auto; width: 80mm; border: none; }
-            .btn-print { display: none; }
+            .btn-print, .btn-wsp, .no-print-actions { display: none !important; }
             .total-row { background-color: transparent !important; border: none !important; padding: 10px 0 !important; }
             .total-row * { color: #1A1A1A !important; } /* Desactivar Azul para impresiones monocromas */
         }
@@ -222,17 +222,29 @@
         {% endif %}
     </div>
 
-    <div class="footer">
-        <p style="font-size: 1rem; font-weight: bold;">¡Gracias por tu compra!</p>
-        <p>Soporte: ventas@Dtavo.com</p>
+    <!-- Políticas de Garantía -->
+    <div class="garantia-box" style="margin-top: 20px; font-size: 0.68rem; line-height: 1.35; border-top: 1px dashed #1A1A1A; padding-top: 10px; text-align: justify;">
+        <p style="font-weight: bold; margin: 0 0 5px 0; text-align: center; text-transform: uppercase; font-size: 0.75rem;">Políticas de Garantía</p>
+        <p style="margin: 0;">Equipos nuevos: garantía de 1 año. Equipos de exhibición: garantía de 3 meses. La remoción, rotura o alteración del sticker de seguridad de la tienda en el equipo anula automáticamente la garantía. No cubre equipos con garantía vencida, reportados por operador, IMEI o serial alterado, daños por golpes, caídas, humedad, líquidos, polvo, manipulación indebida, software modificado, instalaciones o actualizaciones no autorizadas, equipos intervenidos por terceros, pantallas despegadas, manchas negras, líneas en pantalla, rayones o cualquier daño físico. Para hacer efectiva la garantía es obligatorio presentar la factura original. El tiempo de revisión y diagnóstico es de 2 a 3 días hábiles. Si la garantía procede, se reemplazará la pieza defectuosa; si el equipo no puede ser reparado, se realizará el cambio del mismo. El tiempo máximo de reparación es de hasta 15 días hábiles, de conformidad con la Ley 1480 de 2011.</p>
     </div>
 
-    <button class="btn-print" onclick="window.print()">
-        [ IMPRIMIR TICKET ]
-    </button>
+    <div class="footer">
+        <p style="font-size: 0.95rem; font-weight: bold; margin: 0 0 4px 0;">¡Gracias por tu compra!</p>
+        <p style="margin: 2px 0;">Soporte: ventas@Dtavo.com</p>
+        <p style="font-size: 0.78rem; font-weight: bold; margin-top: 10px; text-transform: uppercase;">Aliado tecnológico ZENIC SAS</p>
+    </div>
+
+    <div class="no-print-actions" style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+        <button class="btn-print" onclick="window.print()" style="margin-top: 0;">
+            [ 🖨️ IMPRIMIR TICKET ]
+        </button>
+        <button class="btn-wsp" onclick="enviarWhatsApp()" style="display: block; width: 100%; padding: 14px; background-color: #25D366; color: #FFFFFF; border: 2px solid #25D366; font-size: 1.05rem; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: inherit; transition: 0.2s; text-align: center;">
+            [ 💬 ENVIAR POR WHATSAPP ]
+        </button>
+    </div>
 </div>
 
-<!-- Lógica de Auto-Impresión y Sincronización de Tema -->
+<!-- Lógica de Auto-Impresión, WhatsApp y Sincronización de Tema -->
 <script>
     // Sincronizar tema con la aplicación principal
     (function() {
@@ -241,6 +253,46 @@
             document.body.classList.add('dark-mode');
         }
     })();
+
+    function enviarWhatsApp() {
+        let clienteTelefono = "{{ (venta.cliente.telefono if venta.cliente and venta.cliente.telefono else '') }}";
+        
+        let telefonoPrompt = prompt("Ingrese el número de WhatsApp del cliente:", clienteTelefono || "");
+        if (telefonoPrompt === null) return; // Cancelado
+        
+        let phoneClean = telefonoPrompt.replace(/\D/g, '');
+        if (!phoneClean) {
+            alert("Por favor ingrese un número de teléfono válido.");
+            return;
+        }
+        
+        // Si tiene 10 dígitos (ej. Colombia 3001234567), anteponer código 57
+        if (phoneClean.length === 10) {
+            phoneClean = '57' + phoneClean;
+        }
+        
+        const urlFactura = window.location.href;
+        const clienteNombre = "{{ (venta.cliente_nombre or (venta.cliente.nombre if venta.cliente else 'Cliente')) }}";
+        const totalVenta = "{{ (venta.monto_total)|cop }}";
+        const fechaVenta = "{{ venta.fecha_venta.strftime('%d/%m/%Y %H:%M') }}";
+        
+        let itemsText = "";
+        {% for detalle in venta.detalles %}
+            {% set nombre_prod = (detalle.nombre_manual or (detalle.producto.nombre if detalle.producto else 'Producto')) %}
+            itemsText += "• {{ detalle.cantidad_vendida }}x {{ nombre_prod|replace('\"', '')|replace('\'', '')|replace('\n', ' ') }} (${{ (detalle.precio_venta_final * detalle.cantidad_vendida)|cop }})\n";
+        {% endfor %}
+        
+        let mensaje = `Hola *${clienteNombre}*, gracias por tu compra en *DTAVO*.\n\n` +
+                      `🧾 *Factura / Ticket #${"{{ venta.id }}"}*\n` +
+                      `📅 *Fecha:* ${fechaVenta}\n` +
+                      `💵 *TOTAL:* $${totalVenta}\n\n` +
+                      `📦 *Detalle de compra:*\n${itemsText}\n` +
+                      `📄 *Ver comprobante digital:*\n${urlFactura}\n\n` +
+                      `_Aliado tecnológico ZENIC SAS_`;
+                      
+        const wspUrl = `https://api.whatsapp.com/send?phone=${phoneClean}&text=${encodeURIComponent(mensaje)}`;
+        window.open(wspUrl, '_blank');
+    }
 
     // Evento silencioso que detona el pop-up de impresora nativo de Windows al renderizar
     window.onload = function() {

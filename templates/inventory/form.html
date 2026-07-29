@@ -72,9 +72,24 @@
                     </div>
 
                     <div class="col-md-3 mt-4">
-                        <label class="form-label fw-bold text-dtavo-main">Existencias</label>
-                        <input type="number" class="form-control bg-dtavo-card border-0" name="cantidad_stock" required min="0" value="{{ producto.cantidad_stock if producto else '0' }}">
+                        <label class="form-label fw-bold text-dtavo-main">Existencias Actuales</label>
+                        <input type="number" class="form-control bg-dtavo-card border-0 fw-bold" name="cantidad_stock" id="input-cantidad-stock" required min="0" value="{{ producto.cantidad_stock if producto else '0' }}">
                     </div>
+
+                    {% if producto %}
+                    <div class="col-md-3 mt-4">
+                        <label class="form-label fw-bold text-success">
+                            <i class="fa-solid fa-plus-circle me-1"></i>➕ Agregar Nuevas Existencias
+                        </label>
+                        <div class="input-group shadow-sm rounded overflow-hidden">
+                            <input type="number" class="form-control bg-dtavo-card border-success fw-bold text-success" name="stock_entrante" id="input-stock-entrante" min="0" value="0" placeholder="¿Cuánto llegó?">
+                            <button type="button" class="btn btn-success fw-bold px-3" onclick="sumarStockEntranteQuick()" title="Sumar inmediatamente">
+                                <i class="fa-solid fa-plus me-1"></i> Sumar
+                            </button>
+                        </div>
+                        <small class="text-dtavo-sec d-block mt-1" style="font-size: 0.72rem;">Coloca lo que llegó y al guardar se sumará al stock actual.</small>
+                    </div>
+                    {% endif %}
                     <div class="col-md-3 mt-4">
                         <label class="form-label fw-bold text-dtavo-main text-truncate">Costo Compra</label>
                         <div class="input-group">
@@ -95,6 +110,11 @@
                             <span class="input-group-text bg-dtavo-card border-0">$</span>
                             <input type="text" class="form-control bg-dtavo-card border-0 money-input" name="precio_sugerido" required value="{{ (producto.precio_sugerido | int) if producto else '' }}">
                         </div>
+                    </div>
+                    <div class="col-md-3 mt-4">
+                        <label class="form-label fw-bold text-dtavo-main">Stock Mínimo p/ Alerta</label>
+                        <input type="number" class="form-control bg-dtavo-card border-0 fw-bold" name="stock_minimo_alerta" min="0" value="{{ producto.stock_minimo_alerta if producto else '3' }}" placeholder="Ej: 3">
+                        <small class="text-dtavo-sec d-block mt-1" style="font-size: 0.72rem;">Genera alerta de stock bajo (Celulares y Accesorios).</small>
                     </div>
                     
                     <div class="col-md-6 mt-4">
@@ -251,5 +271,21 @@ document.addEventListener('DOMContentLoaded', function() {
  catSelect.addEventListener('change', checkCategory);
  window.addEventListener('load', checkCategory);
 
+ function sumarStockEntranteQuick() {
+     const mainInput = document.getElementById('input-cantidad-stock');
+     const entranteInput = document.getElementById('input-stock-entrante');
+     if (mainInput && entranteInput) {
+         const actual = parseInt(mainInput.value || '0', 10);
+         const entrante = parseInt(entranteInput.value || '0', 10);
+         if (entrante > 0) {
+             const nuevoTotal = actual + entrante;
+             mainInput.value = nuevoTotal;
+             alert(`Se agregaron +${entrante} unidades. Nuevo stock total: ${nuevoTotal}`);
+             entranteInput.value = '0';
+         } else {
+             alert("Ingresa una cantidad mayor a 0 en '¿Cuánto llegó?'.");
+         }
+     }
+ }
 </script>
 {% endblock %}

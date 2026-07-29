@@ -80,22 +80,37 @@
     </div>
 </div>
 
-<!-- Buscador Rápido de Inventario -->
+<!-- Buscador Rápido y Filtro por Nicho -->
 <div class="card card-custom p-3 mb-4 border-0 shadow-sm bg-dtavo-card">
-    <div class="row align-items-center">
-        <div class="col-md-8 col-lg-6">
+    <div class="row align-items-center g-3">
+        <div class="col-md-7 col-lg-7">
             <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden border">
                 <span class="input-group-text bg-dtavo-card border-0 ps-4"><i class="fa-solid fa-magnifying-glass text-dtavo-sec"></i></span>
-                <input type="text" id="inventarioSearch" class="form-control border-0 bg-dtavo-card shadow-none ps-2" placeholder="Busca por SKU o Nombre del producto..." autocomplete="off">
+                <input type="text" id="inventarioSearch" class="form-control border-0 bg-dtavo-card shadow-none ps-2" placeholder="Busca por SKU, Nombre o IMEI/Serial..." autocomplete="off">
                 <button class="btn btn-light border-0 px-3 text-dtavo-sec" type="button" id="clearSearch" title="Limpiar búsqueda">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
         </div>
-        <div class="col-md-4 col-lg-6 text-md-end mt-3 mt-md-0">
-            <small class="text-dtavo-sec fw-bold text-uppercase" style="font-size: 0.75rem;">
-                Mostrando <span id="visibleCount" class="text-dtavo-primary">{{ productos|length }}</span> de {{ productos|length }} productos
-            </small>
+        <div class="col-md-5 col-lg-5">
+            <div class="d-flex align-items-center gap-2">
+                <div class="input-group shadow-sm rounded-pill overflow-hidden border flex-grow-1">
+                    <span class="input-group-text bg-dtavo-card border-0 ps-3"><i class="fa-solid fa-filter text-dtavo-primary"></i></span>
+                    <select id="nichoFilterSelect" class="form-select border-0 bg-dtavo-card shadow-none ps-2 fw-bold text-dtavo-main">
+                        <option value="todas">🌐 Todos los Nichos (General)</option>
+                        {% if todas_categorias %}
+                            {% for cat in todas_categorias %}
+                                <option value="{{ cat.id }}" {% if session.categoria_actual == cat.id %}selected{% endif %}>
+                                    Nicho: {{ cat.nombre }}
+                                </option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                </div>
+                <small class="text-dtavo-sec fw-bold text-uppercase d-none d-lg-block text-nowrap" style="font-size: 0.72rem;">
+                    <span id="visibleCount" class="text-dtavo-primary">{{ productos|length }}</span> de {{ productos|length }}
+                </small>
+            </div>
         </div>
     </div>
 </div>
@@ -116,7 +131,8 @@
             </thead>
             <tbody>
                 {% for p in productos %}
-                <tr>
+                {% set imeis_str = p.series|map(attribute='serial')|join(' ') if p.series else '' %}
+                <tr data-imeis="{{ imeis_str }}" data-nicho="{{ p.categoria_id or '' }}">
                     <td class="text-dtavo-sec"><small><strong>{{ p.sku }}</strong></small></td>
                     <td class="fw-semibold text-dtavo-main">
                         {{ p.nombre }}
@@ -129,9 +145,8 @@
                         {% endif %}
                     </td>
                     <td>
-                        <!-- Regla Estricta: Badge rojo si el stock <= 3 -->
-                        {% if p.total_stock <= 3 %}
-                            <span class="badge bg-danger rounded-pill px-3 py-2"><i class="fa-solid fa-triangle-exclamation me-1"></i> {{ p.total_stock }} (Stock Bajo)</span>
+                        {% if p.es_stock_bajo %}
+                            <span class="badge bg-danger rounded-pill px-3 py-2" title="Alerta de stock bajo en {{ p.categoria.nombre if p.categoria else 'Nicho' }}"><i class="fa-solid fa-triangle-exclamation me-1"></i> {{ p.total_stock }} (Stock Bajo ≤ {{ p.stock_minimo_alerta }})</span>
                         {% else %}
                             <span class="badge border border-dtavo-primary text-dtavo-main rounded-pill px-3 py-2" style="background-color: var(--dtavo-table-header);">{{ p.total_stock }} uds</span>
                         {% endif %}
@@ -166,8 +181,11 @@
                         {% endif %}
                     </td>
                     <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill me-1" title="Agregar al Carrito de Inventario" onclick="agregarAlCarritoInventario({{ p.id }}, '{{ p.nombre|replace('\"', '')|replace('\'', '') }}', {{ p.precio_sugerido or 0 }}, '{{ p.sku }}', {{ p.total_stock }}, '{{ p.imagen or '' }}')">
+                            <i class="fa-solid fa-cart-plus"></i>
+                        </button>
                         {% if p.es_serializado %}
-                        <button type="button" class="btn btn-sm btn-outline-warning rounded-pill me-1" title="Gestionar Seriales (IMEI)" onclick="abrirModalSeriales({{ p.id }}, '{{ p.nombre }}')">
+                        <button type="button" class="btn btn-sm btn-outline-warning rounded-pill me-1" title="Gestionar Seriales (IMEI)" data-id="{{ p.id }}" data-nombre="{{ p.nombre }}" onclick="abrirModalSeriales(this.dataset.id, this.dataset.nombre)">
                             <i class="fa-solid fa-barcode"></i>
                         </button>
                         {% endif %}
@@ -399,16 +417,24 @@ document.addEventListener('DOMContentLoaded', function() {
     </td>`;
     tbody.appendChild(noResultsRow);
 
+    const nichoSelect = document.getElementById('nichoFilterSelect');
+
     function filterTable() {
         const query = searchInput.value.toLowerCase().trim();
+        const selectedNicho = nichoSelect ? nichoSelect.value : 'todas';
         let matches = 0;
 
         tableRows.forEach(row => {
-            // Obtener texto de SKU (primera col) y Nombre (segunda col)
-            const sku = row.cells[0].textContent.toLowerCase();
-            const nombre = row.cells[1].textContent.toLowerCase();
+            if (row.classList.contains('no-results')) return;
+            const sku = row.cells[0] ? row.cells[0].textContent.toLowerCase() : '';
+            const nombre = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
+            const imeis = (row.dataset.imeis || '').toLowerCase();
+            const rowNicho = row.dataset.nicho || '';
 
-            if (sku.includes(query) || nombre.includes(query)) {
+            const matchesQuery = query === '' || sku.includes(query) || nombre.includes(query) || imeis.includes(query);
+            const matchesNicho = selectedNicho === 'todas' || selectedNicho === '' || rowNicho === selectedNicho;
+
+            if (matchesQuery && matchesNicho) {
                 row.classList.remove('d-none');
                 matches++;
             } else {
@@ -416,15 +442,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Actualizar contador
-        visibleCount.textContent = matches;
+        if (visibleCount) visibleCount.textContent = matches;
 
-        // Mostrar/Ocultar mensaje de no resultados
-        if (matches === 0 && query !== '') {
+        if (matches === 0 && (query !== '' || selectedNicho !== 'todas')) {
             noResultsRow.classList.remove('d-none');
         } else {
             noResultsRow.classList.add('d-none');
         }
+    }
+
+    if (nichoSelect) {
+        nichoSelect.addEventListener('change', filterTable);
     }
 
     searchInput.addEventListener('input', filterTable);
@@ -565,7 +593,238 @@ async function eliminarSerial(serialId) {
         alert("Error de conexión");
     }
 }
+
+// --- Lógica del Carrito de Selección de Inventario ---
+let invCart = [];
+
+function agregarAlCarritoInventario(id, nombre, precio, sku, stock, imagen) {
+    const existingIndex = invCart.findIndex(item => item.id === id);
+    if (existingIndex > -1) {
+        invCart[existingIndex].cantidad += 1;
+    } else {
+        invCart.push({
+            id: id,
+            nombre: nombre,
+            precio: parseFloat(precio) || 0,
+            precio_final: parseFloat(precio) || 0,
+            precio_minimo: parseFloat(precio) || 0,
+            sku: sku,
+            cantidad_stock: stock,
+            imagen: imagen,
+            cantidad: 1
+        });
+    }
+    renderInvCart();
+}
+
+function renderInvCart() {
+    const countEl = document.getElementById('invCartCount');
+    const totalEl = document.getElementById('invCartTotal');
+    const modalTotalEl = document.getElementById('modalCartTotal');
+    const floatBtn = document.getElementById('invCartFloatingBtn');
+    const tableBody = document.getElementById('invCartTableBody');
+
+    if (!countEl || !totalEl || !floatBtn || !tableBody) return;
+
+    let totalCount = 0;
+    let totalPrice = 0;
+
+    tableBody.innerHTML = '';
+
+    if (invCart.length === 0) {
+        floatBtn.classList.add('d-none');
+        tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">El carrito está vacío.</td></tr>';
+    } else {
+        floatBtn.classList.remove('d-none');
+        invCart.forEach((item, index) => {
+            const subtotal = item.cantidad * item.precio;
+            totalCount += item.cantidad;
+            totalPrice += subtotal;
+
+            tableBody.innerHTML += `
+                <tr>
+                    <td class="fw-bold text-dtavo-main">
+                        ${item.nombre}
+                        <br><small class="text-muted">SKU: ${item.sku}</small>
+                    </td>
+                    <td class="text-center">
+                        <div class="input-group input-group-sm justify-content-center">
+                            <button type="button" class="btn btn-outline-secondary" onclick="cambiarCantCart(${index}, -1)">-</button>
+                            <span class="input-group-text bg-dtavo-card px-3 fw-bold">${item.cantidad}</span>
+                            <button type="button" class="btn btn-outline-secondary" onclick="cambiarCantCart(${index}, 1)">+</button>
+                        </div>
+                    </td>
+                    <td class="text-end fw-bold">$${new Intl.NumberFormat('en-US').format(item.precio)}</td>
+                    <td class="text-end fw-bold text-success">$${new Intl.NumberFormat('en-US').format(subtotal)}</td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm text-danger" onclick="eliminarDelCart(${index})"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    countEl.textContent = totalCount;
+    totalEl.textContent = '$' + new Intl.NumberFormat('en-US').format(totalPrice);
+    if (modalTotalEl) modalTotalEl.textContent = '$' + new Intl.NumberFormat('en-US').format(totalPrice);
+}
+
+function cambiarCantCart(index, change) {
+    invCart[index].cantidad += change;
+    if (invCart[index].cantidad <= 0) {
+        invCart.splice(index, 1);
+    }
+    renderInvCart();
+}
+
+function eliminarDelCart(index) {
+    invCart.splice(index, 1);
+    renderInvCart();
+}
+
+function abrirModalCarritoInventario() {
+    renderInvCart();
+    const modal = new bootstrap.Modal(document.getElementById('modalCarritoInventario'));
+    modal.show();
+}
+
+function facturarEnCajaRapida() {
+    if (invCart.length === 0) {
+        alert("El carrito está vacío.");
+        return;
+    }
+    localStorage.setItem('pos_carrito_importado', JSON.stringify(invCart));
+    window.location.href = "{{ url_for('sales_bp.pos_visual') }}";
+}
+
+function descargarCatalogoPDF() {
+    if (invCart.length === 0) {
+        alert("Selecciona al menos un producto para generar el catálogo PDF.");
+        return;
+    }
+    const ids = invCart.map(item => item.id);
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = "{{ url_for('inventory_bp.catalogo_pdf') }}";
+    form.target = '_blank';
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrf_token';
+    csrfInput.value = "{{ csrf_token() }}";
+    form.appendChild(csrfInput);
+
+    const idsInput = document.createElement('input');
+    idsInput.type = 'hidden';
+    idsInput.name = 'product_ids';
+    idsInput.value = JSON.stringify(ids);
+    form.appendChild(idsInput);
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
+
+function enviarCatalogoWhatsApp() {
+    if (invCart.length === 0) {
+        alert("Selecciona al menos un producto para enviar el catálogo.");
+        return;
+    }
+    
+    let telefonoPrompt = prompt("Ingrese el número de WhatsApp del cliente o destinatario:");
+    if (telefonoPrompt === null) return;
+    
+    let phoneClean = telefonoPrompt.replace(/\D/g, '');
+    if (!phoneClean) {
+        alert("Por favor ingrese un número de teléfono válido.");
+        return;
+    }
+    if (phoneClean.length === 10) {
+        phoneClean = '57' + phoneClean;
+    }
+
+    // 1. Descargar el archivo PDF para adjuntar
+    descargarCatalogoPDF();
+
+    // 2. Armar resumen estructurado para WhatsApp
+    let totalCat = 0;
+    let itemsText = "";
+    invCart.forEach(item => {
+        const sub = item.cantidad * item.precio;
+        totalCat += sub;
+        itemsText += `• *${item.nombre.trim()}*\n  Precio: $${new Intl.NumberFormat('en-US').format(item.precio)}\n`;
+    });
+
+    const fechaStr = new Date().toLocaleDateString('es-CO');
+
+    let mensaje = `Hola, te comparto nuestro *Catálogo de Productos DTAVO* 📦\n` +
+                  `📅 *Fecha:* ${fechaStr}\n\n` +
+                  `📦 *Resumen del Catálogo:* \n${itemsText}\n` +
+                  `💵 *VALOR TOTAL:* $${new Intl.NumberFormat('en-US').format(totalCat)}\n\n` +
+                  `📄 _(Se ha generado el archivo PDF con las imágenes y detalles completos para adjuntar)_\n\n` +
+                  `_Aliado tecnológico ZENIC SAS_`;
+
+    const wspUrl = `https://api.whatsapp.com/send?phone=${phoneClean}&text=${encodeURIComponent(mensaje)}`;
+    setTimeout(() => {
+        window.open(wspUrl, '_blank');
+    }, 600);
+}
 </script>
+
+<!-- Botón Flotante Carrito Inventario -->
+<div id="invCartFloatingBtn" class="position-fixed bottom-0 end-0 m-4 z-3 d-none">
+    <button class="btn btn-dtavo-primary rounded-pill px-4 py-3 shadow-lg fw-bold d-flex align-items-center gap-2 border-0" onclick="abrirModalCarritoInventario()" style="background-color: var(--dtavo-primary); color: #1A1A1A;">
+        <i class="fa-solid fa-shopping-cart fs-5"></i>
+        <span>Carrito Inventario (<span id="invCartCount">0</span>)</span>
+        <span class="badge bg-dark text-white rounded-pill ms-2 px-2 py-1" id="invCartTotal">$0</span>
+    </button>
+</div>
+
+<!-- Modal de Carrito de Selección de Inventario -->
+<div class="modal fade" id="modalCarritoInventario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dtavo-card border-0 shadow-lg">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-dtavo-main"><i class="fa-solid fa-cart-shopping me-2 text-dtavo-primary"></i>Carrito de Selección de Inventario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-dtavo-card">
+                            <tr>
+                                <th>PRODUCTO</th>
+                                <th width="140" class="text-center">CANTIDAD</th>
+                                <th width="140" class="text-end">PRECIO</th>
+                                <th width="150" class="text-end">SUBTOTAL</th>
+                                <th width="60" class="text-center"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="invCartTableBody">
+                            <!-- JS Injected -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer border-0 d-flex justify-content-between">
+                <div>
+                    <h5 class="fw-bold m-0 text-dtavo-main">Total: <span id="modalCartTotal" class="text-success">$0</span></h5>
+                </div>
+                <div class="d-flex gap-2 flex-wrap justify-content-end">
+                    <button type="button" class="btn btn-outline-success rounded-pill px-3 fw-bold" onclick="facturarEnCajaRapida()">
+                        <i class="fa-solid fa-cash-register me-1"></i> Facturar (Caja Rápida)
+                    </button>
+                    <button type="button" class="btn btn-outline-primary rounded-pill px-3 fw-bold" onclick="descargarCatalogoPDF()">
+                        <i class="fa-solid fa-file-pdf me-1"></i> Descargar PDF
+                    </button>
+                    <button type="button" class="btn btn-success rounded-pill px-3 fw-bold" onclick="enviarCatalogoWhatsApp()" style="background-color: #25D366; border-color: #25D366; color: #FFF;">
+                        <i class="fa-brands fa-whatsapp me-1 fs-5 align-middle"></i> Enviar por WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Modal Único de Gestión de Seriales -->
 <div class="modal fade" id="serialManagementModal" tabindex="-1" aria-hidden="true">

@@ -77,6 +77,15 @@ def create_app():
         except (ValueError, TypeError):
             return value
 
+    @app.context_processor
+    def inject_global_vars():
+        from models import Category
+        if current_user and current_user.is_authenticated:
+            todas_cats = Category.query.order_by(Category.nombre).all()
+        else:
+            todas_cats = []
+        return dict(todas_categorias=todas_cats)
+
     # --- 7. RUTAS PRINCIPALES Y LÓGICA DE NICHOS ---
 
     @app.route('/')
