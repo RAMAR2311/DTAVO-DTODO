@@ -1,0 +1,30 @@
+{
+  "name": "DTAVO — Sistema de Gestión & POS",
+  "short_name": "DTAVO",
+  "description": "Sistema de gestión de inventario, clientes, ventas y caja rápida DTAVO",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#C59F60",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/static/img/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/img/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/img/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
