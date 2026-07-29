@@ -56,19 +56,24 @@ def index():
             titulo_contexto = f"Nicho: {categoria.nombre}"
             query = query.filter_by(categoria_id=cat_id)
             
+    import math
+
+    page = request.args.get('page', 1, type=int)
+    per_page = 30
+
     raw_productos = query.order_by(Product.categoria_id, Product.nombre).all()
     # Filtrar estrictamente productos serializados con 0 IMEIs disponibles
-    productos = []
+    all_productos = []
     for p in raw_productos:
         if p.es_serializado and p.cantidad_stock == 0:
             continue
-        productos.append(p)
+        all_productos.append(p)
     
     total_unidades = 0
     total_costo = 0.0
     total_potencial = 0.0
     
-    for p in productos:
+    for p in all_productos:
         # Usamos la propiedad dinámica del modelo que ya cuenta IMEIs disponibles
         stock_actual = p.cantidad_stock
 
@@ -82,13 +87,27 @@ def index():
             total_unidades += stock_actual
             total_costo += (stock_actual * float(p.precio_costo))
             total_potencial += (stock_actual * float(p.precio_sugerido))
+
+    # Paginación de 30 ítems por página
+    total_items = len(all_productos)
+    total_pages = math.ceil(total_items / per_page) if total_items > 0 else 1
+    if page < 1: page = 1
+    if page > total_pages: page = total_pages
+
+    start_idx = (page - 1) * per_page
+    end_idx = start_idx + per_page
+    productos_pagina = all_productos[start_idx:end_idx]
             
     return render_template('inventory/index.html', 
-                           productos=productos, 
+                           productos=productos_pagina, 
                            total_unidades=total_unidades, 
                            total_costo=total_costo, 
                            total_potencial=total_potencial,
-                           titulo_contexto=titulo_contexto)
+                           titulo_contexto=titulo_contexto,
+                           page=page,
+                           total_pages=total_pages,
+                           total_items=total_items,
+                           per_page=per_page)
 
 @inventory_bp.route('/nuevo', methods=['GET', 'POST'])
 @login_required
@@ -929,11 +948,17 @@ def eliminar_retoma_aprobada(serie_id):
 @login_required
 def catalogo_pdf():
     import json
-    from reportlab.lib.pagesizes import letter
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle, HRFlowable
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib import colors
+    import html
     from io import BytesIO
+
+    try:
+        from reportlab.lib.pagesizes import letter
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle, HRFlowable
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib import colors
+    except ImportError:
+        flash("El módulo ReportLab no está disponible en el servidor.", "danger")
+        return redirect(url_for('inventory_bp.index'))
 
     raw_ids = request.form.get('product_ids', '[]')
     try:
@@ -946,6 +971,9 @@ def catalogo_pdf():
         return redirect(url_for('inventory_bp.index'))
 
     productos = Product.query.filter(Product.id.in_(product_ids)).all()
+    if not productos:
+        flash("Los productos seleccionados ya no están disponibles.", "warning")
+        return redirect(url_for('inventory_bp.index'))
 
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
@@ -983,7 +1011,7 @@ def catalogo_pdf():
         parent=styles['Normal'],
         fontSize=12,
         leading=15,
-        textColor=colors.HexColor('#16A34A'),
+        textColor=colors.HexColor('#C59F60'),
         fontName='Helvetica-Bold'
     )
     footer_style = ParagraphStyle(
@@ -1012,12 +1040,12 @@ def catalogo_pdf():
                     from PIL import Image as PILImage
                     with PILImage.open(img_path) as pil_img:
                         w, h = pil_img.size
-                        aspect = h / float(w)
+                        aspect = h / float(w or 1)
                         target_w = 120
                         target_h = int(target_w * aspect)
                         if target_h > 120:
                             target_h = 120
-                            target_w = int(target_h / aspect)
+                            target_w = int(target_h / (aspect or 1))
                         img_element = Image(img_path, width=target_w, height=target_h)
                 except Exception:
                     try:
@@ -1028,21 +1056,27 @@ def catalogo_pdf():
         if not img_element:
             img_element = Paragraph("<br/><br/><font color='#9CA3AF' size=9><b>[ Sin imagen disponible ]</b></font>", subtitle_style)
 
-        # Atributos visibles para el cliente (excluyendo datos internos como stock_minimo_alerta)
+        # Escapar caracteres HTML especiales para prevenir fallos de XML en ReportLab
+        safe_nombre = html.escape(p.nombre or '')
+        safe_cat = html.escape(p.categoria.nombre if p.categoria else 'General')
+        safe_obs = html.escape(p.observacion or '')
+
         user_attrs = []
         if p.atributos:
             for k, v in p.atributos.items():
                 if k != 'stock_minimo_alerta' and str(v).strip():
-                    user_attrs.append(f"<b>{k}:</b> {v}")
+                    safe_k = html.escape(str(k))
+                    safe_v = html.escape(str(v))
+                    user_attrs.append(f"<b>{safe_k}:</b> {safe_v}")
         
         attr_text = ""
         if user_attrs:
             attr_text = "<br/><font size=9 color='#374151'>" + " &nbsp;•&nbsp; ".join(user_attrs) + "</font>"
         
-        cat_info = f"<font size=9 color='#6B7280'>Categoría: {p.categoria.nombre if p.categoria else 'General'}</font>"
-        obs_info = f"<br/><font size=9 color='#4B5563'><i>{p.observacion}</i></font>" if (p.observacion and p.observacion.strip()) else ""
+        cat_info = f"<font size=9 color='#6B7280'>Categoría: {safe_cat}</font>"
+        obs_info = f"<br/><font size=9 color='#4B5563'><i>{safe_obs}</i></font>" if safe_obs.strip() else ""
 
-        detail_html = f"<b><font size=13 color='#111827'>{p.nombre}</font></b><br/>{cat_info}{attr_text}{obs_info}"
+        detail_html = f"<b><font size=13 color='#111827'>{safe_nombre}</font></b><br/>{cat_info}{attr_text}{obs_info}"
         detail_p = Paragraph(detail_html, prod_desc)
 
         precio_cop = "{:,.0f}".format(float(p.precio_sugerido or 0))
@@ -1065,6 +1099,11 @@ def catalogo_pdf():
     story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#C59F60'), spaceAfter=8))
     story.append(Paragraph("<b>Aliado tecnológico ZENIC SAS</b>", footer_style))
 
-    doc.build(story)
-    buffer.seek(0)
-    return send_file(buffer, as_attachment=True, download_name=f"catalogo_dtavo_{obtener_hora_bogota().strftime('%Y%m%d_%H%M')}.pdf", mimetype='application/pdf')
+    try:
+        doc.build(story)
+        buffer.seek(0)
+        return send_file(buffer, as_attachment=True, download_name=f"catalogo_dtavo_{obtener_hora_bogota().strftime('%Y%m%d_%H%M')}.pdf", mimetype='application/pdf')
+    except Exception as e:
+        current_app.logger.error(f"Error generando PDF del catálogo: {e}")
+        flash(f"Error al generar el PDF del catálogo: {str(e)}", "danger")
+        return redirect(url_for('inventory_bp.index'))

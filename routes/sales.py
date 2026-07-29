@@ -527,6 +527,10 @@ def pos_visual():
     # Pre-estructurar los datos para enviarlos como JSON al frontend
     productos_data = []
     for p in productos:
+        # Excluir de la caja rápida productos sin existencias en stock
+        if p.cantidad_stock <= 0:
+            continue
+
         cat_nombre = p.categoria.nombre if p.categoria else 'Otros'
         
         # Contar seriales disponibles reales
@@ -536,6 +540,9 @@ def pos_visual():
         
         # Lógica de banderas para el frontend
         es_serializado = p.es_serializado or tiene_seriales
+        if es_serializado and not tiene_seriales:
+            continue
+
         requiere_imei = p.categoria_id in [1, 6] or es_serializado
         
         item = {
