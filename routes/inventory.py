@@ -415,56 +415,89 @@ def ver_producto(id):
     if producto.tipo_inventario != tipo:
         abort(403)
         
-    # 1. Obtener ajustes registrados en la BD (StockAdjustment)
-    db_ajustes = StockAdjustment.query.filter_by(product_id=id).all()
-    
     movimientos = []
-    sub_ticket_ids = set()
-    
-    for aj in db_ajustes:
-        diff = aj.stock_nuevo - aj.stock_anterior
-        nombre_user = aj.admin.nombre if aj.admin else 'Sistema'
-        movimientos.append({
-            'fecha_ajuste': aj.fecha_ajuste,
-            'usuario_nombre': nombre_user,
-            'tipo_movimiento': aj.tipo_movimiento,
-            'stock_anterior': aj.stock_anterior,
-            'stock_nuevo': aj.stock_nuevo,
-            'diferencia': diff
-        })
-        if aj.tipo_movimiento and 'Venta Ticket #' in aj.tipo_movimiento:
-            try:
-                t_id = aj.tipo_movimiento.split('Venta Ticket #')[1].split(' ')[0]
-                sub_ticket_ids.add(int(t_id))
-            except (IndexError, ValueError):
-                pass
-
-    # 2. Consultar ventas históricas en SaleDetail que no estén registradas en StockAdjustment
-    from models import SaleDetail, Sale
-    sales_details = (SaleDetail.query.join(Sale)
-                     .filter(SaleDetail.product_id == id)
-                     .order_by(Sale.fecha_venta.desc()).all())
-
-    for sd in sales_details:
-        if sd.sale and sd.sale.id not in sub_ticket_ids:
-            variant_str = f" ({sd.variante.nombre_variante})" if sd.variante else ""
-            imei_str = f" - IMEI: {sd.serial_vendido}" if sd.serial_vendido else ""
-            tipo_str = f"Venta Ticket #{sd.sale.id}{variant_str}{imei_str}"
+    try:
+        import re
+        from datetime import datetime, date
+        
+        # 1. Obtener ajustes registrados en la BD (StockAdjustment)
+        db_ajustes = StockAdjustment.query.filter_by(product_id=id).all()
+        sub_ticket_ids = set()
+        
+        for aj in db_ajustes:
+            st_ant = aj.stock_anterior if aj.stock_anterior is not None else 0
+            st_nuv = aj.stock_nuevo if aj.stock_nuevo is not None else 0
+            diff = st_nuv - st_ant
             
-            vendedor_nombre = sd.sale.vendedor.nombre if (sd.sale and sd.sale.vendedor) else 'Vendedor'
-            
+            nombre_user = aj.admin.nombre if (aj.admin and getattr(aj.admin, 'nombre', None)) else 'Sistema'
             movimientos.append({
-                'fecha_ajuste': sd.sale.fecha_venta,
-                'usuario_nombre': vendedor_nombre,
-                'tipo_movimiento': tipo_str,
-                'stock_anterior': '-',
-                'stock_nuevo': '-',
-                'diferencia': -sd.cantidad_vendida
+                'fecha_ajuste': aj.fecha_ajuste,
+                'usuario_nombre': nombre_user,
+                'tipo_movimiento': aj.tipo_movimiento or 'Ajuste de Stock',
+                'stock_anterior': st_ant,
+                'stock_nuevo': st_nuv,
+                'diferencia': diff
             })
-            sub_ticket_ids.add(sd.sale.id)
+            
+            if aj.tipo_movimiento:
+                match = re.search(r'Venta Ticket #(\d+)', aj.tipo_movimiento)
+                if match:
+                    sub_ticket_ids.add(int(match.group(1)))
 
-    from datetime import datetime
-    movimientos.sort(key=lambda x: x['fecha_ajuste'] if x['fecha_ajuste'] else datetime.min, reverse=True)
+        # 2. Consultar ventas históricas en SaleDetail que no estén registradas en StockAdjustment
+        from models import SaleDetail, Sale
+        sales_details = (SaleDetail.query.join(Sale)
+                         .filter(SaleDetail.product_id == id)
+                         .all())
+
+        for sd in sales_details:
+            if sd.sale and sd.sale.id not in sub_ticket_ids:
+                variante_nombre = getattr(sd.variante, 'nombre_variante', None) if sd.variant_id else None
+                variant_str = f" ({variante_nombre})" if variante_nombre else ""
+                imei_str = f" - IMEI: {sd.serial_vendido}" if sd.serial_vendido else ""
+                tipo_str = f"Venta Ticket #{sd.sale.id}{variant_str}{imei_str}"
+                
+                vendedor_obj = getattr(sd.sale, 'vendedor', None)
+                vendedor_nombre = getattr(vendedor_obj, 'nombre', 'Vendedor') if vendedor_obj else 'Vendedor'
+                
+                cant_v = sd.cantidad_vendida or 1
+                movimientos.append({
+                    'fecha_ajuste': sd.sale.fecha_venta,
+                    'usuario_nombre': vendedor_nombre,
+                    'tipo_movimiento': tipo_str,
+                    'stock_anterior': '-',
+                    'stock_nuevo': '-',
+                    'diferencia': -cant_v
+                })
+                sub_ticket_ids.add(sd.sale.id)
+
+        def get_sort_key(x):
+            dt = x.get('fecha_ajuste')
+            if not dt:
+                return datetime.min
+            if isinstance(dt, datetime):
+                return dt
+            if isinstance(dt, date):
+                return datetime(dt.year, dt.month, dt.day)
+            return datetime.min
+
+        movimientos.sort(key=get_sort_key, reverse=True)
+
+    except Exception as e:
+        print(f"Error al generar trazabilidad: {e}")
+        db_ajustes = StockAdjustment.query.filter_by(product_id=id).order_by(StockAdjustment.fecha_ajuste.desc()).all()
+        movimientos = []
+        for aj in db_ajustes:
+            st_ant = aj.stock_anterior if aj.stock_anterior is not None else 0
+            st_nuv = aj.stock_nuevo if aj.stock_nuevo is not None else 0
+            movimientos.append({
+                'fecha_ajuste': aj.fecha_ajuste,
+                'usuario_nombre': aj.admin.nombre if (aj.admin and getattr(aj.admin, 'nombre', None)) else 'Sistema',
+                'tipo_movimiento': aj.tipo_movimiento or 'Ajuste',
+                'stock_anterior': st_ant,
+                'stock_nuevo': st_nuv,
+                'diferencia': st_nuv - st_ant
+            })
 
     return render_template('inventory/ver.html', producto=producto, ajustes=movimientos)
 
