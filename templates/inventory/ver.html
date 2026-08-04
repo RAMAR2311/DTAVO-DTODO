@@ -73,13 +73,15 @@
                             <tbody>
                                 {% for ajuste in ajustes %}
                                 <tr>
-                                    <td class="ps-4 text-dtavo-sec"><small>{{ ajuste.fecha_ajuste.strftime('%Y-%m-%d %H:%M') }}</small></td>
-                                    <td><span class="badge bg-dtavo-card text-dtavo-main border px-2 py-1"><i class="fa-solid fa-user-tie me-1"></i>{{ ajuste.admin.nombre }}</span></td>
+                                    <td class="ps-4 text-dtavo-sec"><small>{{ ajuste.fecha_ajuste.strftime('%Y-%m-%d %H:%M') if ajuste.fecha_ajuste else '-' }}</small></td>
+                                    <td><span class="badge bg-dtavo-card text-dtavo-main border px-2 py-1"><i class="fa-solid fa-user-tie me-1"></i>{{ ajuste.usuario_nombre }}</span></td>
                                     <td>
-                                        {% if ajuste.tipo_movimiento == 'Creación Inicial' %}
+                                        {% if 'Inicial' in ajuste.tipo_movimiento or 'Creación' in ajuste.tipo_movimiento %}
                                             <span class="badge bg-success rounded-pill px-3 py-2"><i class="fa-solid fa-plus-circle me-1"></i>{{ ajuste.tipo_movimiento }}</span>
-                                        {% elif ajuste.tipo_movimiento == 'Venta' %}
+                                        {% elif 'Venta' in ajuste.tipo_movimiento %}
                                             <span class="badge bg-info text-dtavo-main rounded-pill px-3 py-2"><i class="fa-solid fa-cash-register me-1"></i>{{ ajuste.tipo_movimiento }}</span>
+                                        {% elif 'Anulación' in ajuste.tipo_movimiento or 'Anulacion' in ajuste.tipo_movimiento %}
+                                            <span class="badge bg-danger rounded-pill px-3 py-2"><i class="fa-solid fa-rotate-left me-1"></i>{{ ajuste.tipo_movimiento }}</span>
                                         {% else %}
                                             <span class="badge bg-warning text-dtavo-main rounded-pill px-3 py-2"><i class="fa-solid fa-wrench me-1"></i>{{ ajuste.tipo_movimiento }}</span>
                                         {% endif %}
@@ -87,7 +89,7 @@
                                     <td class="text-center fw-bold text-dtavo-sec">{{ ajuste.stock_anterior }}</td>
                                     <td class="text-center fw-bold text-dtavo-main">{{ ajuste.stock_nuevo }}</td>
                                     <td class="text-center pe-4">
-                                        {% set diff = ajuste.stock_nuevo - ajuste.stock_anterior %}
+                                        {% set diff = ajuste.diferencia %}
                                         {% if diff > 0 %}
                                             <span class="text-success fw-bold"><i class="fa-solid fa-arrow-up me-1"></i>+{{ diff }}</span>
                                         {% elif diff < 0 %}

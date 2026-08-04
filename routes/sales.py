@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, flash, redirect, render_template, url_for, session
 from flask_login import login_required, current_user
-from models import db, Product, ProductVariant, Sale, SaleDetail, SalePayment, Expense, Category, ProductSeries, obtener_hora_bogota, Customer
+from models import db, Product, ProductVariant, Sale, SaleDetail, SalePayment, Expense, Category, ProductSeries, obtener_hora_bogota, Customer, StockAdjustment
 from decorators import admin_required
 from decimal import Decimal
 from datetime import datetime, timedelta
@@ -140,13 +140,22 @@ def procesar_venta():
                 if not producto:
                     raise ValueError(f"El producto con ID {product_id} no existe.")
 
+                stock_ant = producto.cantidad_stock
+                stock_nuv = stock_ant
+                v_stock_ant = 0
+                v_stock_nuv = 0
+                variante_obj = None
+
                 if variant_id:
                     variante = ProductVariant.query.with_for_update().get(variant_id)
                     if not variante:
                         raise ValueError(f"La variante con ID {variant_id} no existe.")
                     if cantidad_vendida > variante.cantidad_stock:
                         raise ValueError(f"Stock insuficiente para la variante '{variante.nombre_variante}' de '{producto.nombre}'. Solicitado: {cantidad_vendida}, Disponible: {variante.cantidad_stock}.")
+                    v_stock_ant = variante.cantidad_stock
                     variante.cantidad_stock -= cantidad_vendida
+                    v_stock_nuv = variante.cantidad_stock
+                    variante_obj = variante
                     precio_limite_autorizado = variante.precio_costo if current_user.rol == 'admin' else variante.precio_minimo
                 else:
                     if producto.es_serializado:
@@ -157,6 +166,7 @@ def procesar_venta():
                         if cantidad_vendida > producto.cantidad_stock:
                             raise ValueError(f"Stock insuficiente para '{producto.nombre}'. Solicitado: {cantidad_vendida}, Disponible: {producto.cantidad_stock}.")
                         producto.cantidad_stock -= cantidad_vendida
+                        stock_nuv = producto.cantidad_stock
                     
                     precio_limite_autorizado = producto.precio_costo if current_user.rol == 'admin' else producto.precio_minimo
 
@@ -189,6 +199,23 @@ def procesar_venta():
                         raise ValueError(f"El serial/IMEI '{serial_vinculado}' no está disponible o no pertenece a este producto.")
                 
                 db.session.add(detalle)
+
+                # Registrar trazabilidad en StockAdjustment
+                tipo_desc = f"Venta Ticket #{nueva_venta.id}"
+                if variant_id and variante_obj:
+                    tipo_desc += f" ({variante_obj.nombre_variante})"
+                if serial_vinculado:
+                    tipo_desc += f" - IMEI: {serial_vinculado}"
+
+                ajuste_v = StockAdjustment(
+                    product_id=producto.id,
+                    admin_id=current_user.id,
+                    tipo_movimiento=tipo_desc,
+                    stock_anterior=v_stock_ant if variant_id else stock_ant,
+                    stock_nuevo=v_stock_nuv if variant_id else stock_nuv,
+                    fecha_ajuste=fecha_venta_obj
+                )
+                db.session.add(ajuste_v)
                 monto_total += (precio_venta_final * cantidad_vendida)
 
         nueva_venta.monto_total = monto_total
@@ -448,16 +475,37 @@ def eliminar_venta(sale_id):
     try:
         # Revertir Stock y Series (IMEIs)
         for detalle in venta.detalles:
+            st_ant = 0
+            st_nuv = 0
+            v_nombre = ""
+            p_id = detalle.product_id
+
             if detalle.variant_id:
                 variante = ProductVariant.query.with_for_update().get(detalle.variant_id)
                 if variante:
+                    p_id = variante.product_id
+                    st_ant = variante.cantidad_stock
                     variante.cantidad_stock += detalle.cantidad_vendida
+                    st_nuv = variante.cantidad_stock
+                    v_nombre = f" ({variante.nombre_variante})"
             else:
                 producto = Product.query.with_for_update().get(detalle.product_id)
                 if producto:
-                    # Si el producto NO es serializado, devolvemos el stock al contador estático
+                    st_ant = producto.cantidad_stock
                     if not producto.es_serializado:
                         producto.cantidad_stock += detalle.cantidad_vendida
+                    st_nuv = producto.cantidad_stock
+
+            if p_id:
+                ajuste_anulacion = StockAdjustment(
+                    product_id=p_id,
+                    admin_id=current_user.id,
+                    tipo_movimiento=f"Anulación Venta Ticket #{venta.id}{v_nombre}",
+                    stock_anterior=st_ant,
+                    stock_nuevo=st_nuv,
+                    fecha_ajuste=obtener_hora_bogota()
+                )
+                db.session.add(ajuste_anulacion)
             
             # LIBERAR IMEI/SERIAL (Búsqueda Robusta)
             serie = None

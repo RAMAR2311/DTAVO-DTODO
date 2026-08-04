@@ -414,8 +414,59 @@ def ver_producto(id):
     tipo = 'bodega' if current_user.rol == 'bodega' else 'tienda'
     if producto.tipo_inventario != tipo:
         abort(403)
-    ajustes = StockAdjustment.query.filter_by(product_id=id).order_by(StockAdjustment.fecha_ajuste.desc()).all()
-    return render_template('inventory/ver.html', producto=producto, ajustes=ajustes)
+        
+    # 1. Obtener ajustes registrados en la BD (StockAdjustment)
+    db_ajustes = StockAdjustment.query.filter_by(product_id=id).all()
+    
+    movimientos = []
+    sub_ticket_ids = set()
+    
+    for aj in db_ajustes:
+        diff = aj.stock_nuevo - aj.stock_anterior
+        nombre_user = aj.admin.nombre if aj.admin else 'Sistema'
+        movimientos.append({
+            'fecha_ajuste': aj.fecha_ajuste,
+            'usuario_nombre': nombre_user,
+            'tipo_movimiento': aj.tipo_movimiento,
+            'stock_anterior': aj.stock_anterior,
+            'stock_nuevo': aj.stock_nuevo,
+            'diferencia': diff
+        })
+        if aj.tipo_movimiento and 'Venta Ticket #' in aj.tipo_movimiento:
+            try:
+                t_id = aj.tipo_movimiento.split('Venta Ticket #')[1].split(' ')[0]
+                sub_ticket_ids.add(int(t_id))
+            except (IndexError, ValueError):
+                pass
+
+    # 2. Consultar ventas históricas en SaleDetail que no estén registradas en StockAdjustment
+    from models import SaleDetail, Sale
+    sales_details = (SaleDetail.query.join(Sale)
+                     .filter(SaleDetail.product_id == id)
+                     .order_by(Sale.fecha_venta.desc()).all())
+
+    for sd in sales_details:
+        if sd.sale and sd.sale.id not in sub_ticket_ids:
+            variant_str = f" ({sd.variante.nombre_variante})" if sd.variante else ""
+            imei_str = f" - IMEI: {sd.serial_vendido}" if sd.serial_vendido else ""
+            tipo_str = f"Venta Ticket #{sd.sale.id}{variant_str}{imei_str}"
+            
+            vendedor_nombre = sd.sale.vendedor.nombre if (sd.sale and sd.sale.vendedor) else 'Vendedor'
+            
+            movimientos.append({
+                'fecha_ajuste': sd.sale.fecha_venta,
+                'usuario_nombre': vendedor_nombre,
+                'tipo_movimiento': tipo_str,
+                'stock_anterior': '-',
+                'stock_nuevo': '-',
+                'diferencia': -sd.cantidad_vendida
+            })
+            sub_ticket_ids.add(sd.sale.id)
+
+    from datetime import datetime
+    movimientos.sort(key=lambda x: x['fecha_ajuste'] if x['fecha_ajuste'] else datetime.min, reverse=True)
+
+    return render_template('inventory/ver.html', producto=producto, ajustes=movimientos)
 
 @inventory_bp.route('/eliminar/<int:id>', methods=['POST'])
 @login_required
@@ -498,6 +549,16 @@ def agregar_variante(id):
 
     try:
         db.session.add(nueva_v)
+        if cantidad_stock > 0:
+            ajuste = StockAdjustment(
+                product_id=producto.id,
+                admin_id=current_user.id,
+                tipo_movimiento=f"Creación Variante '{nombre_variante}'",
+                stock_anterior=0,
+                stock_nuevo=cantidad_stock,
+                fecha_ajuste=obtener_hora_bogota()
+            )
+            db.session.add(ajuste)
         db.session.commit()
         flash(f'Variante "{nombre_variante}" agregada con éxito.', 'success')
     except Exception:
@@ -512,8 +573,10 @@ def agregar_variante(id):
 def editar_variante(id):
     variante = ProductVariant.query.get_or_404(id)
     
+    nuevo_stock = int(request.form.get('cantidad_stock', variante.cantidad_stock))
+    stock_anterior = variante.cantidad_stock
+    
     variante.nombre_variante = request.form.get('nombre_variante')
-    variante.cantidad_stock = int(request.form.get('cantidad_stock', variante.cantidad_stock))
     
     precio_costo_req = request.form.get('precio_costo')
     precio_minimo_req = request.form.get('precio_minimo')
@@ -532,6 +595,18 @@ def editar_variante(id):
         flash('Uno de los precios para la variante es demasiado alto.', 'danger')
         return redirect(url_for('inventory_bp.index'))
 
+    if stock_anterior != nuevo_stock:
+        ajuste = StockAdjustment(
+            product_id=variante.product_id,
+            admin_id=current_user.id,
+            tipo_movimiento=f"Ajuste Variante '{variante.nombre_variante}'",
+            stock_anterior=stock_anterior,
+            stock_nuevo=nuevo_stock,
+            fecha_ajuste=obtener_hora_bogota()
+        )
+        db.session.add(ajuste)
+
+    variante.cantidad_stock = nuevo_stock
     variante.precio_costo = v_costo
     variante.precio_minimo = v_minimo
     variante.precio_sugerido = v_sugerido
