@@ -29,6 +29,7 @@
     </div>
 </div>
 
+{% if current_user.rol != 'vendedor' %}
 <!-- Valoración de Inventario (Panel Financiero) -->
 <div class="row g-3 mb-4">
     <!-- Tarjeta 1: Valor a Costo -->
@@ -79,6 +80,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 <!-- Buscador Rápido y Filtro por Nicho -->
 <div class="card card-custom p-3 mb-4 border-0 shadow-sm bg-dtavo-card">
@@ -96,8 +98,8 @@
             <div class="d-flex align-items-center gap-2">
                 <div class="input-group shadow-sm rounded-pill overflow-hidden border flex-grow-1">
                     <span class="input-group-text bg-dtavo-card border-0 ps-3"><i class="fa-solid fa-filter text-dtavo-primary"></i></span>
-                    <select id="nichoFilterSelect" class="form-select border-0 bg-dtavo-card shadow-none ps-2 fw-bold text-dtavo-main">
-                        <option value="todas">🌐 Todos los Nichos (General)</option>
+                    <select id="nichoFilterSelect" class="form-select border-0 bg-dtavo-card shadow-none ps-2 fw-bold text-dtavo-main" onchange="cambiarNichoFiltroInventario(this.value)">
+                        <option value="todas" {% if not session.categoria_actual %}selected{% endif %}>🌐 Todos los Nichos (General)</option>
                         {% if todas_categorias %}
                             {% for cat in todas_categorias %}
                                 <option value="{{ cat.id }}" {% if session.categoria_actual == cat.id %}selected{% endif %}>
@@ -123,7 +125,9 @@
                     <th width="120" class="ps-4">SKU</th>
                     <th>PRODUCTO</th>
                     <th width="150" class="text-center">STOCK</th>
+                    {% if current_user.rol != 'vendedor' %}
                     <th width="150" class="text-end">PRECIO COSTO</th>
+                    {% endif %}
                     <th width="150" class="text-end">PRECIO MÍNIMO</th>
                     <th width="150" class="text-end pe-4">PRECIO SUGERIDO</th>
                     <th width="140" class="text-center">ACCIONES</th>
@@ -185,7 +189,9 @@
                             </div>
                         {% endif %}
                     </td>
+                    {% if current_user.rol != 'vendedor' %}
                     <td class="text-end fw-bold" style="color: var(--dtavo-hover);">${{ (p.precio_costo)|cop }}</td>
+                    {% endif %}
                     <td class="text-end text-dtavo-sec fw-bold">${{ (p.precio_minimo)|cop }}</td>
                     <td class="text-end fw-bold text-dtavo-main pe-4">
                         {% if p.rango_precios %}
@@ -313,21 +319,21 @@
                                     <label class="form-label small text-dtavo-sec mb-1 fw-bold">P. Costo</label>
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text bg-dtavo-card text-dtavo-sec border-end-0">$</span>
-                                        <input type="text" name="precio_costo" class="form-control border-start-0 ps-0 money-input" value="{{ "%.0f"|format(p.precio_costo) }}" required>
+                                        <input type="text" name="precio_costo" class="form-control border-start-0 ps-0 money-input" value="{{ "%.0f"|format(p.precio_costo) }}" required {% if current_user.rol != 'admin' %}readonly style="background-color: var(--dtavo-border) !important; cursor: not-allowed;"{% endif %}>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label small text-dtavo-sec mb-1 fw-bold">P. Mínimo</label>
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text bg-dtavo-card text-dtavo-sec border-end-0">$</span>
-                                        <input type="text" name="precio_minimo" class="form-control border-start-0 ps-0 money-input" value="{{ "%.0f"|format(p.precio_minimo) }}" required>
+                                        <input type="text" name="precio_minimo" class="form-control border-start-0 ps-0 money-input" value="{{ "%.0f"|format(p.precio_minimo) }}" required {% if current_user.rol != 'admin' %}readonly style="background-color: var(--dtavo-border) !important; cursor: not-allowed;"{% endif %}>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label small fw-bold mb-1" style="color: var(--dtavo-hover);">P. Sugerido</label>
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text bg-dtavo-card text-dtavo-sec border-end-0">$</span>
-                                        <input type="text" name="precio_sugerido" class="form-control border-start-0 ps-0 border-pink border-1 money-input" value="{{ "%.0f"|format(p.precio_sugerido) }}" required>
+                                        <input type="text" name="precio_sugerido" class="form-control border-start-0 ps-0 border-pink border-1 money-input" value="{{ "%.0f"|format(p.precio_sugerido) }}" required {% if current_user.rol != 'admin' %}readonly style="background-color: var(--dtavo-border) !important; cursor: not-allowed;"{% endif %}>
                                     </div>
                                 </div>
                             </div>
@@ -365,21 +371,21 @@
                                         <label class="form-label text-dtavo-sec mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">COSTO REAL</label>
                                         <div class="input-group input-group-sm">
                                             <span class="input-group-text bg-transparent border-end-0 text-dtavo-sec px-2">$</span>
-                                            <input type="text" name="precio_costo" class="form-control border-start-0 ps-0 text-secondary money-input" value="{{ "%.0f"|format(v.precio_costo|float) if v.precio_costo else "%.0f"|format(p.precio_costo|float) }}">
+                                            <input type="text" name="precio_costo" class="form-control border-start-0 ps-0 text-secondary money-input" value="{{ "%.0f"|format(v.precio_costo|float) if v.precio_costo else "%.0f"|format(p.precio_costo|float) }}" {% if current_user.rol != 'admin' %}readonly style="background-color: var(--dtavo-border) !important; cursor: not-allowed;"{% endif %}>
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <label class="form-label text-dtavo-sec mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px;">P. MÍNIMO DEV.</label>
                                         <div class="input-group input-group-sm">
                                             <span class="input-group-text bg-transparent border-end-0 text-dtavo-sec px-2">$</span>
-                                            <input type="text" name="precio_minimo" class="form-control border-start-0 ps-0 text-secondary money-input" value="{{ "%.0f"|format(v.precio_minimo|float) if v.precio_minimo else "%.0f"|format(p.precio_minimo|float) }}">
+                                            <input type="text" name="precio_minimo" class="form-control border-start-0 ps-0 text-secondary money-input" value="{{ "%.0f"|format(v.precio_minimo|float) if v.precio_minimo else "%.0f"|format(p.precio_minimo|float) }}" {% if current_user.rol != 'admin' %}readonly style="background-color: var(--dtavo-border) !important; cursor: not-allowed;"{% endif %}>
                                         </div>
                                     </div>
                                     <div class="col-4">
                                         <label class="form-label mb-1" style="font-size: 0.65rem; letter-spacing: 0.5px; color: var(--dtavo-hover);">P. SUGERIDO</label>
                                         <div class="input-group input-group-sm">
                                             <span class="input-group-text bg-transparent border-end-0 fw-bold px-2" style="color: var(--dtavo-hover);">$</span>
-                                            <input type="text" name="precio_sugerido" class="form-control border-start-0 ps-0 fw-bold money-input" style="color: var(--dtavo-hover);" value="{{ "%.0f"|format(v.precio_sugerido|float) if v.precio_sugerido else "%.0f"|format(p.precio_sugerido|float) }}">
+                                            <input type="text" name="precio_sugerido" class="form-control border-start-0 ps-0 fw-bold money-input" style="color: var(--dtavo-hover);" value="{{ "%.0f"|format(v.precio_sugerido|float) if v.precio_sugerido else "%.0f"|format(p.precio_sugerido|float) }}" {% if current_user.rol != 'admin' %}readonly style="background-color: var(--dtavo-border) !important; cursor: not-allowed;"{% endif %}>
                                         </div>
                                     </div>
                                 </div>
@@ -502,6 +508,14 @@ document.addEventListener('DOMContentLoaded', function() {
             noResultsRow.classList.add('d-none');
         }
     }
+
+function cambiarNichoFiltroInventario(val) {
+    if (val === 'todas') {
+        window.location.href = "{{ url_for('salir_nicho') }}";
+    } else {
+        window.location.href = "/seleccionar_nicho/" + val;
+    }
+}
 
     if (nichoSelect) {
         nichoSelect.addEventListener('change', filterTable);

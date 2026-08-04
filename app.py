@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, session, redirect, url_for
+from flask import Flask, render_template, session, redirect, url_for, request
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_required, current_user
 from flask_wtf.csrf import CSRFProtect
@@ -107,6 +107,11 @@ def create_app():
         cat = Category.query.get_or_404(categoria_id)
         session['categoria_actual'] = cat.id
         session['categoria_nombre'] = cat.nombre
+        
+        next_page = request.args.get('next') or request.referrer
+        if next_page and request.host_url in next_page and '/salir_nicho' not in next_page and '/seleccionar_nicho' not in next_page:
+            return redirect(next_page)
+
         if current_user.rol == 'vendedor':
             return redirect(url_for('sales_bp.pos_visual'))
         return redirect(url_for('admin_bp.dashboard'))
@@ -116,6 +121,11 @@ def create_app():
     def salir_nicho():
         session.pop('categoria_actual', None)
         session.pop('categoria_nombre', None)
+        
+        next_page = request.args.get('next') or request.referrer
+        if next_page and request.host_url in next_page and '/salir_nicho' not in next_page and '/seleccionar_nicho' not in next_page:
+            return redirect(next_page)
+
         return redirect(url_for('index'))
 
     return app

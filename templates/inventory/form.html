@@ -39,36 +39,48 @@
                                 <i class="fa-solid fa-barcode text-dtavo-primary me-2"></i>Producto Serializado (Control de IMEI)
                             </label>
                         </div>
-                        <p class="text-dtavo-sec small mt-2 ps-2">Si activas esta opción, el stock se gestionará registrando cada serial de forma individual.</p>
+                        <p class="text-dtavo-sec small mt-2 ps-2">Si activas esta opción, registra abajo cada serial/IMEI. El stock se calculará automáticamente.</p>
                     </div>
 
-                    
-                    <!-- Sección de Atributos Dinámicos -->
-                    <div class="col-12 mt-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="fw-bold text-dtavo-main mb-0"><i class="fa-solid fa-list-check me-2 text-dtavo-primary"></i>Atributos Dinámicos</h5>
-                            <button type="button" class="btn btn-sm btn-outline-dtavo-primary rounded-pill" onclick="addAttrRow()">
-                                <i class="fa-solid fa-plus me-1"></i> Añadir Atributo
-                            </button>
+                    <!-- Sección de Gestión de IMEIs / Seriales (si es_serializado es activo) -->
+                    <div class="col-12 mt-3" id="imei-section" style="display: none;">
+                        <div class="p-4 rounded-4" style="background: rgba(34, 197, 94, 0.05); border: 1px dashed rgba(34, 197, 94, 0.3);">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold text-dtavo-main mb-0">
+                                    <i class="fa-solid fa-barcode me-2 text-success"></i>Registro de IMEIs / Seriales
+                                </h5>
+                                <span class="badge bg-success rounded-pill px-3 py-2" id="imei-count-badge">0 IMEIs</span>
+                            </div>
+                            <p class="text-dtavo-sec small mb-3">Ingresa los IMEIs de las unidades físicas. El stock total se actualizará automáticamente con la cantidad de IMEIs ingresados.</p>
+
+                            <div class="input-group mb-3 shadow-sm rounded overflow-hidden">
+                                <input type="text" id="form-imei-input" class="form-control border-0" placeholder="Escribe un IMEI / Serial y presiona Enter o Añadir..." autocomplete="off">
+                                <button type="button" class="btn btn-success fw-bold px-4" onclick="addFormImei()">
+                                    <i class="fa-solid fa-plus me-1"></i> Añadir IMEI
+                                </button>
+                            </div>
+
+                            <div id="form-imeis-list" class="d-flex flex-wrap gap-2 pt-2">
+                                {% if producto and producto.es_serializado and producto.series %}
+                                    {% for s in producto.series %}
+                                        {% if s.estado == 'disponible' %}
+                                            <div class="badge bg-white text-dark border p-2 d-flex align-items-center gap-2 shadow-xs imei-badge-item" data-imei="{{ s.serial }}">
+                                                <i class="fa-solid fa-mobile-screen text-success"></i>
+                                                <span class="fw-bold">{{ s.serial }}</span>
+                                                <input type="hidden" name="imeis[]" value="{{ s.serial }}">
+                                                <button type="button" class="btn-close ms-1" style="font-size: 0.65rem;" onclick="removeFormImei(this)"></button>
+                                            </div>
+                                        {% else %}
+                                            <div class="badge bg-light text-muted border p-2 d-flex align-items-center gap-2 shadow-xs" title="Vendido">
+                                                <i class="fa-solid fa-check-circle text-muted"></i>
+                                                <span class="fw-bold">{{ s.serial }} (Vendido)</span>
+                                                <input type="hidden" name="imeis_vendidos[]" value="{{ s.serial }}">
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
                         </div>
-                        <div id="dynamic-attrs-container">
-                            {% if producto and producto.atributos %}
-                                {% for key, value in producto.atributos.items() %}
-                                <div class="row g-2 mb-2 attr-row">
-                                    <div class="col-md-5">
-                                        <input type="text" name="attr_key[]" class="form-control bg-dtavo-card border-0" placeholder="Ej: Talla, Color, RAM..." value="{{ key }}">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <input type="text" name="attr_value[]" class="form-control bg-dtavo-card border-0" placeholder="Valor del atributo" value="{{ value }}">
-                                    </div>
-                                    <div class="col-md-1">
-                                        <button type="button" class="btn btn-link text-danger p-1" onclick="this.closest('.attr-row').remove()"><i class="fa-solid fa-circle-minus fs-5"></i></button>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                        <small class="text-dtavo-sec">Ejemplo: Marca: Apple, RAM: 8GB, Color: Dorado, etc.</small>
                     </div>
 
                     <div class="col-md-3 mt-4">
@@ -91,24 +103,39 @@
                     </div>
                     {% endif %}
                     <div class="col-md-3 mt-4">
-                        <label class="form-label fw-bold text-dtavo-main text-truncate">Costo Compra</label>
+                        <label class="form-label fw-bold text-dtavo-main text-truncate">
+                            Costo Compra
+                            {% if producto and current_user.rol != 'admin' %}
+                                <i class="fa-solid fa-lock text-muted ms-1" title="Solo el Administrador puede modificar precios"></i>
+                            {% endif %}
+                        </label>
                         <div class="input-group">
                             <span class="input-group-text bg-dtavo-card border-0">$</span>
-                            <input type="text" class="form-control bg-dtavo-card border-0 money-input" name="precio_costo" required value="{{ (producto.precio_costo | int) if producto else '' }}">
+                            <input type="text" class="form-control bg-dtavo-card border-0 money-input" name="precio_costo" required value="{{ (producto.precio_costo | int) if producto else '' }}" {% if producto and current_user.rol != 'admin' %}readonly style="background-color: var(--dtavo-border) !important; cursor: not-allowed;"{% endif %}>
                         </div>
                     </div>
                     <div class="col-md-3 mt-4">
-                        <label class="form-label fw-bold text-dtavo-main text-truncate">Precio Mínimo</label>
+                        <label class="form-label fw-bold text-dtavo-main text-truncate">
+                            Precio Mínimo
+                            {% if producto and current_user.rol != 'admin' %}
+                                <i class="fa-solid fa-lock text-muted ms-1" title="Solo el Administrador puede modificar precios"></i>
+                            {% endif %}
+                        </label>
                         <div class="input-group">
                             <span class="input-group-text bg-dtavo-card border-0">$</span>
-                            <input type="text" class="form-control bg-dtavo-card border-0 money-input" name="precio_minimo" required value="{{ (producto.precio_minimo | int) if producto else '' }}">
+                            <input type="text" class="form-control bg-dtavo-card border-0 money-input" name="precio_minimo" required value="{{ (producto.precio_minimo | int) if producto else '' }}" {% if producto and current_user.rol != 'admin' %}readonly style="background-color: var(--dtavo-border) !important; cursor: not-allowed;"{% endif %}>
                         </div>
                     </div>
                     <div class="col-md-3 mt-4">
-                        <label class="form-label fw-bold text-dtavo-main text-truncate">Precio Sugerido</label>
+                        <label class="form-label fw-bold text-dtavo-main text-truncate">
+                            Precio Sugerido
+                            {% if producto and current_user.rol != 'admin' %}
+                                <i class="fa-solid fa-lock text-muted ms-1" title="Solo el Administrador puede modificar precios"></i>
+                            {% endif %}
+                        </label>
                         <div class="input-group">
                             <span class="input-group-text bg-dtavo-card border-0">$</span>
-                            <input type="text" class="form-control bg-dtavo-card border-0 money-input" name="precio_sugerido" required value="{{ (producto.precio_sugerido | int) if producto else '' }}">
+                            <input type="text" class="form-control bg-dtavo-card border-0 money-input" name="precio_sugerido" required value="{{ (producto.precio_sugerido | int) if producto else '' }}" {% if producto and current_user.rol != 'admin' %}readonly style="background-color: var(--dtavo-border) !important; cursor: not-allowed;"{% endif %}>
                         </div>
                     </div>
                     <div class="col-md-3 mt-4">
@@ -189,8 +216,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Formatear automáticamente inputs de dinero con comas
     function formatMoneyInput(input) {
-        // Tomar solo la parte entera si el valor viene con decimales (ej: de la DB)
-        // para evitar que los decimales se conviertan en miles (multiplicación por 100)
         let val = input.value.split('.')[0].replace(/[^\d]/g, '');
         if (val) {
             input.value = new Intl.NumberFormat('en-US').format(val);
@@ -218,25 +243,89 @@ document.addEventListener('DOMContentLoaded', function() {
             this.setSelectionRange(cursor, cursor);
         });
     });
- });
 
- function addAttrRow() {
-     const container = document.getElementById('dynamic-attrs-container');
-     const row = document.createElement('div');
-     row.className = 'row g-2 mb-2 attr-row';
-     row.innerHTML = `
-         <div class="col-md-5">
-             <input type="text" name="attr_key[]" class="form-control bg-dtavo-card border-0" placeholder="Ej: Talla, Color, RAM...">
-         </div>
-         <div class="col-md-6">
-             <input type="text" name="attr_value[]" class="form-control bg-dtavo-card border-0" placeholder="Valor del atributo">
-         </div>
-         <div class="col-md-1">
-             <button type="button" class="btn btn-link text-danger p-1" onclick="this.closest('.attr-row').remove()"><i class="fa-solid fa-circle-minus fs-5"></i></button>
-         </div>
-     `;
-     container.appendChild(row);
- }
+    const esSerializadoCheck = document.getElementById('es_serializado');
+    const imeiSec = document.getElementById('imei-section');
+    const stockInput = document.getElementById('input-cantidad-stock');
+    const imeiFormInput = document.getElementById('form-imei-input');
+    const imeisListContainer = document.getElementById('form-imeis-list');
+    const imeiCountBadge = document.getElementById('imei-count-badge');
+
+    function updateImeiUI() {
+        if (!esSerializadoCheck) return;
+        if (esSerializadoCheck.checked) {
+            if (imeiSec) imeiSec.style.display = 'block';
+            if (stockInput) {
+                stockInput.readOnly = true;
+                stockInput.classList.add('bg-light');
+            }
+            recalcImeiStock();
+        } else {
+            if (imeiSec) imeiSec.style.display = 'none';
+            if (stockInput) {
+                stockInput.readOnly = false;
+                stockInput.classList.remove('bg-light');
+            }
+        }
+    }
+
+    function recalcImeiStock() {
+        if (!esSerializadoCheck || !esSerializadoCheck.checked) return;
+        const items = imeisListContainer.querySelectorAll('input[name="imeis[]"], input[name="imeis_vendidos[]"]');
+        const total = items.length;
+        if (stockInput) stockInput.value = total;
+        if (imeiCountBadge) {
+            imeiCountBadge.textContent = `${total} IMEI${total !== 1 ? 's' : ''}`;
+        }
+    }
+
+    window.addFormImei = function() {
+        if (!imeiFormInput) return;
+        const val = imeiFormInput.value.trim();
+        if (!val) return;
+
+        // Verificar duplicados en la lista actual
+        const existing = Array.from(imeisListContainer.querySelectorAll('input[name="imeis[]"]')).map(i => i.value.toLowerCase());
+        if (existing.includes(val.toLowerCase())) {
+            alert("Este IMEI ya fue agregado a la lista.");
+            imeiFormInput.focus();
+            return;
+        }
+
+        const badge = document.createElement('div');
+        badge.className = 'badge bg-white text-dark border p-2 d-flex align-items-center gap-2 shadow-xs imei-badge-item';
+        badge.setAttribute('data-imei', val);
+        badge.innerHTML = `
+            <i class="fa-solid fa-mobile-screen text-success"></i>
+            <span class="fw-bold">${val}</span>
+            <input type="hidden" name="imeis[]" value="${val}">
+            <button type="button" class="btn-close ms-1" style="font-size: 0.65rem;" onclick="removeFormImei(this)"></button>
+        `;
+        imeisListContainer.appendChild(badge);
+        imeiFormInput.value = '';
+        imeiFormInput.focus();
+        recalcImeiStock();
+    };
+
+    window.removeFormImei = function(btn) {
+        btn.closest('.imei-badge-item').remove();
+        recalcImeiStock();
+    };
+
+    if (imeiFormInput) {
+        imeiFormInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addFormImei();
+            }
+        });
+    }
+
+    if (esSerializadoCheck) {
+        esSerializadoCheck.addEventListener('change', updateImeiUI);
+    }
+    updateImeiUI();
+});
 
  function addVariantRow() {
      const container = document.getElementById('variants-container');

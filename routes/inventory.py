@@ -28,7 +28,6 @@ def limpiar_celulares_sin_stock():
         for p in prods_serializados:
             cant_disp = ProductSeries.query.filter_by(product_id=p.id, estado='disponible').count()
             if cant_disp == 0:
-                # Intentar eliminar el producto huérfano sin IMEIs disponibles
                 try:
                     db.session.delete(p)
                     db.session.flush()
@@ -62,8 +61,8 @@ def index():
     page = request.args.get('page', 1, type=int)
     per_page = 30
 
-    raw_productos = query.order_by(Product.categoria_id, Product.nombre).all()
-    # Filtrar estrictamente productos serializados con 0 IMEIs disponibles
+    raw_productos = query.order_by(Product.id.desc()).all()
+    # Ocultar productos serializados que hayan quedado con 0 IMEIs
     all_productos = []
     for p in raw_productos:
         if p.es_serializado and p.cantidad_stock == 0:
@@ -153,35 +152,67 @@ def nuevo():
             except ValueError:
                 atributos_dict['stock_minimo_alerta'] = 3
 
-        # Se crean los objetos y luego se asignan atributos explícitamente para evitar advertencias de linter
-        nuevo_p = Product()
-        nuevo_p.sku = request.form.get('sku').strip()
+        # Verificar si el SKU ya existía previamente en el sistema (por historial o stock 0)
+        nuevo_sku = request.form.get('sku').strip()
+        existente = Product.query.filter_by(sku=nuevo_sku).first()
+
+        if existente:
+            nuevo_p = existente
+            is_reactivation = True
+        else:
+            nuevo_p = Product()
+            nuevo_p.sku = nuevo_sku
+            is_reactivation = False
+
         nuevo_p.nombre = request.form.get('nombre').strip()
         nuevo_p.tipo_inventario = 'bodega' if current_user.rol == 'bodega' else 'tienda'
-        nuevo_p.cantidad_stock = int(request.form.get('cantidad_stock', 0))
+        cat_id = request.form.get('categoria_id')
+        nuevo_p.categoria_id = int(cat_id) if cat_id else None
+        nuevo_p.es_serializado = request.form.get('es_serializado') == 'on'
         nuevo_p.precio_costo = nuevo_costo
         nuevo_p.precio_minimo = nuevo_minimo
         nuevo_p.precio_sugerido = nuevo_sugerido
-        nuevo_p.categoria_id = session.get('categoria_actual')
-        nuevo_p.es_serializado = request.form.get('es_serializado') == 'on'
-        nuevo_p.atributos = atributos_dict
-        nuevo_p.imagen = imagen_filename
+        if imagen_filename:
+            nuevo_p.imagen = imagen_filename
         nuevo_p.observacion = request.form.get('observacion')
         
+        stock_ingresado = int(request.form.get('cantidad_stock', 0))
+        if not nuevo_p.es_serializado:
+            if is_reactivation:
+                nuevo_p.cantidad_stock = (nuevo_p.cantidad_stock or 0) + stock_ingresado
+            else:
+                nuevo_p.cantidad_stock = stock_ingresado
+        
         try:
-            db.session.add(nuevo_p)
+            if not is_reactivation:
+                db.session.add(nuevo_p)
             db.session.flush()
             
-            # Kardex inicial
+            # Kardex inicial o de reabastecimiento
             ajuste = StockAdjustment()
             ajuste.product_id = nuevo_p.id
             ajuste.admin_id = current_user.id
-            ajuste.tipo_movimiento = 'Creación Inicial'
-            ajuste.stock_anterior = 0
+            ajuste.tipo_movimiento = 'Reabastecimiento SKU' if is_reactivation else 'Creación Inicial'
+            ajuste.stock_anterior = 0 if not is_reactivation else (nuevo_p.cantidad_stock - stock_ingresado)
             ajuste.stock_nuevo = nuevo_p.cantidad_stock
             db.session.add(ajuste)
             
-            # --- NUEVO: Procesar Variantes desde el Formulario ---
+            # --- Procesar IMEIs / Seriales si es serializado ---
+            if nuevo_p.es_serializado:
+                imeis_list = request.form.getlist('imeis[]')
+                for imei_str in imeis_list:
+                    clean_imei = imei_str.strip()
+                    if clean_imei:
+                        exist_s = ProductSeries.query.filter_by(product_id=nuevo_p.id, serial=clean_imei).first()
+                        if not exist_s:
+                            s = ProductSeries()
+                            s.product_id = nuevo_p.id
+                            s.serial = clean_imei
+                            s.estado = 'disponible'
+                            s.origen = 'sistema'
+                            db.session.add(s)
+
+            # --- Procesar Variantes desde el Formulario ---
             var_names = request.form.getlist('variant_name[]')
             var_stocks = request.form.getlist('variant_stock[]')
             var_entrantes = request.form.getlist('variant_stock_entrante[]')
@@ -201,7 +232,10 @@ def nuevo():
             
             db.session.commit()
 
-            flash('Producto creado exitosamente.', 'success')
+            if is_reactivation:
+                flash(f"El producto '{nuevo_p.nombre}' (SKU: {nuevo_p.sku}) ya existía en el catálogo y ha sido reabastecido y reactivado exitosamente con el nuevo stock e IMEIs.", 'success')
+            else:
+                flash('Producto creado exitosamente.', 'success')
             return redirect(url_for('inventory_bp.index'))
         except Exception as e:
             db.session.rollback()
@@ -233,9 +267,14 @@ def editar_producto(id):
                 file.save(os.path.join(static_path, filename))
                 producto.imagen = filename
                 
-        nuevo_costo = float(request.form.get('precio_costo', '0').replace(',', ''))
-        nuevo_minimo = float(request.form.get('precio_minimo', '0').replace(',', ''))
-        nuevo_sugerido = float(request.form.get('precio_sugerido', '0').replace(',', ''))
+        if current_user.rol == 'admin':
+            nuevo_costo = float(request.form.get('precio_costo', '0').replace(',', ''))
+            nuevo_minimo = float(request.form.get('precio_minimo', '0').replace(',', ''))
+            nuevo_sugerido = float(request.form.get('precio_sugerido', '0').replace(',', ''))
+        else:
+            nuevo_costo = float(producto.precio_costo or 0)
+            nuevo_minimo = float(producto.precio_minimo or 0)
+            nuevo_sugerido = float(producto.precio_sugerido or 0)
 
         if not validate_prices(nuevo_costo, nuevo_minimo, nuevo_sugerido):
             flash('Precios exceden el límite permitido.', 'danger')
@@ -256,7 +295,14 @@ def editar_producto(id):
             except ValueError:
                 atributos_dict['stock_minimo_alerta'] = 3
 
-        producto.sku = request.form.get('sku').strip()
+        nuevo_sku = request.form.get('sku').strip()
+        if nuevo_sku != producto.sku:
+            existente = Product.query.filter_by(sku=nuevo_sku).first()
+            if existente:
+                flash(f"Error: El código SKU '{nuevo_sku}' ya está en uso por otro producto ({existente.nombre}). Por favor ingresa uno diferente.", 'danger')
+                return render_template('inventory/form.html', producto=producto, categorias=categorias)
+
+        producto.sku = nuevo_sku
         producto.nombre = request.form.get('nombre').strip()
         producto.cantidad_stock = cantidad_stock_nueva
         producto.precio_costo = nuevo_costo
@@ -283,6 +329,27 @@ def editar_producto(id):
                 ajuste.stock_anterior = stock_anterior
                 ajuste.stock_nuevo = cantidad_stock_nueva
                 db.session.add(ajuste)
+
+            # Sincronizar IMEIs/Seriales si es producto serializado
+            if producto.es_serializado:
+                imeis_form = [i.strip() for i in request.form.getlist('imeis[]') if i.strip()]
+                seriales_db = ProductSeries.query.filter_by(product_id=producto.id).all()
+                dict_db = {s.serial: s for s in seriales_db}
+
+                # 1. Agregar nuevos IMEIs
+                for imei in imeis_form:
+                    if imei not in dict_db:
+                        new_s = ProductSeries()
+                        new_s.product_id = producto.id
+                        new_s.serial = imei
+                        new_s.estado = 'disponible'
+                        new_s.origen = 'sistema'
+                        db.session.add(new_s)
+
+                # 2. Eliminar IMEIs retirados de la lista (solo si están disponibles)
+                for imei, s_obj in dict_db.items():
+                    if imei not in imeis_form and s_obj.estado == 'disponible':
+                        db.session.delete(s_obj)
             var_names = request.form.getlist('variant_name[]')
             var_stocks = request.form.getlist('variant_stock[]')
             var_entrantes = request.form.getlist('variant_stock_entrante[]')
@@ -407,9 +474,14 @@ def agregar_variante(id):
         flash('El nombre de la variante es obligatorio.', 'danger')
         return redirect(url_for('inventory_bp.index'))
 
-    v_costo = float(str(precio_costo_req).replace(',', '')) if precio_costo_req else producto.precio_costo
-    v_minimo = float(str(precio_minimo_req).replace(',', '')) if precio_minimo_req else producto.precio_minimo
-    v_sugerido = float(str(precio_sugerido_req).replace(',', '')) if precio_sugerido_req else producto.precio_sugerido
+    if current_user.rol == 'admin':
+        v_costo = float(str(precio_costo_req).replace(',', '')) if precio_costo_req else float(producto.precio_costo or 0)
+        v_minimo = float(str(precio_minimo_req).replace(',', '')) if precio_minimo_req else float(producto.precio_minimo or 0)
+        v_sugerido = float(str(precio_sugerido_req).replace(',', '')) if precio_sugerido_req else float(producto.precio_sugerido or 0)
+    else:
+        v_costo = float(producto.precio_costo or 0)
+        v_minimo = float(producto.precio_minimo or 0)
+        v_sugerido = float(producto.precio_sugerido or 0)
 
     if not validate_prices(v_costo, v_minimo, v_sugerido):
         flash('Uno de los precios para la variante es demasiado alto.', 'danger')
@@ -426,7 +498,6 @@ def agregar_variante(id):
 
     try:
         db.session.add(nueva_v)
-        # Opcionalmente descontar o trackear en Kardex? La instrucción solo dice: "crea la ruta para añadir la subcategoría"
         db.session.commit()
         flash(f'Variante "{nombre_variante}" agregada con éxito.', 'success')
     except Exception:
@@ -448,9 +519,14 @@ def editar_variante(id):
     precio_minimo_req = request.form.get('precio_minimo')
     precio_sugerido_req = request.form.get('precio_sugerido')
     
-    v_costo = float(str(precio_costo_req).replace(',', '')) if precio_costo_req else variante.precio_costo
-    v_minimo = float(str(precio_minimo_req).replace(',', '')) if precio_minimo_req else variante.precio_minimo
-    v_sugerido = float(str(precio_sugerido_req).replace(',', '')) if precio_sugerido_req else variante.precio_sugerido
+    if current_user.rol == 'admin':
+        v_costo = float(str(precio_costo_req).replace(',', '')) if precio_costo_req else float(variante.precio_costo or 0)
+        v_minimo = float(str(precio_minimo_req).replace(',', '')) if precio_minimo_req else float(variante.precio_minimo or 0)
+        v_sugerido = float(str(precio_sugerido_req).replace(',', '')) if precio_sugerido_req else float(variante.precio_sugerido or 0)
+    else:
+        v_costo = float(variante.precio_costo or 0)
+        v_minimo = float(variante.precio_minimo or 0)
+        v_sugerido = float(variante.precio_sugerido or 0)
 
     if not validate_prices(v_costo, v_minimo, v_sugerido):
         flash('Uno de los precios para la variante es demasiado alto.', 'danger')

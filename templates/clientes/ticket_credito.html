@@ -220,10 +220,10 @@
         const saldoPendiente = "{{ factura.saldo_pendiente | cop }}";
         
         let itemsText = "";
-        {% for d in factura.detalles %}
-            {% set nombre_p = (d.producto.nombre if d.producto else d.nombre_manual) %}
+        /* {% for d in factura.detalles %} */
+            /* {% set nombre_p = (d.producto.nombre if d.producto else d.nombre_manual) %} */
             itemsText += "• {{ d.cantidad }}x {{ nombre_p|replace('\"', '')|replace('\'', '')|replace('\n', ' ') }} (${{ d.subtotal | cop }})\n";
-        {% endfor %}
+        /* {% endfor %} */
         
         let mensaje = `Hola *${clienteNombre}*, este es tu comprobante de Venta a Crédito en *DTAVO*.\n\n` +
                       `🧾 *Ticket Crédito #${"{{ factura.id }}"}*\n` +

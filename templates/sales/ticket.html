@@ -290,10 +290,10 @@
         const fechaVenta = "{{ venta.fecha_venta.strftime('%d/%m/%Y %H:%M') }}";
         
         let itemsText = "";
-        {% for detalle in venta.detalles %}
-            {% set nombre_prod = (detalle.nombre_manual or (detalle.producto.nombre if detalle.producto else 'Producto')) %}
+        /* {% for detalle in venta.detalles %} */
+            /* {% set nombre_prod = (detalle.nombre_manual or (detalle.producto.nombre if detalle.producto else 'Producto')) %} */
             itemsText += "• {{ detalle.cantidad_vendida }}x {{ nombre_prod|replace('\"', '')|replace('\'', '')|replace('\n', ' ') }} (${{ (detalle.precio_venta_final * detalle.cantidad_vendida)|cop }})\n";
-        {% endfor %}
+        /* {% endfor %} */
         
         let mensaje = `Hola *${clienteNombre}*, gracias por tu compra en *DTAVO*.\n\n` +
                       `🧾 *Factura / Ticket #${"{{ venta.id }}"}*\n` +
