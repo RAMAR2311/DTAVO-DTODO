@@ -55,7 +55,16 @@
     .category-scroll::-webkit-scrollbar { height: 5px; }
     .category-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
     
-    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); grid-auto-rows: minmax(280px, auto); gap: 16px; overflow-y: auto; padding-right: 6px; align-content: flex-start; flex-grow: 1; padding-bottom: 20px; }
+    .product-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); 
+        gap: 14px; 
+        overflow-y: auto; 
+        padding-right: 6px; 
+        align-content: flex-start; 
+        flex-grow: 1; 
+        padding-bottom: 24px; 
+    }
     .product-grid::-webkit-scrollbar { width: 6px; }
     .product-grid::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
     
@@ -68,19 +77,18 @@
         background: #FFFFFF; 
         display: flex; 
         flex-direction: column; 
-        height: 100%; 
         box-shadow: var(--shadow-subtle);
     }
     .product-card:hover { 
-        transform: translateY(-4px); 
+        transform: translateY(-3px); 
         box-shadow: var(--shadow-hover); 
-        border-color: rgba(197, 159, 96, 0.5); 
+        border-color: rgba(197, 159, 96, 0.6); 
     }
-    .product-img { width: 100%; height: 160px; object-fit: contain; background: #F8FAFC; padding: 14px; border-bottom: 1px solid var(--dtavo-border); flex-shrink: 0; }
-    .product-info { padding: 12px 14px; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-start; }
-    .product-title { font-weight: 700; font-size: 0.88rem; margin-bottom: 6px; color: var(--dtavo-text-main); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; min-height: 2.6em; }
-    .product-price { color: #8F6824; font-weight: 800; font-size: 1.15rem; margin-top: auto; }
-    .product-stock { font-size: 0.78rem; color: var(--dtavo-text-sec); margin-top: 4px; flex-shrink: 0; font-weight: 500; }
+    .product-img { width: 100%; height: 140px; object-fit: contain; background: #F8FAFC; padding: 10px; border-bottom: 1px solid var(--dtavo-border); flex-shrink: 0; }
+    .product-info { padding: 10px 12px 12px 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 4px; }
+    .product-title { font-weight: 700; font-size: 0.84rem; color: var(--dtavo-text-main); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.25; min-height: 2.1em; }
+    .product-price { color: #8F6824; font-weight: 800; font-size: 1.1rem; line-height: 1.1; }
+    .product-stock { font-size: 0.75rem; color: var(--dtavo-text-sec); flex-shrink: 0; line-height: 1.2; }
 
     .cart-controls { display: flex; align-items: center; gap: 6px; }
     .cart-controls button { width: 30px; height: 30px; border-radius: 8px; padding: 0; display: flex; align-items: center; justify-content: center; background: #FFFFFF; border: 1px solid var(--dtavo-border); color: var(--dtavo-text-main); transition: all 0.2s; }
@@ -145,16 +153,23 @@
             padding-bottom: 10px !important;
         }
         .product-img {
-            height: 125px !important;
+            height: 120px !important;
             padding: 8px !important;
         }
+        .product-info {
+            padding: 8px 10px 10px 10px !important;
+            gap: 2px !important;
+        }
         .product-title {
-            font-size: 0.8rem !important;
-            min-height: 2.4em !important;
-            margin-bottom: 4px !important;
+            font-size: 0.78rem !important;
+            min-height: 2.2em !important;
+            margin-bottom: 2px !important;
         }
         .product-price {
-            font-size: 0.98rem !important;
+            font-size: 0.95rem !important;
+        }
+        .product-stock {
+            font-size: 0.72rem !important;
         }
         .pos-sidebar {
             width: 100% !important;
@@ -602,28 +617,52 @@ document.addEventListener('DOMContentLoaded', () => {
             const imgPath = p.imagen && p.imagen !== 'default_product.png' ? `/static/uploads/${p.imagen}` : 'https://placehold.co/300x300/f8f9fa/a3a3a3?text=Sin+Imagen';
             const totalStock = (p.cantidad_stock || 0) + (p.variantes ? p.variantes.reduce((sum, v) => sum + (v.cantidad_stock || 0), 0) : 0);
             const precio = p.precio_final || 0;
+            const cantImeis = (p.seriales && Array.isArray(p.seriales)) ? p.seriales.length : 0;
             
-            const isDisabled = totalStock <= 0 && !p.es_serializado; // Si es serializado el stock puede venir de la tabla series
+            const isImeiProduct = p.requiere_imei || p.es_serializado;
+            const isDisabled = isImeiProduct ? (cantImeis <= 0) : (totalStock <= 0);
+            
             const card = document.createElement('div');
             card.className = isDisabled ? 'product-card opacity-50 bg-light' : 'product-card';
             card.onclick = () => { if(!isDisabled) handleProductClick(p); };
             
-            // Badge logic basada en las nuevas banderas
+            // Badges y Estado Detallado
             let badge = '';
-            if (p.requiere_imei) {
-                badge = `<span class="badge mb-1" style="width:fit-content; font-size:0.65rem; background: #f59e0b; color: #fff;"><i class="fa-solid fa-barcode me-1"></i>Requiere IMEI</span>`;
+            let stockHtml = '';
+
+            if (isImeiProduct) {
+                badge = `<span class="badge mb-1 text-white shadow-xs" style="width:fit-content; font-size:0.65rem; background: #f59e0b; font-weight:700;"><i class="fa-solid fa-barcode me-1"></i>Requiere IMEI</span>`;
+                if (cantImeis > 0) {
+                    stockHtml = `<div class="product-stock text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i>${cantImeis} ${cantImeis === 1 ? 'IMEI disponible' : 'IMEIs disponibles'}</div>`;
+                } else {
+                    stockHtml = `<div class="product-stock text-danger fw-bold"><i class="fa-solid fa-ban me-1"></i>Sin IMEIs disponibles</div>`;
+                }
             } else if (p.tiene_variantes) {
-                badge = `<span class="badge mb-1" style="width:fit-content; font-size:0.65rem; background: var(--dtavo-primary); color: #000;"><i class="fa-solid fa-layer-group me-1"></i>Con Variantes</span>`;
+                badge = `<span class="badge mb-1 text-dark shadow-xs" style="width:fit-content; font-size:0.65rem; background: var(--dtavo-primary); font-weight:700;"><i class="fa-solid fa-layer-group me-1"></i>Con Variantes</span>`;
+                const cantVariantes = p.variantes ? p.variantes.length : 0;
+                if (totalStock > 0) {
+                    stockHtml = `<div class="product-stock text-dtavo-main fw-semibold"><i class="fa-solid fa-boxes-stacked me-1 text-dtavo-primary"></i>${cantVariantes} vars (${totalStock} unds)</div>`;
+                } else {
+                    stockHtml = `<div class="product-stock text-danger fw-bold"><i class="fa-solid fa-ban me-1"></i>Agotado</div>`;
+                }
+            } else {
+                if (totalStock > 0) {
+                    stockHtml = `<div class="product-stock text-dtavo-sec"><i class="fa-solid fa-box-open me-1 text-dtavo-primary"></i>${totalStock} en stock</div>`;
+                } else {
+                    stockHtml = `<div class="product-stock text-danger fw-bold"><i class="fa-solid fa-ban me-1"></i>Agotado</div>`;
+                }
             }
 
             card.innerHTML = `
                 <img src="${imgPath}" onerror="this.src='https://placehold.co/300x300/f8f9fa/a3a3a3?text=Sin+Imagen'" class="product-img" alt="${p.nombre}">
                 <div class="product-info">
-                    <div class="product-title" title="${p.nombre}">${p.nombre}</div>
-                    ${badge}
-                    <div class="product-price">${formatoCOP(precio)}</div>
-                    <div class="product-stock ${totalStock <= 0 && !p.es_serializado ? 'text-danger fw-bold' : ''}">
-                        ${p.es_serializado ? `<i class="fa-solid fa-check-double me-1 text-success"></i>Disponible` : (totalStock > 0 ? `<i class="fa-solid fa-box-open me-1"></i>${totalStock} en stock` : '<i class="fa-solid fa-ban me-1"></i>Agotado')}
+                    <div>
+                        <div class="product-title" title="${p.nombre}">${p.nombre}</div>
+                        ${badge}
+                    </div>
+                    <div>
+                        <div class="product-price">${formatoCOP(precio)}</div>
+                        ${stockHtml}
                     </div>
                 </div>
             `;
