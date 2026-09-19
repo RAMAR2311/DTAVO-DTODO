@@ -2,7 +2,7 @@
 
 {% block content %}
 <style>
-    .pos-layout { display: flex; height: calc(100vh - 110px); gap: 24px; overflow: hidden; }
+    .pos-layout { display: flex; height: calc(100vh - 100px); gap: 20px; overflow: hidden; }
     .pos-catalog { width: 62%; display: flex; flex-direction: column; overflow: hidden; }
     .pos-sidebar { 
         width: 38%; 
@@ -12,40 +12,44 @@
         border-radius: 20px; 
         border: 1px solid var(--dtavo-border); 
         box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.08); 
-        height: calc(100vh - 110px);
+        height: calc(100vh - 100px);
         overflow: hidden;
     }
     
-    .cart-header { padding: 14px 20px; border-bottom: 1px solid var(--dtavo-border); flex-shrink: 0; background: #FFFFFF; }
+    .cart-header { padding: 12px 18px; border-bottom: 1px solid var(--dtavo-border); flex-shrink: 0; background: #FFFFFF; }
     
-    .cart-items { 
-        flex: 1 1 150px; 
+    .cart-scroll-content { 
+        flex: 1 1 auto; 
         overflow-y: auto; 
-        padding: 8px 16px; 
+        overflow-x: hidden;
+        padding: 10px 14px; 
         scrollbar-width: thin;
         scrollbar-color: var(--dtavo-border) transparent;
-        min-height: 120px;
+        min-height: 0;
         background: #FAFCFE;
     }
-    .cart-items::-webkit-scrollbar { width: 5px; }
-    .cart-items::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+    .cart-scroll-content::-webkit-scrollbar { width: 5px; }
+    .cart-scroll-content::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
 
-    .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--dtavo-border); padding: 8px 0; word-wrap: break-word; }
-    .cart-item-info { flex-grow: 1; padding-right: 12px; overflow: hidden; }
-    .cart-item-title { font-weight: 700; font-size: 0.88rem; margin-bottom: 2px; color: var(--dtavo-text-main); white-space: normal; line-height: 1.2; }
-    .cart-item-price { color: #8F6824; font-size: 0.92rem; font-weight: 800; }
+    .cart-items { 
+        min-height: 40px;
+    }
+
+    .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--dtavo-border); padding: 7px 0; word-wrap: break-word; }
+    .cart-item-info { flex-grow: 1; padding-right: 8px; overflow: hidden; }
+    .cart-item-title { font-weight: 700; font-size: 0.84rem; margin-bottom: 2px; color: var(--dtavo-text-main); white-space: normal; line-height: 1.2; }
+    .cart-item-price { color: #8F6824; font-size: 0.88rem; font-weight: 800; }
     
-    .cart-footer { 
-        flex: 0 0 auto;
-        margin-top: auto;
-        padding: 12px 18px; 
+    .cart-fixed-bottom { 
+        flex-shrink: 0;
         background: #FFFFFF; 
         border-top: 1px solid var(--dtavo-border); 
-        overflow-y: auto;
-        max-height: 75%;
+        padding: 10px 16px;
+        box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.04);
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
     }
-    .cart-total-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 0.82rem; }
-    .cart-total-final { font-size: 1.45rem; font-weight: 800; color: #1E1B18; }
+    .cart-total-final { font-size: 1.35rem; font-weight: 800; color: #0F172A; }
 
     .category-scroll { display: flex; overflow-x: auto; padding-bottom: 8px; gap: 8px; flex-shrink: 0; }
     .category-scroll::-webkit-scrollbar { height: 5px; }
@@ -159,9 +163,15 @@
             margin-top: 10px !important;
             border-radius: 16px !important;
         }
-        .cart-footer {
-            max-height: none !important;
+        .cart-scroll-content {
             overflow: visible !important;
+            height: auto !important;
+            max-height: none !important;
+            padding: 10px 12px !important;
+        }
+        .cart-fixed-bottom {
+            border-bottom-left-radius: 16px !important;
+            border-bottom-right-radius: 16px !important;
         }
     }
 </style>
@@ -200,73 +210,58 @@
 
     <!-- PANEL DERECHO: SIDEBAR CARRITO -->
     <div class="pos-sidebar" id="pos-sidebar-container">
+        <!-- Header Fijo -->
         <div class="cart-header d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
                 <h5 class="fw-bold m-0 text-dtavo-main"><i class="fa-solid fa-shopping-cart me-1 text-dtavo-primary"></i>Caja Rápida</h5>
-                <span class="badge bg-dtavo-primary rounded-pill px-2.5 py-1 text-dark" id="cart-count" style="font-size:0.8rem;">0 ítems</span>
+                <span class="badge bg-dtavo-primary rounded-pill px-2.5 py-1 text-dark" id="cart-count" style="font-size:0.78rem;">0 ítems</span>
             </div>
-            <!-- Botón Móvil para Volver Arriba a Seguir Agregando -->
-            <button type="button" class="btn btn-dark btn-sm rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 d-lg-none shadow-sm" onclick="seguirFacturandoMovil()" style="background-color: #111827; font-size: 0.74rem;">
-                <i class="fa-solid fa-arrow-up"></i>
-                <span>Seguir Facturando</span>
-            </button>
+            <div class="d-flex align-items-center gap-1.5">
+                <!-- Botón Móvil para Volver Arriba a Seguir Agregando -->
+                <button type="button" class="btn btn-dark btn-sm rounded-pill px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1 d-lg-none shadow-sm" onclick="seguirFacturandoMovil()" style="background-color: #111827; font-size: 0.72rem;">
+                    <i class="fa-solid fa-arrow-up"></i>
+                    <span>Catálogo</span>
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-2 py-1" id="btn-clear-cart" title="Vaciar Caja" style="font-size: 0.72rem;">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
         </div>
         
-        <div class="cart-items" id="cart-items">
-                <!-- Items del carrito -->
-                <div class="text-center text-dtavo-sec mt-5" id="empty-cart-msg">
-                    <i class="fa-solid fa-basket-shopping fs-1 mb-3 opacity-25"></i>
-                    <p class="mb-1 fw-bold">Tu carrito está vacío.</p>
-                    <small>Selecciona prendas del catálogo.</small>
+        <!-- Contenido Central Scrollable Único (Sin doble barra de desplazamiento) -->
+        <div class="cart-scroll-content">
+            <!-- Items del carrito -->
+            <div class="cart-items" id="cart-items">
+                <div class="text-center text-dtavo-sec py-3" id="empty-cart-msg">
+                    <i class="fa-solid fa-basket-shopping fs-2 mb-2 opacity-25"></i>
+                    <p class="mb-0 fw-bold small">Tu carrito está vacío</p>
+                    <small class="text-muted" style="font-size: 0.72rem;">Selecciona productos del catálogo.</small>
                 </div>
             </div>
-            
-            <div class="cart-footer">
-                <div class="cart-total-row text-dtavo-sec fw-semibold">
-                    <span>Subtotal:</span>
-                    <span id="subtotal-val" class="text-dtavo-main">$0</span>
-                </div>
-                <div class="cart-total-row text-dtavo-sec fw-semibold mb-3">
-                    <span>Impuestos:</span>
-                    <span class="text-dtavo-main">$0</span>
-                </div>
-                <hr class="my-2 border-secondary opacity-25">
-                
-                <!-- Boton Retoma -->
-                <button type="button" class="btn btn-outline-warning w-100 py-1 rounded-pill fw-bold small mb-2" id="btn-abrir-retoma" style="font-size: 0.75rem;">
-                    <i class="fa-solid fa-mobile-retro me-1"></i> Añadir Retoma / Celular como Pago
-                </button>
 
-                <!-- UI Retoma Activa -->
-                <div id="retoma-info" class="cart-total-row text-danger fw-semibold mb-2" style="display: none; justify-content: space-between;">
-                    <span><i class="fa-solid fa-mobile-retro me-1"></i> Retoma:</span>
-                    <div class="d-flex align-items-center">
-                        <span id="retoma-val-display" class="text-danger">-$0</span>
-                        <button class="btn btn-sm text-danger p-0 ms-2" id="btn-quitar-retoma" title="Quitar Retoma"><i class="fa-solid fa-circle-xmark"></i></button>
-                    </div>
-                </div>
-
-                <div class="cart-total-row mb-2">
-                    <span class="fw-bold fs-5 align-self-end text-dtavo-main">Total a Cobrar:</span>
-                    <span class="cart-total-final" id="total-val">$0</span>
-                </div>
-
-                <!-- Cliente Compacto con Desplegable (Ahorro de espacio) -->
+            <!-- Panel de Opciones de Cobro Compactas -->
+            <div class="checkout-options-wrapper mt-2">
+                <!-- Cliente & Retoma & Fecha en Fila Compacta -->
                 <div class="card bg-dtavo-input border-0 shadow-sm rounded-4 mb-2 p-2">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-2 overflow-hidden" style="min-width: 0;">
-                            <i class="fa-solid fa-circle-user text-dtavo-primary" style="font-size: 1.1rem; flex-shrink: 0;"></i>
-                            <div style="line-height: 1.2; min-width: 0;">
-                                <div class="fw-bold small text-dtavo-main text-truncate" id="cliente-resumen-nombre" style="font-size: 0.78rem;">Público General</div>
-                                <div class="text-dtavo-sec" id="cliente-resumen-sub" style="font-size: 0.65rem;">Cédula: 000000000</div>
+                    <div class="d-flex justify-content-between align-items-center gap-2">
+                        <div class="d-flex align-items-center gap-1.5 overflow-hidden" style="min-width: 0;">
+                            <i class="fa-solid fa-circle-user text-dtavo-primary" style="font-size: 1.05rem; flex-shrink: 0;"></i>
+                            <div style="line-height: 1.15; min-width: 0;">
+                                <div class="fw-bold small text-dtavo-main text-truncate" id="cliente-resumen-nombre" style="font-size: 0.76rem;">Público General</div>
+                                <div class="text-dtavo-sec text-truncate" id="cliente-resumen-sub" style="font-size: 0.65rem;">Cédula: 000000000</div>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-outline-warning py-1 px-2 rounded-pill fw-bold btn-sm" id="btn-toggle-cliente" style="font-size: 0.65rem; white-space: nowrap;">
-                            <i class="fa-solid fa-pen-to-square me-1"></i><span id="btn-toggle-cliente-text">Modificar</span>
-                        </button>
+                        <div class="d-flex align-items-center gap-1 flex-shrink-0">
+                            <button type="button" class="btn btn-outline-warning py-0.5 px-2 rounded-pill fw-bold btn-sm" id="btn-toggle-cliente" style="font-size: 0.65rem; white-space: nowrap;">
+                                <i class="fa-solid fa-pen-to-square me-1"></i><span id="btn-toggle-cliente-text">Modificar</span>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary py-0.5 px-2 rounded-pill fw-bold btn-sm" id="btn-abrir-retoma" title="Añadir Retoma" style="font-size: 0.65rem; white-space: nowrap;">
+                                <i class="fa-solid fa-mobile-retro me-1 text-warning"></i>Retoma
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Formulario Detallado Desplegable (Oculto por defecto para no ocupar espacio) -->
+                    <!-- Formulario Detallado Desplegable (Oculto por defecto) -->
                     <div id="cliente-form-desplegable" style="display: none;" class="mt-2 pt-2 border-top border-secondary border-opacity-25">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                             <span class="fw-bold small text-dtavo-primary" style="font-size: 0.65rem;">DATOS DE FACTURA / CLIENTE</span>
@@ -274,15 +269,15 @@
                                 <i class="fa-solid fa-rotate-left me-1"></i>Público General
                             </button>
                         </div>
-                        <div class="row g-2 align-items-center mb-2">
+                        <div class="row g-1 align-items-center mb-1.5">
                             <div class="col-5">
-                                <label class="form-label fw-bold small text-dtavo-primary mb-0" style="font-size: 0.62rem;">N° FACTURA</label>
-                                <input type="text" id="factura-fisica" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main fw-bold" placeholder="#" autocomplete="off" style="font-size: 0.75rem;">
+                                <label class="form-label fw-bold small text-dtavo-primary mb-0" style="font-size: 0.6rem;">N° FACTURA</label>
+                                <input type="text" id="factura-fisica" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main fw-bold py-1" placeholder="#" autocomplete="off" style="font-size: 0.72rem;">
                             </div>
                             <div class="col-7">
-                                <label class="form-label fw-bold small text-dtavo-primary mb-0" style="font-size: 0.62rem;">CÉDULA / NIT</label>
+                                <label class="form-label fw-bold small text-dtavo-primary mb-0" style="font-size: 0.6rem;">CÉDULA / NIT</label>
                                 <div class="input-group input-group-sm">
-                                    <input type="text" id="cliente-cedula" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main" value="000000000" placeholder="Cédula..." autocomplete="off" style="font-size: 0.75rem;">
+                                    <input type="text" id="cliente-cedula" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main py-1" value="000000000" placeholder="Cédula..." autocomplete="off" style="font-size: 0.72rem;">
                                     <button class="btn btn-sm btn-dark border-0 bg-dtavo-bg text-dtavo-primary px-2" type="button" id="btn-buscar-cliente" title="Buscar">
                                         <i class="fa-solid fa-magnifying-glass"></i>
                                     </button>
@@ -290,43 +285,50 @@
                             </div>
                         </div>
 
-                        <div class="row g-2 mb-1">
-                            <div class="col-12" id="cliente-nombre-wrapper">
-                                <input type="text" id="cliente-nombre" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main" value="Público General" placeholder="Nombre del Cliente" style="font-size: 0.75rem;">
+                        <div class="mb-1.5" id="cliente-nombre-wrapper">
+                            <input type="text" id="cliente-nombre" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main py-1" value="Público General" placeholder="Nombre del Cliente" style="font-size: 0.72rem;">
+                        </div>
+
+                        <div class="row g-1 mb-1">
+                            <div class="col-6">
+                                <input type="text" id="cliente-telefono" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main py-1" placeholder="Tel / WhatsApp" style="font-size: 0.7rem;">
+                            </div>
+                            <div class="col-6">
+                                <input type="email" id="cliente-correo" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main py-1" placeholder="Correo" style="font-size: 0.7rem;">
                             </div>
                         </div>
 
-                        <div class="row g-2 mb-0">
-                            <div class="col-6">
-                                <input type="text" id="cliente-telefono" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main" placeholder="Tel / WhatsApp" style="font-size: 0.7rem;">
-                            </div>
-                            <div class="col-6">
-                                <input type="email" id="cliente-correo" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main" placeholder="Correo" style="font-size: 0.7rem;">
-                            </div>
+                        <div class="mb-1">
+                            <label class="form-label fw-bold small text-dtavo-primary mb-0" style="font-size: 0.6rem;">FECHA DE VENTA</label>
+                            <input type="date" id="fecha-venta" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main py-1" style="font-size: 0.72rem;">
                         </div>
                         <div id="cliente-status" class="small mt-1" style="display:none; font-size: 0.65rem;"></div>
                     </div>
                 </div>
 
-                <div class="mb-1">
-                    <label class="form-label fw-bold small text-dtavo-main mb-0" style="font-size: 0.72rem;"><i class="fa-regular fa-calendar me-1"></i>Fecha de Venta:</label>
-                    <input type="date" id="fecha-venta" class="form-control form-control-sm border-0 shadow-sm bg-dtavo-input text-dtavo-main">
-                </div>
-                
-                <!-- Toggle: Pago Único vs Pago Dividido -->
-                <div class="mb-1">
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                        <label class="form-label fw-bold text-dtavo-main small text-uppercase m-0" style="font-size: 0.7rem;">Método de Pago</label>
-                        <div class="form-check form-switch ms-auto">
-                            <input class="form-check-input" type="checkbox" id="toggle_pago_mixto" style="cursor: pointer; scale: 0.8;">
-                            <label class="form-check-label fw-bold small text-dtavo-sec" for="toggle_pago_mixto" style="cursor: pointer; font-size: 0.7rem;">Dividir</label>
-                        </div>
+                <!-- UI Retoma Activa -->
+                <div id="retoma-info" class="alert alert-warning py-1 px-2 rounded-3 mb-2 small d-flex justify-content-between align-items-center" style="display: none; font-size: 0.72rem;">
+                    <span class="fw-bold"><i class="fa-solid fa-mobile-retro me-1"></i> Retoma Aplicada:</span>
+                    <div class="d-flex align-items-center gap-1">
+                        <span id="retoma-val-display" class="fw-extrabold text-danger">-$0</span>
+                        <button class="btn btn-sm text-danger p-0 ms-1" id="btn-quitar-retoma" title="Quitar Retoma"><i class="fa-solid fa-circle-xmark"></i></button>
                     </div>
                 </div>
 
-                <!-- Modo 1: Pago Único (por defecto) -->
+                <!-- Método de Pago & Dividir -->
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label class="form-label fw-bold text-dtavo-main small text-uppercase m-0" style="font-size: 0.68rem;">
+                        <i class="fa-solid fa-wallet me-1 text-dtavo-primary"></i>Método de Pago
+                    </label>
+                    <div class="form-check form-switch m-0 d-flex align-items-center gap-1">
+                        <input class="form-check-input m-0" type="checkbox" id="toggle_pago_mixto" style="cursor: pointer; scale: 0.75;">
+                        <label class="form-check-label fw-bold small text-dtavo-sec" for="toggle_pago_mixto" style="cursor: pointer; font-size: 0.68rem;">Dividir</label>
+                    </div>
+                </div>
+
+                <!-- Modo 1: Pago Único -->
                 <div id="pago_unico_section" class="mb-2">
-                    <select id="metodo-pago" class="form-select form-select-sm border-0 shadow-sm bg-dtavo-input text-dtavo-main mb-2" style="cursor: pointer;">
+                    <select id="metodo-pago" class="form-select form-select-sm border-0 shadow-sm bg-dtavo-input text-dtavo-main mb-1.5 py-1 fw-bold" style="cursor: pointer; font-size: 0.78rem;">
                         <option value="efectivo">💵 Efectivo</option>
                         <option value="nequi">📱 Nequi</option>
                         <option value="bancolombia">🏦 Bancolombia</option>
@@ -334,86 +336,84 @@
                         <option value="tarjeta">💳 Tarjeta</option>
                     </select>
 
-                    <!-- Panel de Efectivo Rápido y Cambio -->
-                    <div id="panel-efectivo-rapido" class="card bg-dtavo-input border-0 rounded-4 p-2 mb-2 shadow-sm">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <label class="form-label fw-bold small text-dtavo-primary mb-0" style="font-size: 0.65rem;">
-                                <i class="fa-solid fa-money-bill-wave me-1"></i>EFECTIVO RECIBIDO
-                            </label>
-                            <span class="badge bg-dark text-dtavo-primary border border-secondary" style="font-size: 0.6rem;">Montos Rápidos</span>
-                        </div>
-                        
-                        <!-- Botones de Denominaciones Rápidas -->
-                        <div class="d-grid gap-1 mb-2" style="grid-template-columns: repeat(3, 1fr);">
-                            <button type="button" class="btn btn-sm btn-outline-warning rounded-pill py-1 fw-bold btn-monto-rapido" data-tipo="exacto" style="font-size: 0.68rem;">Exacto</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-1 fw-bold text-dtavo-main btn-monto-rapido" data-monto="10000" style="font-size: 0.68rem;">$10.000</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-1 fw-bold text-dtavo-main btn-monto-rapido" data-monto="20000" style="font-size: 0.68rem;">$20.000</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-1 fw-bold text-dtavo-main btn-monto-rapido" data-monto="50000" style="font-size: 0.68rem;">$50.000</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-1 fw-bold text-dtavo-main btn-monto-rapido" data-monto="100000" style="font-size: 0.68rem;">$100.000</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill py-1 fw-bold text-dtavo-main btn-monto-rapido" data-monto="200000" style="font-size: 0.68rem;">$200.000</button>
+                    <!-- Panel Efectivo Compacto y Cambio en 1 solo bloque horizontal -->
+                    <div id="panel-efectivo-rapido" class="card bg-dtavo-input border-0 rounded-4 p-2 shadow-sm">
+                        <!-- Fila de Montos Rápidos en strip compacto -->
+                        <div class="d-flex gap-1 mb-1.5 overflow-x-auto pb-1" style="scrollbar-width: none;">
+                            <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-2 py-0.5 fw-bold btn-monto-rapido flex-shrink-0" data-tipo="exacto" style="font-size: 0.65rem;">Exacto</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0.5 fw-bold text-dtavo-main btn-monto-rapido flex-shrink-0" data-monto="10000" style="font-size: 0.65rem;">$10k</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0.5 fw-bold text-dtavo-main btn-monto-rapido flex-shrink-0" data-monto="20000" style="font-size: 0.65rem;">$20k</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0.5 fw-bold text-dtavo-main btn-monto-rapido flex-shrink-0" data-monto="50000" style="font-size: 0.65rem;">$50k</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0.5 fw-bold text-dtavo-main btn-monto-rapido flex-shrink-0" data-monto="100000" style="font-size: 0.65rem;">$100k</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0.5 fw-bold text-dtavo-main btn-monto-rapido flex-shrink-0" data-monto="200000" style="font-size: 0.65rem;">$200k</button>
                         </div>
 
-                        <div class="input-group input-group-sm mb-2">
-                            <span class="input-group-text bg-dtavo-bg border-0 text-dtavo-primary fw-bold">$</span>
-                            <input type="text" id="efectivo-recibido" class="form-control border-0 bg-dtavo-bg text-dtavo-main fw-bold text-end money-input" placeholder="0" autocomplete="off" style="font-size: 0.85rem;">
-                            <button class="btn btn-sm btn-outline-secondary border-0 bg-dtavo-bg text-dtavo-sec" type="button" id="btn-limpiar-efectivo" title="Limpiar"><i class="fa-solid fa-rotate-left"></i></button>
-                        </div>
-
-                        <!-- Tarjeta de Cambio / Vueltas -->
-                        <div id="cambio-card" class="p-2 rounded-3 text-center border" style="background: rgba(34, 197, 94, 0.08); border-color: rgba(34, 197, 94, 0.25) !important;">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="fw-bold text-uppercase" id="cambio-label" style="font-size: 0.65rem; color: #22c55e;">Cambio / Vueltas:</small>
-                                <span class="fw-bolder fs-6" id="cambio-val" style="color: #22c55e;">$0</span>
+                        <!-- Fila 2: Input Efectivo Recibido y Cambio Lado a Lado -->
+                        <div class="row g-1.5 align-items-center">
+                            <div class="col-7">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-dtavo-bg border-0 text-dtavo-primary fw-bold py-0.5 px-2" style="font-size: 0.75rem;">$</span>
+                                    <input type="text" id="efectivo-recibido" class="form-control form-control-sm border-0 bg-dtavo-bg text-dtavo-main fw-bold text-end money-input py-0.5" placeholder="0" autocomplete="off" style="font-size: 0.8rem;">
+                                    <button class="btn btn-sm btn-outline-secondary border-0 bg-dtavo-bg text-dtavo-sec px-1.5 py-0.5" type="button" id="btn-limpiar-efectivo" title="Limpiar"><i class="fa-solid fa-rotate-left" style="font-size: 0.68rem;"></i></button>
+                                </div>
+                            </div>
+                            <div class="col-5">
+                                <div id="cambio-card" class="py-1 px-1.5 rounded-3 text-center border d-flex flex-column justify-content-center" style="background: rgba(34, 197, 94, 0.08); border-color: rgba(34, 197, 94, 0.25) !important; min-height: 29px;">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="fw-bold text-uppercase" id="cambio-label" style="font-size: 0.58rem; color: #22c55e;">Cambio:</small>
+                                        <span class="fw-bolder" id="cambio-val" style="font-size: 0.78rem; color: #22c55e;">$0</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Modo 2: Pago Dividido/Mixto (oculto por defecto) -->
+                <!-- Modo 2: Pago Dividido/Mixto -->
                 <div id="pago_mixto_section" style="display: none;" class="mb-2">
-                    <!-- Indicador visual del saldo restante -->
-                    <div class="alert border border-secondary py-1 px-2 mb-2 bg-dtavo-input">
+                    <div class="alert border border-secondary py-1 px-2 mb-1.5 bg-dtavo-input">
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="fw-bold text-dtavo-sec" id="saldo_label" style="font-size: 0.65rem;">SALDO:</small>
-                            <span class="fw-bolder text-dtavo-primary" id="saldo_restante" style="font-size: 1rem;">$0</span>
+                            <span class="fw-bolder text-dtavo-primary" id="saldo_restante" style="font-size: 0.95rem;">$0</span>
                         </div>
-                        <div class="progress mt-1" style="height: 4px; border-radius: 10px; background-color: var(--dtavo-border);">
+                        <div class="progress mt-1" style="height: 3px; border-radius: 10px; background-color: var(--dtavo-border);">
                             <div class="progress-bar" id="barra_progreso_pago" role="progressbar" style="width: 0%; background: var(--dtavo-primary); border-radius: 10px;"></div>
                         </div>
                     </div>
-
-                    <!-- Lista dinámica de pagos parciales -->
-                    <div id="pagos_list" class="d-flex flex-column gap-1 mb-2">
-                        <!-- Se inyecta dinámicamente -->
-                    </div>
-
-                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold w-100 py-1" id="btn_agregar_pago" style="font-size: 0.7rem;">
+                    <div id="pagos_list" class="d-flex flex-column gap-1 mb-1.5"></div>
+                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill fw-bold w-100 py-0.5" id="btn_agregar_pago" style="font-size: 0.68rem;">
                         <i class="fa-solid fa-plus me-1"></i> Agregar otro pago
                     </button>
                 </div>
-
-                <!-- Opción de Impresión Rápida (Apagada por defecto) -->
-                <div class="d-flex justify-content-between align-items-center bg-dtavo-input p-2 rounded-4 mb-2 shadow-sm border border-secondary border-opacity-10">
-                    <label class="form-check-label fw-bold small text-dtavo-main mb-0" for="toggle-imprimir" style="font-size: 0.72rem; cursor: pointer;">
-                        <i class="fa-solid fa-print text-dtavo-primary me-1"></i>Imprimir Factura al Cobrar
-                    </label>
-                    <div class="form-check form-switch m-0">
-                        <input class="form-check-input" type="checkbox" id="toggle-imprimir" style="cursor: pointer; scale: 0.85;">
-                    </div>
-                </div>
-
-                <!-- Botón Móvil para Seguir Agregando Productos -->
-                <button type="button" class="btn btn-outline-secondary w-100 py-2 rounded-pill fw-bold small d-lg-none mb-2 shadow-xs" onclick="seguirFacturandoMovil()" style="font-size: 0.78rem;">
-                    <i class="fa-solid fa-arrow-up me-1.5 text-dtavo-primary"></i> ➕ Seguir agregando productos
-                </button>
-
-                <button class="btn btn-dtavo w-100 py-2 rounded-pill fw-bold fs-6 shadow-sm text-uppercase mb-2" id="btn-process-sale">
-                    <i class="fa-solid fa-cash-register me-2"></i> Procesar Venta
-                </button>
-                <button class="btn btn-outline-danger w-100 py-1 rounded-pill fw-bold small" id="btn-clear-cart" style="font-size: 0.75rem;">
-                    <i class="fa-solid fa-trash me-1"></i> Vaciar Caja
-                </button>
             </div>
+        </div>
+
+        <!-- Footer Fijo de Acción (Siempre Visible al Pie, Sin Scroll para Cobrar) -->
+        <div class="cart-fixed-bottom">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <div>
+                    <span class="text-dtavo-sec fw-semibold" style="font-size: 0.72rem;">Subtotal: <span id="subtotal-val" class="text-dtavo-main fw-bold">$0</span></span>
+                </div>
+                <div class="d-flex align-items-baseline gap-1.5">
+                    <span class="fw-bold text-dtavo-sec" style="font-size: 0.75rem;">Total:</span>
+                    <span class="cart-total-final" id="total-val">$0</span>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-1.5">
+                <div class="form-check form-switch m-0 d-flex align-items-center gap-1.5">
+                    <input class="form-check-input m-0" type="checkbox" id="toggle-imprimir" style="cursor: pointer; scale: 0.75;">
+                    <label class="form-check-label fw-bold small text-dtavo-main" for="toggle-imprimir" style="font-size: 0.68rem; cursor: pointer;">
+                        <i class="fa-solid fa-print text-dtavo-primary me-1"></i>Imprimir Factura
+                    </label>
+                </div>
+            </div>
+
+            <button class="btn btn-dtavo w-100 py-2.5 rounded-pill fw-bold fs-6 shadow-sm text-uppercase d-flex align-items-center justify-content-center gap-2" id="btn-process-sale">
+                <i class="fa-solid fa-cash-register"></i>
+                <span>Procesar Venta</span>
+            </button>
+        </div>
     </div>
 </div>
 
