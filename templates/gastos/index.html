@@ -1,46 +1,67 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold text-dtavo-main m-0">Control de Gastos y Costos</h2>
-    <a href="{{ url_for('admin_bp.dashboard') if current_user.rol == 'admin' else url_for('sales_bp.procesar_venta') }}" class="btn btn-outline-secondary rounded-pill px-4">
-        <i class="fa-solid fa-arrow-left me-1"></i> Volver al Menú
-    </a>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <span class="badge badge-gold px-2.5 py-1 mb-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+            <i class="fa-solid fa-file-invoice-dollar me-1"></i> Flujo Operativo
+        </span>
+        <h2 class="fw-extrabold text-dtavo-main m-0">Control de Gastos y Costos</h2>
+        <p class="text-dtavo-sec small mb-0 mt-0.5">Gestión de egresos diarios y costos fijos de la tienda.</p>
+    </div>
+    <div>
+        <a href="{{ url_for('admin_bp.dashboard') if current_user.rol == 'admin' else url_for('sales_bp.pos_visual') }}" class="btn btn-dtavo-secondary rounded-pill px-4 fw-bold">
+            <i class="fa-solid fa-arrow-left me-1.5"></i> Volver al Menú
+        </a>
+    </div>
 </div>
 
 <!-- Tarjetas de Resumen Financiero -->
 <div class="row g-4 mb-4">
     <div class="col-md-6">
-        <div class="card card-custom h-100 p-4 border-0 shadow-sm" style="border-left: 5px solid var(--dtavo-primary) !important;">
+        <div class="card card-custom card-highlight-gold h-100 p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="text-dtavo-main fw-bold mb-0">Total Gastos Diarios (Mes)</h5>
-                <i class="fa-solid fa-cart-shopping fs-2" style="color: var(--dtavo-primary);"></i>
+                <div>
+                    <span class="text-dtavo-sec fw-bold small text-uppercase" style="letter-spacing: 0.05em; font-size: 0.72rem;">Operativo Mes</span>
+                    <h5 class="text-dtavo-main fw-bold mb-0">Total Gastos Diarios</h5>
+                </div>
+                <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px; background: rgba(197, 159, 96, 0.2); color: #8F6824;">
+                    <i class="fa-solid fa-cart-shopping fs-4"></i>
+                </div>
             </div>
-            <h2 class="fw-bolder m-0">${{ (total_diarios)|cop }}</h2>
-            <p class="text-dtavo-sec small mt-2 m-0">Operativos: comida, transportes, aseo.</p>
+            <h2 class="fw-extrabold text-dark m-0">${{ (total_diarios)|cop }}</h2>
+            <p class="text-dtavo-sec small mt-2 mb-0">Gastos corrientes de caja: almuerzos, aseo, fletes rápidos.</p>
         </div>
     </div>
     <div class="col-md-6">
-        <div class="card card-custom h-100 p-4 border-0 shadow-sm" style="border-left: 5px solid var(--dtavo-hover) !important;">
+        <div class="card card-custom h-100 p-4" style="border-left: 4px solid #3B82F6 !important;">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="text-dtavo-main fw-bold mb-0">Total Costos Indirectos (Mes)</h5>
-                <i class="fa-solid fa-building-columns fs-2" style="color: var(--dtavo-hover);"></i>
+                <div>
+                    <span class="text-dtavo-sec fw-bold small text-uppercase" style="letter-spacing: 0.05em; font-size: 0.72rem;">Costos Fijos Mes</span>
+                    <h5 class="text-dtavo-main fw-bold mb-0">Total Costos Indirectos</h5>
+                </div>
+                <div class="rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 48px; height: 48px; background: rgba(59, 130, 246, 0.12); color: #2563EB;">
+                    <i class="fa-solid fa-building-columns fs-4"></i>
+                </div>
             </div>
-            <h2 class="fw-bolder m-0">${{ (total_indirectos)|cop }}</h2>
-            <p class="text-dtavo-sec small mt-2 m-0">Fijos: arriendo, nómina, servicios.</p>
+            <h2 class="fw-extrabold text-dtavo-main m-0">${{ (total_indirectos)|cop }}</h2>
+            <p class="text-dtavo-sec small mt-2 mb-0">Costos estructurales: arriendo, servicios, software y nómina.</p>
         </div>
     </div>
 </div>
 
 <!-- Formulario para Registrar Nuevo Gasto -->
-<div class="card card-custom p-4 mb-5 shadow-sm border-0">
-    <h5 class="text-dtavo-main fw-bold mb-4"><i class="fa-solid fa-money-bill-transfer text-dtavo-sec me-2"></i>Registrar Salida de Dinero</h5>
+<div class="card card-custom p-4 mb-4">
+    <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+        <i class="fa-solid fa-circle-plus text-dtavo-primary fs-5"></i>
+        <h5 class="text-dtavo-main fw-bold m-0">Registrar Salida de Dinero</h5>
+    </div>
     <form method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="row g-3 align-items-end">
             <div class="col-md-3">
-                <label class="form-label fw-bold text-dtavo-main">Tipo de Salida</label>
-                <select name="tipo" class="form-select bg-dtavo-card border-0" required>
+                <label class="form-label small fw-bold text-dtavo-main mb-1">Tipo de Salida</label>
+                <select name="tipo" class="form-select shadow-none" required>
                     {% if current_user.rol == 'admin' %}
                     <option value="" selected disabled>Seleccionar tipo...</option>
                     <option value="Gasto Diario">Gasto Diario / Operativo</option>
@@ -51,9 +72,8 @@
                 </select>
             </div>
             <div class="col-md-3">
-                <label class="form-label fw-bold text-dtavo-main">Categoría</label>
-                <!-- Usamos datalist para permitir escribir o seleccionar opciones -->
-                <input type="text" name="categoria" list="categoriasComunes" class="form-control bg-dtavo-card border-0" autocomplete="off" placeholder="Ej: Arriendo, Aseo..." required>
+                <label class="form-label small fw-bold text-dtavo-main mb-1">Categoría</label>
+                <input type="text" name="categoria" list="categoriasComunes" class="form-control shadow-none" autocomplete="off" placeholder="Ej: Arriendo, Aseo..." required>
                 <datalist id="categoriasComunes">
                     <option value="Arriendo">
                     <option value="Servicios Públicos">
@@ -66,55 +86,63 @@
                     <option value="Insumos Varios">
                 </datalist>
             </div>
-            <div class="col-md-2">
-                <label class="form-label fw-bold text-dtavo-main">Monto ($)</label>
-                <input type="text" name="monto" class="form-control bg-dtavo-card border-0 money-input" required>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-dtavo-main mb-1">Monto ($)</label>
+                <input type="text" name="monto" class="form-control shadow-none money-input fw-bold" placeholder="0" required>
             </div>
-            <div class="col-md-2">
-                <label class="form-label fw-bold text-dtavo-main">Fecha</label>
-                <input type="date" name="fecha" class="form-control bg-dtavo-card border-0" value="{{ hoy }}" required>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-dtavo-main mb-1">Fecha</label>
+                <input type="date" name="fecha" class="form-control shadow-none" value="{{ hoy }}" required>
             </div>
-            <div class="col-md-10 mt-3">
-                <label class="form-label fw-bold text-dtavo-main">Nota o Descripción</label>
-                <input type="text" name="descripcion" class="form-control bg-dtavo-card border-0" placeholder="Breve detalle del gasto..." required>
+            <div class="col-md-9 mt-3">
+                <label class="form-label small fw-bold text-dtavo-main mb-1">Nota o Detalle</label>
+                <input type="text" name="descripcion" class="form-control shadow-none" placeholder="Breve descripción o justificación del egreso..." required>
             </div>
-            <div class="col-md-2 mt-3 text-end">
-                <button type="submit" class="btn btn-dtavo-secondary w-100 rounded-pill fw-bold h-100 py-2"><i class="fa-solid fa-plus me-1"></i> Guardar</button>
+            <div class="col-md-3 mt-3 text-end">
+                <button type="submit" class="btn btn-dtavo w-100 rounded-pill fw-bold shadow-sm py-2">
+                    <i class="fa-solid fa-plus me-1.5"></i> Guardar Egreso
+                </button>
             </div>
         </div>
     </form>
 </div>
 
 <!-- Tabla Historial -->
-<div class="card card-custom p-0 overflow-hidden shadow-sm border-0">
+<div class="card card-custom p-0 overflow-hidden">
+    <div class="p-3.5 border-bottom bg-white d-flex justify-content-between align-items-center">
+        <h6 class="fw-bold text-dtavo-main m-0 text-uppercase" style="font-size: 0.78rem; letter-spacing: 0.05em;">
+            <i class="fa-solid fa-clock-rotate-left me-1.5 text-dtavo-primary"></i> Historial de Salidas del Mes
+        </h6>
+        <span class="badge bg-light text-secondary border px-2.5 py-1">{{ gastos|length }} registros</span>
+    </div>
     <div class="table-responsive">
         <table class="table table-hover table-custom mb-0">
-            <thead class="bg-dtavo-card">
+            <thead>
                 <tr>
-                    <th class="ps-4">FECHA</th>
-                    <th>REGISTRADO POR</th>
-                    <th>TIPO</th>
-                    <th>CATEGORÍA</th>
+                    <th class="ps-4" width="12%">FECHA</th>
+                    <th width="18%">REGISTRADO POR</th>
+                    <th width="15%">TIPO</th>
+                    <th width="15%">CATEGORÍA</th>
                     <th>DESCRIPCIÓN</th>
-                    <th class="text-end">MONTO</th>
-                    <th class="text-center pe-4">ACCIONES</th>
+                    <th class="text-end" width="14%">MONTO</th>
+                    <th class="text-center pe-4" width="10%">ACCIONES</th>
                 </tr>
             </thead>
             <tbody>
                 {% for gasto in gastos %}
                 <tr>
-                    <td class="ps-4 text-dtavo-sec"><small>{{ gasto.fecha.strftime('%d/%m/%Y') }}</small></td>
-                    <td><span class="text-dtavo-main fw-semibold"><i class="fa-solid fa-user-tie text-dtavo-sec me-1"></i>{{ gasto.usuario.nombre }}</span></td>
+                    <td class="ps-4 text-dtavo-sec fw-semibold"><small>{{ gasto.fecha.strftime('%d/%m/%Y') }}</small></td>
+                    <td><span class="text-dtavo-main fw-semibold"><i class="fa-solid fa-user-tie text-dtavo-primary me-1.5"></i>{{ gasto.usuario.nombre }}</span></td>
                     <td>
                         {% if gasto.tipo == 'Gasto Diario' %}
-                            <span class="badge rounded-pill text-dtavo-main" style="background-color: var(--dtavo-primary);">{{ gasto.tipo }}</span>
+                            <span class="badge badge-gold px-2.5 py-1">{{ gasto.tipo }}</span>
                         {% else %}
-                            <span class="badge rounded-pill text-dtavo-main" style="background-color: var(--dtavo-hover);">{{ gasto.tipo }}</span>
+                            <span class="badge bg-primary-subtle text-primary border border-primary px-2.5 py-1">{{ gasto.tipo }}</span>
                         {% endif %}
                     </td>
-                    <td class="fw-bold">{{ gasto.categoria }}</td>
+                    <td class="fw-bold text-dtavo-main">{{ gasto.categoria }}</td>
                     <td class="text-dtavo-sec"><small>{{ gasto.descripcion }}</small></td>
-                    <td class="text-end fw-bolder text-dtavo-main">${{ (gasto.monto)|cop }}</td>
+                    <td class="text-end fw-extrabold text-danger">${{ (gasto.monto)|cop }}</td>
                     <td class="text-center pe-4">
                         {% if current_user.rol == 'admin' or gasto.usuario_id == current_user.id %}
                         <form action="{{ url_for('gastos_bp.eliminar_gasto', id=gasto.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este gasto permanentemente?')">
@@ -129,7 +157,7 @@
                 {% else %}
                 <tr>
                     <td colspan="7" class="text-center py-5 text-dtavo-sec">
-                        <i class="fa-solid fa-wallet fs-2 mb-3 text-dtavo-sec opacity-50"></i>
+                        <i class="fa-solid fa-wallet fs-2 mb-3 text-dtavo-primary opacity-50"></i>
                         <p class="mb-0">No se han registrado salidas de dinero este mes.</p>
                     </td>
                 </tr>

@@ -3,142 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket de Compra #{{ venta.id }} - DTAVO</title>
-    <!-- Incluir solo la fuente base "Roboto Mono" (Letra de ticketera 80mm) -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <title>Ticket de Compra #{{ venta.id }} — DTAVO</title>
+    <!-- Fuentes Google: Roboto Mono & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
-            /* Colores Base Ticket (Papel) */
             --paper-bg: #FFFFFF;
-            --paper-text: #1A1A1A;
-            --desktop-bg: #f0f2f5; /* Color claro por defecto */
-            --btn-bg: #1A1A1A;
-            --btn-text: #FFFFFF;
-        }
-
-        /* Detectar Modo Oscuro desde el Body (inyectado por JS) */
-        body.dark-mode {
-            --desktop-bg: #1A1818;
-            --btn-bg: #DDB856;
-            --btn-text: #1A1818;
+            --paper-text: #0F172A;
+            --desktop-bg: #F8FAFC;
+            --gold-primary: #C59F60;
+            --gold-dark: #8F6824;
+            --gold-gradient: linear-gradient(135deg, #C59F60 0%, #DFBD7A 100%);
         }
 
         body {
             background-color: var(--desktop-bg);
             margin: 0;
-            padding: 30px;
+            padding: 30px 15px;
             display: flex;
             justify-content: center;
             font-family: 'Roboto Mono', monospace, sans-serif;
-            transition: background-color 0.3s;
+            color: var(--paper-text);
+            min-height: 100vh;
         }
         
         .ticket {
             background-color: var(--paper-bg);
             width: 100%;
-            max-width: 380px; /* Ancho de impresora térmica 80mm */
-            padding: 25px 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            max-width: 400px; /* Ancho de impresora térmica 80mm */
+            padding: 28px 24px;
+            box-shadow: 0 10px 35px -5px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
             color: var(--paper-text);
             box-sizing: border-box;
-            border-radius: 2px;
+            border-radius: 16px;
+            border: 1px solid #E2E8F0;
         }
 
         .header {
             text-align: center;
-            border-bottom: 2px dashed #1A1A1A;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+            border-bottom: 2px dashed #CBD5E1;
+            padding-bottom: 16px;
+            margin-bottom: 18px;
         }
 
-        .logo {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin: 0 0 10px 0;
-            letter-spacing: -1.5px;
+        .logo-title {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.9rem;
+            font-weight: 800;
+            margin: 0 0 6px 0;
+            letter-spacing: -0.5px;
+            color: #0F172A;
         }
 
         .info {
-            font-size: 0.9rem;
+            font-size: 0.82rem;
             margin: 3px 0;
-            line-height: 1.5;
+            line-height: 1.4;
+            color: #475569;
         }
 
         .table-items {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.85rem;
-            margin-bottom: 20px;
+            font-size: 0.82rem;
+            margin-bottom: 18px;
         }
 
         .table-items th {
             text-align: left;
-            border-bottom: 1px solid #1A1A1A;
-            padding-bottom: 8px;
+            border-bottom: 1px solid #0F172A;
+            padding-bottom: 6px;
             font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
         }
 
         .table-items td {
-            padding: 10px 0;
+            padding: 8px 0;
             vertical-align: top;
+            border-bottom: 1px solid #F1F5F9;
         }
 
-        .col-qty { width: 15%; text-align: center; }
-        .col-prod { width: 55%; padding-right: 10px; }
-        .col-sub { width: 30%; text-align: right; }
+        .col-qty { width: 15%; text-align: center; font-weight: 700; }
+        .col-prod { width: 55%; padding-right: 8px; }
+        .col-sub { width: 30%; text-align: right; font-weight: 700; }
 
         .totals {
-            border-top: 2px dashed #1A1A1A;
-            padding-top: 20px;
-            margin-bottom: 25px;
+            border-top: 2px dashed #CBD5E1;
+            padding-top: 16px;
+            margin-bottom: 20px;
         }
 
         .total-row {
             display: flex;
             justify-content: space-between;
-            font-size: 1.4rem;
-            font-weight: 700;
-            /* Branding Inyectado: Resalte estricto en Azul Turquesa (#A3D8DE) */
-            background-color: #A3D8DE;
-            padding: 12px 15px;
-            border-radius: 6px;
-            border: 1px solid #1A1A1A;
+            align-items: center;
+            font-size: 1.3rem;
+            font-weight: 800;
+            background: var(--gold-gradient);
+            color: #1E1B18;
+            padding: 10px 14px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(197, 159, 96, 0.25);
         }
 
         .footer {
             text-align: center;
-            font-size: 0.85rem;
-            margin-top: 30px;
+            font-size: 0.8rem;
+            margin-top: 24px;
+            color: #64748B;
+        }
+
+        .btn-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 13px;
+            font-size: 0.95rem;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.2s;
+            text-decoration: none;
+            box-sizing: border-box;
         }
 
         .btn-print {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            background-color: var(--btn-bg);
-            color: var(--btn-text);
-            border: 2px solid var(--btn-bg);
-            font-size: 1.1rem;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 30px;
-            font-family: inherit;
-            transition: 0.2s;
+            background-color: #0F172A;
+            color: #FFFFFF;
+            border: none;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
         }
-
         .btn-print:hover {
-            background-color: #FFFFFF;
-            color: #1A1A1A;
+            background-color: #1E293B;
+            transform: translateY(-1px);
         }
 
-        /* MEDIA QUERY DE IMPRESIÓN RIGUROSA: Las reglas CSS aquí omiten UI inútil al imprimir en papel */
+        .btn-wsp {
+            background-color: #25D366;
+            color: #FFFFFF;
+            border: none;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25);
+        }
+        .btn-wsp:hover {
+            background-color: #20BA5A;
+            transform: translateY(-1px);
+        }
+
+        /* MEDIA QUERY DE IMPRESIÓN */
         @media print {
             body { background-color: #FFFFFF; padding: 0; display: block; }
-            .ticket { box-shadow: none; max-width: 100%; padding: 0; margin: 0 auto; width: 80mm; border: none; }
-            .btn-print, .btn-wsp, .no-print-actions { display: none !important; }
-            .total-row { background-color: transparent !important; border: none !important; padding: 10px 0 !important; }
-            .total-row * { color: #1A1A1A !important; } /* Desactivar Azul para impresiones monocromas */
+            .ticket { box-shadow: none; max-width: 100%; padding: 0; margin: 0 auto; width: 80mm; border: none; border-radius: 0; }
+            .no-print-actions { display: none !important; }
+            .total-row { background: transparent !important; border: 1px solid #000 !important; color: #000 !important; box-shadow: none !important; }
         }
     </style>
 </head>
@@ -146,20 +169,20 @@
 
 <div class="ticket">
     <div class="header">
-        <h1 class="logo">DTAVO</h1>
-        <p class="info">Folio / Ticket: #{{ venta.id }}</p>
+        <div class="logo-title">DTAVO</div>
+        <p class="info" style="font-weight: 700; color: #0F172A;">Comprobante de Venta #{{ "%05d"|format(venta.id) }}</p>
         {% if venta.factura_fisica %}
-        <p class="info" style="font-weight: bold; color: var(--btn-bg);">Factura Física: {{ venta.factura_fisica }}</p>
+        <p class="info" style="font-weight: bold; color: var(--gold-dark);">Factura Física: {{ venta.factura_fisica }}</p>
         {% endif %}
         <p class="info">Expedido: {{ venta.fecha_venta.strftime('%d/%m/%Y %H:%M') }}</p>
         <p class="info">Cajero Asignado: {{ venta.vendedor.nombre }}</p>
-        <p class="info" style="font-weight: bold; text-transform: uppercase;">
+        <p class="info" style="font-weight: 700; text-transform: uppercase;">
             {% if venta.pagos|length > 1 %}
-                Método de Pago: PAGO DIVIDIDO
+                Método: PAGO DIVIDIDO
             {% elif venta.pagos|length == 1 %}
-                Método de Pago: {{ venta.pagos[0].metodo_pago|upper }}
+                Método: {{ venta.pagos[0].metodo_pago|upper }}
             {% else %}
-                Método de Pago: {{ venta.metodo_pago|upper }}
+                Método: {{ venta.metodo_pago|upper }}
             {% endif %}
         </p>
     </div>
@@ -176,22 +199,21 @@
             {% for detalle in venta.detalles %}
             <tr>
                 <td class="col-qty">{{ detalle.cantidad_vendida }}</td>
-                <!-- Cortar la longitud del título si es gigantesco para no descuadrar la ticketera -->
                 <td class="col-prod">
                     {% if detalle.nombre_manual %}
-                        {{ detalle.nombre_manual[:25] }}{% if detalle.nombre_manual|length > 25 %}...{% endif %}
+                        {{ detalle.nombre_manual[:26] }}{% if detalle.nombre_manual|length > 26 %}...{% endif %}
                     {% else %}
-                        {{ detalle.producto.nombre[:25] }}{% if detalle.producto.nombre|length > 25 %}...{% endif %}
+                        {{ detalle.producto.nombre[:26] }}{% if detalle.producto.nombre|length > 26 %}...{% endif %}
                         {% if detalle.variante %}
-                            <br><small style="font-size: 0.75rem; color: #666;">Variante: {{ detalle.variante.nombre_variante }}</small>
+                            <br><small style="font-size: 0.72rem; color: #64748B;">Variante: {{ detalle.variante.nombre_variante }}</small>
                         {% endif %}
                     {% endif %}
                     
                     {% if detalle.serial_vendido %}
-                    <div style="font-size: 0.7rem; margin-top: 4px; line-height: 1.2; border-top: 1px dotted #1A1A1A; padding-top: 4px;">
-                        <span style="font-weight: 700;">IMEI:</span> {{ detalle.serial_vendido }}<br>
-                        {% if detalle.bateria %}<span style="font-weight: 700;">Batería:</span> {{ detalle.bateria }}% | {% endif %}
-                        {% if detalle.estado_producto %}<span style="font-weight: 700;">Est.:</span> {{ detalle.estado_producto }}{% endif %}
+                    <div style="font-size: 0.7rem; margin-top: 3px; line-height: 1.25; border-top: 1px dotted #CBD5E1; padding-top: 3px; color: #475569;">
+                        <span style="font-weight: 700; color: #8F6824;">IMEI:</span> {{ detalle.serial_vendido }}<br>
+                        {% if detalle.bateria %}<span style="font-weight: 700;">Bat:</span> {{ detalle.bateria }}% | {% endif %}
+                        {% if detalle.estado_producto %}<span style="font-weight: 700;">Est:</span> {{ detalle.estado_producto }}{% endif %}
                         {% if detalle.tiempo_garantia %}<br><span style="font-weight: 700;">Garantía:</span> {{ detalle.tiempo_garantia }}{% endif %}
                     </div>
                     {% endif %}
@@ -210,11 +232,11 @@
         
         {% if venta.pagos|length > 1 %}
         <!-- Desglose de pagos mixtos -->
-        <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ccc;">
-            <p style="font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; text-align: center;">DESGLOSE DE PAGOS:</p>
+        <div style="margin-top: 12px; padding-top: 8px; border-top: 1px dashed #CBD5E1;">
+            <p style="font-weight: 700; font-size: 0.8rem; margin-bottom: 6px; text-align: center; color: #64748B;">DESGLOSE DE PAGOS:</p>
             {% for pago in venta.pagos %}
-            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; padding: 3px 0;">
-                <span style="text-transform: capitalize;">{{ pago.metodo_pago }}:</span>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; padding: 2px 0;">
+                <span style="text-transform: capitalize; color: #475569;">{{ pago.metodo_pago }}:</span>
                 <span style="font-weight: 700;">${{ (pago.monto)|cop }}</span>
             </div>
             {% endfor %}
@@ -235,51 +257,44 @@
 
     {% if not ns.es_ropa %}
     <!-- Políticas de Garantía -->
-    <div class="garantia-box" style="margin-top: 20px; font-size: 0.68rem; line-height: 1.35; border-top: 1px dashed #1A1A1A; padding-top: 10px; text-align: justify;">
-        <p style="font-weight: bold; margin: 0 0 5px 0; text-align: center; text-transform: uppercase; font-size: 0.75rem;">Políticas de Garantía</p>
-        <p style="margin: 0;">Equipos nuevos: garantía de 1 año. Equipos de exhibición: garantía de 3 meses. La remoción, rotura o alteración del sticker de seguridad de la tienda en el equipo anula automáticamente la garantía. No cubre equipos con garantía vencida, reportados por operador, IMEI o serial alterado, daños por golpes, caídas, humedad, líquidos, polvo, manipulación indebida, software modificado, instalaciones o actualizaciones no autorizadas, equipos intervenidos por terceros, pantallas despegadas, manchas negras, líneas en pantalla, rayones o cualquier daño físico. Para hacer efectiva la garantía es obligatorio presentar la factura original. El tiempo de revisión y diagnóstico es de 2 a 3 días hábiles. Si la garantía procede, se reemplazará la pieza defectuosa; si el equipo no puede ser reparado, se realizará el cambio del mismo. El tiempo máximo de reparación es de hasta 15 días hábiles, de conformidad con la Ley 1480 de 2011.</p>
+    <div class="garantia-box" style="margin-top: 16px; font-size: 0.65rem; line-height: 1.35; border-top: 1px dashed #CBD5E1; padding-top: 8px; text-align: justify; color: #64748B;">
+        <p style="font-weight: bold; margin: 0 0 4px 0; text-align: center; text-transform: uppercase; font-size: 0.72rem; color: #0F172A;">Políticas de Garantía</p>
+        <p style="margin: 0;">Equipos nuevos: garantía de 1 año. Equipos de exhibición: garantía de 3 meses. La remoción, rotura o alteración del sticker de seguridad en el equipo anula automáticamente la garantía. No cubre equipos con garantía vencida, reportados por operador, IMEI o serial alterado, golpes, humedad o manipulación de software. Para hacer efectiva la garantía presente la factura original. Ley 1480 de 2011.</p>
     </div>
     {% endif %}
 
     <div class="footer">
-        <p style="font-size: 0.95rem; font-weight: bold; margin: 0 0 4px 0;">¡Gracias por tu compra!</p>
+        <p style="font-size: 0.9rem; font-weight: 700; margin: 0 0 4px 0; color: #0F172A;">¡Gracias por tu compra!</p>
         <p style="margin: 2px 0;">Soporte: ventas@Dtavo.com</p>
-        <p style="font-size: 0.78rem; font-weight: bold; margin-top: 10px; text-transform: uppercase;">Aliado tecnológico ZENIC SAS</p>
+        <p style="font-size: 0.72rem; font-weight: 700; margin-top: 8px; text-transform: uppercase; color: #94A3B8;">Aliado tecnológico ZENIC SAS</p>
     </div>
 
     <div class="no-print-actions" style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-        <button class="btn-print" onclick="window.print()" style="margin-top: 0;">
-            [ 🖨️ IMPRIMIR TICKET ]
+        <button class="btn-action btn-print" onclick="window.print()">
+            <i class="fa-solid fa-print"></i> Imprimir Factura
         </button>
-        <button class="btn-wsp" onclick="enviarWhatsApp()" style="display: block; width: 100%; padding: 14px; background-color: #25D366; color: #FFFFFF; border: 2px solid #25D366; font-size: 1.05rem; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: inherit; transition: 0.2s; text-align: center;">
-            [ 💬 ENVIAR POR WHATSAPP ]
+        <button class="btn-action btn-wsp" onclick="enviarWhatsApp()">
+            <i class="fa-brands fa-whatsapp fs-5"></i> Enviar por WhatsApp
         </button>
     </div>
 </div>
 
-<!-- Lógica de Auto-Impresión, WhatsApp y Sincronización de Tema -->
 <script>
-    // Sincronizar tema con la aplicación principal
-    (function() {
-        const theme = localStorage.getItem('theme');
-        if (theme === 'dark') {
-            document.body.classList.add('dark-mode');
-        }
-    })();
-
     function enviarWhatsApp() {
-        let clienteTelefono = "{{ (venta.cliente.telefono if venta.cliente and venta.cliente.telefono else '') }}";
+        let clienteTelefono = "{{ (venta.cliente.telefono if venta.cliente and venta.cliente.telefono else '') }}".trim();
         
-        let telefonoPrompt = prompt("Ingrese el número de WhatsApp del cliente:", clienteTelefono || "");
-        if (telefonoPrompt === null) return; // Cancelado
+        let telefono = clienteTelefono;
+        if (!telefono) {
+            telefono = prompt("Ingrese el número de WhatsApp del cliente:", "");
+            if (telefono === null || !telefono.trim()) return;
+        }
         
-        let phoneClean = telefonoPrompt.replace(/\D/g, '');
+        let phoneClean = telefono.replace(/\D/g, '');
         if (!phoneClean) {
             alert("Por favor ingrese un número de teléfono válido.");
             return;
         }
         
-        // Si tiene 10 dígitos (ej. Colombia 3001234567), anteponer código 57
         if (phoneClean.length === 10) {
             phoneClean = '57' + phoneClean;
         }
@@ -290,13 +305,13 @@
         const fechaVenta = "{{ venta.fecha_venta.strftime('%d/%m/%Y %H:%M') }}";
         
         let itemsText = "";
-        /* {% for detalle in venta.detalles %} */
-            /* {% set nombre_prod = (detalle.nombre_manual or (detalle.producto.nombre if detalle.producto else 'Producto')) %} */
+        {% for detalle in venta.detalles %}
+            {% set nombre_prod = (detalle.nombre_manual or (detalle.producto.nombre if detalle.producto else 'Producto')) %}
             itemsText += "• {{ detalle.cantidad_vendida }}x {{ nombre_prod|replace('\"', '')|replace('\'', '')|replace('\n', ' ') }} (${{ (detalle.precio_venta_final * detalle.cantidad_vendida)|cop }})\n";
-        /* {% endfor %} */
+        {% endfor %}
         
         let mensaje = `Hola *${clienteNombre}*, gracias por tu compra en *DTAVO*.\n\n` +
-                      `🧾 *Factura / Ticket #${"{{ venta.id }}"}*\n` +
+                      `🧾 *Factura / Ticket #{{ venta.id }}*\n` +
                       `📅 *Fecha:* ${fechaVenta}\n` +
                       `💵 *TOTAL:* $${totalVenta}\n\n` +
                       `📦 *Detalle de compra:*\n${itemsText}\n` +
@@ -306,13 +321,6 @@
         const wspUrl = `https://api.whatsapp.com/send?phone=${phoneClean}&text=${encodeURIComponent(mensaje)}`;
         window.open(wspUrl, '_blank');
     }
-
-    // Evento silencioso que detona el pop-up de impresora nativo de Windows al renderizar
-    window.onload = function() {
-        setTimeout(() => {
-            window.print();
-        }, 700); // 700ms de retraso para asegurar carga asíncrona de tipografías de Google
-    };
 </script>
 
 </body>

@@ -1,76 +1,124 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-10 text-center mb-5">
-        <h1 class="display-4 fw-bold text-dtavo-main animate__animated animate__fadeInDown">¡Hola, {{ current_user.rol | capitalize }}!</h1>
-        <p class="lead text-dtavo-sec animate__animated animate__fadeInUp">Bienvenido al panel central de DTAVO. Selecciona un módulo para comenzar.</p>
+<div class="row justify-content-center pt-2 pb-4">
+    <div class="col-lg-8 text-center mb-4">
+        <span class="badge badge-gold px-3 py-1.5 mb-3 text-uppercase" style="letter-spacing: 0.08em; font-size: 0.75rem;">
+            <i class="fa-solid fa-crown me-1"></i> Panel de Control Principal
+        </span>
+        <h1 class="display-5 fw-extrabold text-dtavo-main mb-2" style="letter-spacing: -0.03em;">
+            ¡Hola, {{ current_user.rol | capitalize }}!
+        </h1>
+        <p class="text-dtavo-sec fs-5 mb-0">Bienvenido al sistema DTAVO. Selecciona un módulo para comenzar tu jornada.</p>
     </div>
 </div>
 
 <div class="row g-4 justify-content-center">
-    {% if current_user.rol == 'admin' %}
-    <div class="col-md-4 col-lg-3">
-        <a href="/admin/dashboard" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
-            <div class="icon-shape bg-dtavo-primary text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
-                <i class="fa-solid fa-chart-line fs-3"></i>
-            </div>
-            <h5 class="fw-bold text-dtavo-main">Dashboard</h5>
-            <p class="small text-dtavo-sec mb-0">Estadísticas y control general.</p>
-        </a>
-    <div class="col-md-4 col-lg-3">
-        <a href="/proveedores" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
-            <div class="icon-shape bg-dtavo-primary text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
-                <i class="fa-solid fa-truck-field fs-3"></i>
-            </div>
-            <h5 class="fw-bold text-dtavo-main">Proveedores</h5>
-            <p class="small text-dtavo-sec mb-0">Cuentas por pagar y abonos.</p>
-        </a>
-    </div>
-    {% endif %}
-
-    <div class="col-md-4 col-lg-3">
-        <a href="/sales/pos_visual" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
-            <div class="icon-shape bg-dtavo-hover text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+    <!-- Módulo POS / Caja Rápida (Destacado para todos) -->
+    <div class="col-sm-6 col-md-4 col-lg-3">
+        <a href="{{ url_for('sales_bp.pos_visual') }}" class="card card-custom card-highlight-gold h-100 text-decoration-none p-4 text-center hover-lift d-flex flex-column align-items-center justify-content-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 64px; height: 64px; background: linear-gradient(135deg, #C59F60 0%, #DFBD7A 100%); color: #000;">
                 <i class="fa-solid fa-cash-register fs-3"></i>
             </div>
-            <h5 class="fw-bold text-dtavo-main">Ventas / POS</h5>
-            <p class="small text-dtavo-sec mb-0">Realizar ventas y facturación.</p>
+            <h5 class="fw-bold text-dtavo-main mb-1">Caja Rápida / POS</h5>
+            <p class="small text-dtavo-sec mb-0">Ventas ágiles, scanner y cobro.</p>
         </a>
     </div>
 
-    {% if current_user.rol in ['admin', 'bodega'] %}
-    <div class="col-md-4 col-lg-3">
-        <a href="/inventory" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
-            <div class="icon-shape bg-dtavo-primary text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
-                <i class="fa-solid fa-boxes-stacked fs-3"></i>
+    {% if current_user.rol == 'admin' %}
+    <!-- Dashboard -->
+    <div class="col-sm-6 col-md-4 col-lg-3">
+        <a href="{{ url_for('admin_bp.dashboard') }}" class="card card-custom h-100 text-decoration-none p-4 text-center hover-lift d-flex flex-column align-items-center justify-content-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 64px; height: 64px; background: rgba(59, 130, 246, 0.12); color: #2563EB;">
+                <i class="fa-solid fa-chart-pie fs-3"></i>
             </div>
-            <h5 class="fw-bold text-dtavo-main">Inventario</h5>
-            <p class="small text-dtavo-sec mb-0">Control de stock y productos.</p>
+            <h5 class="fw-bold text-dtavo-main mb-1">Dashboard</h5>
+            <p class="small text-dtavo-sec mb-0">Métricas en vivo y analíticas.</p>
+        </a>
+    </div>
+
+    <!-- Proveedores -->
+    <div class="col-sm-6 col-md-4 col-lg-3">
+        <a href="{{ url_for('providers_bp.index') }}" class="card card-custom h-100 text-decoration-none p-4 text-center hover-lift d-flex flex-column align-items-center justify-content-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 64px; height: 64px; background: rgba(14, 165, 233, 0.12); color: #0284C7;">
+                <i class="fa-solid fa-truck-field fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-dtavo-main mb-1">Proveedores</h5>
+            <p class="small text-dtavo-sec mb-0">Cuentas por pagar y compras.</p>
         </a>
     </div>
     {% endif %}
 
-    <div class="col-md-4 col-lg-3">
-        <a href="/gastos" class="card card-custom h-100 text-decoration-none border-0 shadow-sm p-4 text-center hover-lift">
-            <div class="icon-shape bg-dtavo-hover text-white rounded-circle mb-3 mx-auto shadow-sm" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
-                <i class="fa-solid fa-money-bill-transfer fs-3"></i>
+    {% if current_user.rol in ['admin', 'bodega', 'vendedor'] %}
+    <!-- Inventario -->
+    <div class="col-sm-6 col-md-4 col-lg-3">
+        <a href="{{ url_for('inventory_bp.index') }}" class="card card-custom h-100 text-decoration-none p-4 text-center hover-lift d-flex flex-column align-items-center justify-content-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 64px; height: 64px; background: rgba(16, 185, 129, 0.12); color: #059669;">
+                <i class="fa-solid fa-boxes-stacked fs-3"></i>
             </div>
-            <h5 class="fw-bold text-dtavo-main">Gastos</h5>
-            <p class="small text-dtavo-sec mb-0">Control de egresos y caja.</p>
+            <h5 class="fw-bold text-dtavo-main mb-1">Inventario</h5>
+            <p class="small text-dtavo-sec mb-0">Productos, stock y seriales.</p>
         </a>
     </div>
-</div>
 
-<style>
-    .hover-lift {
-        transition: all 0.3s ease-in-out;
-    }
-    .hover-lift:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important;
-    }
-    .bg-dtavo-hover { background-color: var(--dtavo-hover) !important; }
-    .bg-dtavo-secondary { background-color: #7ED1DB !important; }
-</style>
+    <!-- Retomas -->
+    <div class="col-sm-6 col-md-4 col-lg-3">
+        <a href="{{ url_for('inventory_bp.retomas_index') }}" class="card card-custom h-100 text-decoration-none p-4 text-center hover-lift d-flex flex-column align-items-center justify-content-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 64px; height: 64px; background: rgba(245, 158, 11, 0.12); color: #D97706;">
+                <i class="fa-solid fa-mobile-retro fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-dtavo-main mb-1">Retomas Usados</h5>
+            <p class="small text-dtavo-sec mb-0">Ingreso y peritaje de equipos.</p>
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Clientes -->
+    <div class="col-sm-6 col-md-4 col-lg-3">
+        <a href="{{ url_for('clientes_bp.index') }}" class="card card-custom h-100 text-decoration-none p-4 text-center hover-lift d-flex flex-column align-items-center justify-content-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 64px; height: 64px; background: rgba(99, 102, 241, 0.12); color: #4F46E5;">
+                <i class="fa-solid fa-users fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-dtavo-main mb-1">Clientes</h5>
+            <p class="small text-dtavo-sec mb-0">Historial y base de datos.</p>
+        </a>
+    </div>
+
+    <!-- Gastos -->
+    <div class="col-sm-6 col-md-4 col-lg-3">
+        <a href="{{ url_for('gastos_bp.index') }}" class="card card-custom h-100 text-decoration-none p-4 text-center hover-lift d-flex flex-column align-items-center justify-content-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 64px; height: 64px; background: rgba(236, 72, 153, 0.12); color: #DB2777;">
+                <i class="fa-solid fa-file-invoice-dollar fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-dtavo-main mb-1">Gastos</h5>
+            <p class="small text-dtavo-sec mb-0">Control de salidas y egresos.</p>
+        </a>
+    </div>
+
+    {% if current_user.rol in ['admin', 'vendedor'] %}
+    <!-- Cierre de Caja -->
+    <div class="col-sm-6 col-md-4 col-lg-3">
+        <a href="{{ url_for('arqueo_bp.index') }}" class="card card-custom h-100 text-decoration-none p-4 text-center hover-lift d-flex flex-column align-items-center justify-content-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 64px; height: 64px; background: rgba(197, 159, 96, 0.15); color: #8F6824;">
+                <i class="fa-solid fa-calculator fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-dtavo-main mb-1">Cierre de Caja</h5>
+            <p class="small text-dtavo-sec mb-0">Arqueo diario y balance.</p>
+        </a>
+    </div>
+    {% endif %}
+
+    {% if current_user.rol == 'admin' %}
+    <!-- Gestión de Personal -->
+    <div class="col-sm-6 col-md-4 col-lg-3">
+        <a href="{{ url_for('personal_bp.index') }}" class="card card-custom h-100 text-decoration-none p-4 text-center hover-lift d-flex flex-column align-items-center justify-content-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 64px; height: 64px; background: rgba(139, 92, 246, 0.12); color: #7C3AED;">
+                <i class="fa-solid fa-users-gear fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-dtavo-main mb-1">Personal</h5>
+            <p class="small text-dtavo-sec mb-0">Usuarios, roles y accesos.</p>
+        </a>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

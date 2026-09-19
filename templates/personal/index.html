@@ -1,129 +1,137 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container-fluid py-4 animate__animated animate__fadeIn">
+<div class="container-fluid py-2">
     <!-- Cabecera -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold text-dtavo-main mb-1">Gestión de Personal</h2>
-            <p class="text-dtavo-sec mb-0">Controla los accesos y roles de tu equipo de trabajo.</p>
+            <span class="badge badge-gold px-2.5 py-1 mb-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                <i class="fa-solid fa-users-gear me-1"></i> Administración
+            </span>
+            <h2 class="fw-extrabold text-dtavo-main m-0">Gestión de Personal</h2>
+            <p class="text-dtavo-sec small mb-0 mt-0.5">Controla los accesos, permisos y roles de tu equipo de trabajo.</p>
         </div>
     </div>
 
     <div class="row g-4">
         <!-- Columna Izquierda: Formulario (35%) -->
         <div class="col-lg-4">
-            <div class="card card-custom border-0 shadow-sm overflow-hidden">
-                <div class="card-header bg-transparent border-0 p-4 pb-0">
-                    <h5 class="fw-bold text-dtavo-main mb-0"><i class="fa-solid fa-user-plus me-2 text-dtavo-primary"></i>Alta de Nuevo Vendedor</h5>
+            <div class="card card-custom p-4">
+                <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                    <i class="fa-solid fa-user-plus text-dtavo-primary fs-5"></i>
+                    <h5 class="fw-bold text-dtavo-main mb-0">Alta de Colaborador</h5>
                 </div>
-                <div class="card-body p-4">
-                    <form action="{{ url_for('personal_bp.crear') }}" method="POST">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-dtavo-sec">Nombre Completo</label>
-                            <input type="text" name="nombre" class="form-control rounded-3" placeholder="Ej: Roberto Sánchez" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-dtavo-sec">Correo Empresarial</label>
-                            <input type="email" name="email" class="form-control rounded-3" placeholder="email@dtavo.com" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-dtavo-sec">Celular / WhatsApp</label>
-                            <input type="text" name="telefono" class="form-control rounded-3" placeholder="Ej: 300 123 4567">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-dtavo-sec">Contraseña Temporal</label>
-                            <input type="password" name="password" class="form-control rounded-3" placeholder="••••••••" required>
-                            <small class="text-muted" style="font-size: 10px;">El vendedor podrá cambiarla después.</small>
-                        </div>
+                <form action="{{ url_for('personal_bp.crear') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dtavo-main mb-1">Nombre Completo</label>
+                        <input type="text" name="nombre" class="form-control" placeholder="Ej: Roberto Sánchez" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dtavo-main mb-1">Correo Empresarial</label>
+                        <input type="email" name="email" class="form-control" placeholder="email@dtavo.com" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dtavo-main mb-1">Celular / WhatsApp</label>
+                        <input type="text" name="telefono" class="form-control" placeholder="Ej: 300 123 4567">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-dtavo-main mb-1">Contraseña Temporal</label>
+                        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                        <small class="text-dtavo-sec" style="font-size: 0.72rem;">El colaborador podrá cambiarla tras el primer inicio.</small>
+                    </div>
 
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold text-dtavo-sec">Rol de Usuario</label>
-                            <select name="rol" class="form-select rounded-3">
-                                <option value="vendedor">Vendedor (Estándar)</option>
-                                <option value="admin">Administrador (Acceso Total)</option>
-                            </select>
-                        </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-dtavo-main mb-1">Rol de Usuario</label>
+                        <select name="rol" class="form-select">
+                            <option value="vendedor">Vendedor (Estándar)</option>
+                            <option value="admin">Administrador (Acceso Total)</option>
+                            <option value="bodega">Bodega (Inventario)</option>
+                        </select>
+                    </div>
 
-                        <button type="submit" class="btn btn-outline-dtavo w-100 rounded-pill py-2 fw-bold shadow-sm">
-                            <i class="fa-solid fa-key me-2"></i>OTORGAR ACCESO
-                        </button>
-                    </form>
-                </div>
+                    <button type="submit" class="btn btn-dtavo w-100 rounded-pill py-2.5 fw-bold shadow-sm">
+                        <i class="fa-solid fa-key me-1.5"></i> OTORGAR ACCESO
+                    </button>
+                </form>
             </div>
         </div>
 
         <!-- Columna Derecha: Tabla (65%) -->
         <div class="col-lg-8">
-            <div class="card card-custom border-0 shadow-sm overflow-hidden">
-                <div class="card-header bg-transparent border-0 p-4 pb-0">
-                    <h5 class="fw-bold text-dtavo-main mb-0"><i class="fa-solid fa-users-gear me-2 text-dtavo-primary"></i>Plantilla de Colaboradores</h5>
+            <div class="card card-custom p-0 overflow-hidden">
+                <div class="p-3.5 border-bottom bg-white d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold text-dtavo-main m-0 text-uppercase" style="font-size: 0.78rem; letter-spacing: 0.05em;">
+                        <i class="fa-solid fa-users text-dtavo-primary me-1.5"></i> Plantilla Activa
+                    </h6>
+                    <span class="badge bg-light text-secondary border px-2.5 py-1">{{ usuarios|length }} usuarios</span>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0 mt-3">
-                            <thead class="bg-light small">
-                                <tr>
-                                    <th class="ps-4 py-3">USUARIO</th>
-                                    <th>ROL</th>
-                                    <th>CONTACTO</th>
-                                    <th class="pe-4 text-end">ACCIONES</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for u in usuarios %}
-                                <tr>
-                                    <td class="ps-4">
-                                        <div class="d-flex align-items-center">
-                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
-                                                <i class="fa-solid fa-user text-dtavo-primary"></i>
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold text-dtavo-main">{{ u.nombre }}</div>
-                                                <div class="small text-dtavo-sec">{{ u.email }}</div>
-                                            </div>
+                <div class="table-responsive">
+                    <table class="table table-hover table-custom mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4 py-3" width="35%">USUARIO</th>
+                                <th width="20%">ROL</th>
+                                <th width="25%">CONTACTO</th>
+                                <th class="pe-4 text-end" width="20%">ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in usuarios %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3 shadow-xs" style="width: 36px; height: 36px; background: rgba(197, 159, 96, 0.15); color: #8F6824; font-weight: 700;">
+                                            {{ u.nombre[:1]|upper }}
                                         </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge {{ 'bg-dtavo-primary' if u.rol == 'admin' else 'bg-light text-dtavo-sec border' }} rounded-pill px-3">
-                                            {{ u.rol | upper }}
-                                        </span>
-                                    </td>
-                                    <td class="small fw-semibold text-dtavo-sec">
-                                        {{ u.telefono or 'N/A' }}
-                                    </td>
-                                    <td class="pe-4 text-end">
-                                        <div class="btn-group">
-                                            <button class="btn btn-sm btn-light rounded-circle me-1 btn-edit-user" 
-                                                    data-id="{{ u.id }}"
-                                                    data-nombre="{{ u.nombre }}"
-                                                    data-email="{{ u.email }}"
-                                                    data-telefono="{{ u.telefono or '' }}"
-                                                    data-rol="{{ u.rol }}"
-                                                    title="Editar">
-                                                <i class="fa-solid fa-pen-to-square text-dtavo-sec"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-light rounded-circle btn-delete-user" 
-                                                    data-id="{{ u.id }}"
-                                                    data-nombre="{{ u.nombre }}"
-                                                    title="Eliminar">
-                                                <i class="fa-solid fa-trash-can text-danger"></i>
-                                            </button>
-                                            <form id="delete-form-{{ u.id }}" action="{{ url_for('personal_bp.eliminar', id=u.id) }}" method="POST" style="display: none;">
-                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                            </form>
+                                        <div>
+                                            <div class="fw-bold text-dtavo-main">{{ u.nombre }}</div>
+                                            <div class="small text-dtavo-sec">{{ u.email }}</div>
                                         </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge {{ 'badge-gold' if u.rol == 'admin' else 'bg-light text-dark border' }} rounded-pill px-3 py-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                                        {{ u.rol }}
+                                    </span>
+                                </td>
+                                <td class="small fw-semibold text-dtavo-sec">
+                                    {{ u.telefono or 'N/A' }}
+                                </td>
+                                <td class="pe-4 text-end">
+                                    <div class="btn-group gap-1">
+                                        <button class="btn btn-sm btn-dtavo-secondary rounded-circle btn-edit-user" 
+                                                style="width: 32px; height: 32px; padding: 0;"
+                                                data-id="{{ u.id }}"
+                                                data-nombre="{{ u.nombre }}"
+                                                data-email="{{ u.email }}"
+                                                data-telefono="{{ u.telefono or '' }}"
+                                                data-rol="{{ u.rol }}"
+                                                title="Editar">
+                                            <i class="fa-solid fa-pen-to-square text-dtavo-primary"></i>
+                                        </button>
+                                        {% if u.id != current_user.id %}
+                                        <button class="btn btn-sm btn-outline-danger rounded-circle btn-delete-user" 
+                                                style="width: 32px; height: 32px; padding: 0;"
+                                                data-id="{{ u.id }}"
+                                                data-nombre="{{ u.nombre }}"
+                                                title="Eliminar">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                        <form id="delete-form-{{ u.id }}" action="{{ url_for('personal_bp.eliminar', id=u.id) }}" method="POST" style="display: none;">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -133,9 +141,9 @@
 <!-- MODAL EDITAR USUARIO -->
 <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="background: var(--dtavo-card-bg);">
+        <div class="modal-content border-0 shadow-lg" style="background: #FFFFFF;">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold text-dtavo-primary"><i class="fa-solid fa-user-pen me-2"></i>Editar Usuario</h5>
+                <h5 class="modal-title fw-bold text-dtavo-main"><i class="fa-solid fa-user-pen me-2 text-dtavo-primary"></i>Editar Usuario</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
@@ -143,34 +151,35 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-dtavo-sec">Nombre Completo</label>
-                        <input type="text" name="nombre" id="edit-nombre" class="form-control rounded-3" required>
+                        <label class="form-label small fw-bold text-dtavo-main mb-1">Nombre Completo</label>
+                        <input type="text" name="nombre" id="edit-nombre" class="form-control" required>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-dtavo-sec">Correo Empresarial</label>
-                        <input type="email" name="email" id="edit-email" class="form-control rounded-3" required>
+                        <label class="form-label small fw-bold text-dtavo-main mb-1">Correo Empresarial</label>
+                        <input type="email" name="email" id="edit-email" class="form-control" required>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-dtavo-sec">Celular / WhatsApp</label>
-                        <input type="text" name="telefono" id="edit-telefono" class="form-control rounded-3">
+                        <label class="form-label small fw-bold text-dtavo-main mb-1">Celular / WhatsApp</label>
+                        <input type="text" name="telefono" id="edit-telefono" class="form-control">
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-dtavo-sec">Rol de Usuario</label>
-                        <select name="rol" id="edit-rol" class="form-select rounded-3">
+                        <label class="form-label small fw-bold text-dtavo-main mb-1">Rol de Usuario</label>
+                        <select name="rol" id="edit-rol" class="form-select">
                             <option value="vendedor">Vendedor</option>
                             <option value="admin">Administrador</option>
+                            <option value="bodega">Bodega</option>
                         </select>
                     </div>
                     
                     <div class="mb-4">
-                        <label class="form-label small fw-bold text-dtavo-sec">Nueva Contraseña (Opcional)</label>
-                        <input type="password" name="password" class="form-control rounded-3" placeholder="Dejar en blanco para no cambiar">
+                        <label class="form-label small fw-bold text-dtavo-main mb-1">Nueva Contraseña (Opcional)</label>
+                        <input type="password" name="password" class="form-control" placeholder="Dejar en blanco para no cambiar">
                     </div>
 
-                    <button type="submit" class="btn btn-dtavo w-100 rounded-pill py-2 fw-bold shadow-sm">
+                    <button type="submit" class="btn btn-dtavo w-100 rounded-pill py-2.5 fw-bold shadow-sm">
                         GUARDAR CAMBIOS
                     </button>
                 </form>
@@ -178,34 +187,14 @@
         </div>
     </div>
 </div>
-
-<style>
-    .btn-outline-dtavo {
-        color: var(--dtavo-primary);
-        border: 2px solid var(--dtavo-primary);
-        transition: all 0.3s ease;
-    }
-    .btn-outline-dtavo:hover {
-        background-color: var(--dtavo-primary);
-        color: white;
-    }
-    .card-custom {
-        transition: transform 0.2s;
-    }
-    .card-custom:hover {
-        transform: translateY(-5px);
-    }
-</style>
 {% endblock %}
 
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Inicializar el modal
         const modalEl = document.getElementById('modalEditar');
         const modalEditar = new bootstrap.Modal(modalEl);
 
-        // Manejar clics en botones de editar
         document.querySelectorAll('.btn-edit-user').forEach(btn => {
             btn.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
@@ -224,7 +213,6 @@
             });
         });
 
-        // Manejar clics en botones de eliminar
         document.querySelectorAll('.btn-delete-user').forEach(btn => {
             btn.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');

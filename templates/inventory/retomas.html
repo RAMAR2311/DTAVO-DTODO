@@ -55,12 +55,12 @@
                 <!-- Modal de Aprobación -->
                 <div class="modal fade" id="modalAprobar{{ r.id }}" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content border-0 shadow-lg" style="background: var(--dtavo-card-bg);">
+                        <div class="modal-content border-0 shadow-lg" style="background: #FFFFFF;">
                             <form method="POST" action="{{ url_for('inventory_bp.aprobar_retoma', serie_id=r.id) }}">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <div class="modal-header border-0 pb-0">
                                     <h5 class="modal-title fw-bold text-success"><i class="fa-solid fa-clipboard-check me-2"></i>Aprobar Ingreso a Inventario</h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body p-4">
                                     <p class="text-dtavo-sec small">IMEI: <strong>{{ r.serial }}</strong></p>

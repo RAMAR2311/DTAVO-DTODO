@@ -1,29 +1,38 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container-fluid py-4 animate__animated animate__fadeIn">
+<div class="container-fluid py-2">
     <!-- Cabecera -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
-            <h2 class="fw-bold text-dtavo-main mb-1">Gestión de Proveedores</h2>
-            <p class="text-dtavo-sec mb-0">Administra tus cuentas por pagar y relaciones comerciales.</p>
+            <span class="badge badge-gold px-2.5 py-1 mb-1 text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                <i class="fa-solid fa-truck-field me-1"></i> Compras & Pasivos
+            </span>
+            <h2 class="fw-extrabold text-dtavo-main m-0">Gestión de Proveedores</h2>
+            <p class="text-dtavo-sec small mb-0 mt-0.5">Administra tus cuentas por pagar, compras y relaciones comerciales.</p>
         </div>
-        <button class="btn btn-dtavo-primary rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor">
-            <i class="fa-solid fa-plus me-2"></i>Nuevo Proveedor
+        <button class="btn btn-dtavo rounded-pill px-4 fw-bold shadow-sm py-2" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor">
+            <i class="fa-solid fa-plus me-1.5"></i> Nuevo Proveedor
         </button>
     </div>
 
     <!-- Tabla de Proveedores -->
-    <div class="card card-custom border-0 shadow-sm overflow-hidden">
+    <div class="card card-custom p-0 overflow-hidden">
+        <div class="p-3.5 border-bottom bg-white d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold text-dtavo-main m-0 text-uppercase" style="font-size: 0.78rem; letter-spacing: 0.05em;">
+                <i class="fa-solid fa-truck-field text-dtavo-primary me-1.5"></i> Directorio de Proveedores
+            </h6>
+            <span class="badge bg-light text-secondary border px-2.5 py-1">{{ proveedores|length }} registros</span>
+        </div>
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
+            <table class="table table-hover table-custom mb-0">
+                <thead>
                     <tr>
-                        <th class="ps-4 py-3 text-dtavo-main fw-bold small">NOMBRE</th>
-                        <th class="py-3 text-dtavo-main fw-bold small">EMPRESA</th>
-                        <th class="py-3 text-dtavo-main fw-bold small">TELÉFONO</th>
-                        <th class="py-3 text-dtavo-main fw-bold small text-center">REGISTRO</th>
-                        <th class="pe-4 py-3 text-dtavo-main fw-bold small text-end">ACCIONES</th>
+                        <th class="ps-4" width="30%">NOMBRE</th>
+                        <th width="25%">EMPRESA / RAZÓN SOCIAL</th>
+                        <th width="20%">TELÉFONO</th>
+                        <th class="text-center" width="10%">REGISTRO</th>
+                        <th class="pe-4 text-end" width="15%">ACCIONES</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -31,27 +40,31 @@
                     <tr id="row-proveedor-{{ p.id }}">
                         <td class="ps-4">
                             <div class="d-flex align-items-center">
-                                <div class="rounded-circle bg-dtavo-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px; font-weight: 700;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 shadow-xs" style="width: 36px; height: 36px; background: rgba(197, 159, 96, 0.15); color: #8F6824; font-weight: 700;">
                                     {{ p.nombre[0] | upper }}
                                 </div>
                                 <span class="fw-bold text-dtavo-main">{{ p.nombre }}</span>
                             </div>
                         </td>
-                        <td class="text-dtavo-sec">{{ p.empresa or 'N/A' }}</td>
+                        <td class="text-dtavo-sec fw-semibold">{{ p.empresa or 'N/A' }}</td>
                         <td>
-                            <a href="tel:{{ p.telefono }}" class="text-decoration-none text-dtavo-primary fw-semibold">
-                                {{ p.telefono or '---' }}
+                            {% if p.telefono %}
+                            <a href="tel:{{ p.telefono }}" class="text-decoration-none fw-semibold" style="color: #8F6824;">
+                                <i class="fa-solid fa-phone me-1 small"></i>{{ p.telefono }}
                             </a>
+                            {% else %}
+                            <span class="text-dtavo-sec small">---</span>
+                            {% endif %}
                         </td>
-                        <td class="text-center text-dtavo-sec small">
+                        <td class="text-center text-dtavo-sec small fw-semibold">
                             {{ p.fecha_registro.strftime('%d/%m/%Y') }}
                         </td>
                         <td class="pe-4 text-end">
-                            <div class="btn-group">
-                                <button type="button" onclick="handleVerCuenta('{{ p.id }}')" class="btn btn-sm btn-outline-dtavo px-3 rounded-pill me-2">
-                                    <i class="fa-solid fa-file-invoice-dollar me-1"></i> Ver Cuenta
+                            <div class="btn-group gap-1">
+                                <button type="button" onclick="handleVerCuenta('{{ p.id }}')" class="btn btn-sm btn-dtavo-secondary px-3 rounded-pill fw-bold">
+                                    <i class="fa-solid fa-file-invoice-dollar me-1 text-dtavo-primary"></i> Cuenta
                                 </button>
-                                <button type="button" class="btn btn-sm btn-light text-danger rounded-circle" onclick="handleEliminar('{{ p.id }}', '{{ p.nombre }}')" title="Eliminar">
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-circle" style="width: 32px; height: 32px; padding: 0;" onclick="handleEliminar('{{ p.id }}', '{{ p.nombre }}')" title="Eliminar">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </div>
@@ -59,9 +72,9 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="5" class="text-center py-5">
-                            <i class="fa-solid fa-truck-ramp-box fa-3x text-dtavo-border mb-3"></i>
-                            <p class="text-dtavo-sec">No hay proveedores registrados aún.</p>
+                        <td colspan="5" class="text-center py-5 text-dtavo-sec">
+                            <i class="fa-solid fa-truck-ramp-box fs-1 text-dtavo-primary mb-3 opacity-50"></i>
+                            <p class="mb-0">No hay proveedores registrados aún.</p>
                         </td>
                     </tr>
                     {% endfor %}
@@ -74,30 +87,30 @@
 <!-- Modal Nuevo Proveedor -->
 <div class="modal fade" id="modalNuevoProveedor" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
+        <div class="modal-content border-0 shadow-lg" style="background: #FFFFFF;">
             <div class="modal-header border-0 pb-0">
-                <h5 class="fw-bold text-dtavo-main">Registrar Nuevo Proveedor</h5>
+                <h5 class="modal-title fw-bold text-dtavo-main"><i class="fa-solid fa-truck-field me-2 text-dtavo-primary"></i>Registrar Nuevo Proveedor</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ url_for('providers_bp.crear') }}" method="POST">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="modal-body py-4">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-dtavo-sec">Nombre del Contacto</label>
-                        <input type="text" name="nombre" class="form-control rounded-3" placeholder="Ej: Juan Pérez" required>
+                        <label class="form-label small fw-bold text-dtavo-main mb-1">Nombre del Contacto</label>
+                        <input type="text" name="nombre" class="form-control" placeholder="Ej: Juan Pérez" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-dtavo-sec">Empresa / Distribuidora</label>
-                        <input type="text" name="empresa" class="form-control rounded-3" placeholder="Ej: Importadora Global S.A.S">
+                        <label class="form-label small fw-bold text-dtavo-main mb-1">Empresa / Distribuidora</label>
+                        <input type="text" name="empresa" class="form-control" placeholder="Ej: Importadora Global S.A.S">
                     </div>
                     <div class="mb-0">
-                        <label class="form-label small fw-bold text-dtavo-sec">Teléfono de Contacto</label>
-                        <input type="text" name="telefono" class="form-control rounded-3" placeholder="Ej: 300 123 4567">
+                        <label class="form-label small fw-bold text-dtavo-main mb-1">Teléfono de Contacto</label>
+                        <input type="text" name="telefono" class="form-control" placeholder="Ej: 300 123 4567">
                     </div>
                 </div>
                 <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-dtavo-primary rounded-pill px-4 fw-bold">Guardar Proveedor</button>
+                    <button type="button" class="btn btn-dtavo-secondary rounded-pill px-4 fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-dtavo rounded-pill px-4 fw-bold shadow-sm">Guardar Proveedor</button>
                 </div>
             </form>
         </div>
@@ -105,16 +118,13 @@
 </div>
 
 <script>
-// CSRF Token para peticiones Fetch
 const csrfToken = "{{ csrf_token() }}";
 
 function handleVerCuenta(proveedorId) {
-    // Redirección directa a la vista de detalles
     window.location.href = `/proveedores/${proveedorId}`;
 }
 
 async function handleEliminar(proveedorId, nombre) {
-    // Confirmación nativa
     if (!confirm(`¿Estás seguro de que deseas eliminar al proveedor "${nombre}"? Esta acción no se puede deshacer.`)) {
         return;
     }
@@ -131,17 +141,14 @@ async function handleEliminar(proveedorId, nombre) {
         const data = await response.json();
 
         if (response.ok && data.success) {
-            // Eliminar la fila del DOM dinámicamente
             const fila = document.getElementById(`row-proveedor-${proveedorId}`);
             if (fila) {
-                // Animación de salida (opcional)
                 fila.style.transition = 'opacity 0.3s ease';
                 fila.style.opacity = '0';
                 setTimeout(() => fila.remove(), 300);
             }
             alert(data.message || 'Proveedor eliminado correctamente.');
         } else {
-            // Manejo de Soft Delete o error por integridad referencial
             alert(data.message || 'No se pudo eliminar el proveedor por motivos de integridad.');
         }
     } catch (error) {
@@ -150,23 +157,4 @@ async function handleEliminar(proveedorId, nombre) {
     }
 }
 </script>
-
-<style>
-    .btn-outline-dtavo {
-        color: var(--dtavo-primary);
-        border-color: var(--dtavo-primary);
-        font-weight: 600;
-        transition: all 0.3s;
-    }
-    .btn-outline-dtavo:hover {
-        background-color: var(--dtavo-primary);
-        color: white;
-    }
-    .hover-lift {
-        transition: transform 0.2s ease;
-    }
-    .hover-lift:hover {
-        transform: translateY(-5px);
-    }
-</style>
 {% endblock %}

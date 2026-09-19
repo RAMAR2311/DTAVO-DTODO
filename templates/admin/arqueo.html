@@ -2,20 +2,13 @@
 
 {% block content %}
 <style>
-    /* PREMIUM DESIGN STYLES FOR ARQUEO DE CAJA */
+    /* PREMIUM DESIGN STYLES FOR ARQUEO DE CAJA (MODO CLARO) */
     .glass-card {
-        background: rgba(17, 17, 17, 0.75) !important;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(197, 159, 96, 0.15) !important;
-        border-radius: 24px !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
-        transition: transform 0.3s ease, border-color 0.3s ease;
-    }
-    [data-theme="light"] .glass-card {
-        background: rgba(255, 255, 255, 0.8) !important;
-        border: 1px solid rgba(197, 159, 96, 0.25) !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+        background: #FFFFFF !important;
+        border: 1px solid rgba(197, 159, 96, 0.3) !important;
+        border-radius: 20px !important;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08) !important;
+        transition: transform 0.2s ease, border-color 0.2s ease;
     }
     
     .glow-header-container {
@@ -24,123 +17,95 @@
     }
 
     .form-control-premium {
-        background-color: rgba(26, 26, 26, 0.6) !important;
-        border: 1px solid rgba(197, 159, 96, 0.25) !important;
-        color: #fff !important;
-        border-radius: 16px !important;
-        padding: 0.8rem 1.2rem !important;
-        font-size: 1.05rem !important;
-        transition: all 0.3s ease !important;
-    }
-    [data-theme="light"] .form-control-premium {
-        background-color: rgba(255, 255, 255, 0.9) !important;
-        border: 1px solid rgba(197, 159, 96, 0.3) !important;
-        color: #1a1a1a !important;
+        background-color: #FFFFFF !important;
+        border: 1px solid var(--dtavo-border) !important;
+        color: var(--dtavo-text-main) !important;
+        border-radius: 12px !important;
+        padding: 0.75rem 1rem !important;
+        font-size: 1rem !important;
+        transition: all 0.2s ease !important;
+        box-shadow: var(--shadow-subtle);
     }
     .form-control-premium:focus {
         border-color: var(--dtavo-primary) !important;
-        box-shadow: 0 0 15px rgba(197, 159, 96, 0.3) !important;
-        background-color: rgba(30, 30, 30, 0.8) !important;
-    }
-    [data-theme="light"] .form-control-premium:focus {
+        box-shadow: 0 0 0 0.2rem rgba(197, 159, 96, 0.2) !important;
         background-color: #fff !important;
     }
     .form-control-premium:disabled {
-        background-color: rgba(40, 40, 40, 0.3) !important;
-        border-color: rgba(255, 255, 255, 0.05) !important;
-        color: rgba(255, 255, 255, 0.5) !important;
-    }
-    [data-theme="light"] .form-control-premium:disabled {
-        background-color: rgba(0, 0, 0, 0.05) !important;
-        color: rgba(0, 0, 0, 0.6) !important;
+        background-color: #F8FAFC !important;
+        border-color: var(--dtavo-border) !important;
+        color: var(--dtavo-text-sec) !important;
     }
 
     .textarea-premium {
-        background-color: rgba(26, 26, 26, 0.6) !important;
-        border: 1px solid rgba(197, 159, 96, 0.2) !important;
-        color: #fff !important;
-        border-radius: 16px !important;
-        padding: 0.8rem 1.2rem !important;
-        transition: all 0.3s ease !important;
-    }
-    [data-theme="light"] .textarea-premium {
-        background-color: rgba(255, 255, 255, 0.9) !important;
-        border: 1px solid rgba(197, 159, 96, 0.25) !important;
-        color: #1a1a1a !important;
+        background-color: #FFFFFF !important;
+        border: 1px solid var(--dtavo-border) !important;
+        color: var(--dtavo-text-main) !important;
+        border-radius: 12px !important;
+        padding: 0.75rem 1rem !important;
+        transition: all 0.2s ease !important;
     }
     .textarea-premium:focus {
         border-color: var(--dtavo-primary) !important;
-        box-shadow: 0 0 12px rgba(197, 159, 96, 0.25) !important;
-    }
-    .textarea-premium:disabled {
-        background-color: rgba(40, 40, 40, 0.3) !important;
-        border-color: rgba(255, 255, 255, 0.05) !important;
-        color: rgba(255, 255, 255, 0.5) !important;
-    }
-    [data-theme="light"] .textarea-premium:disabled {
-        background-color: rgba(0, 0, 0, 0.05) !important;
-        color: rgba(0, 0, 0, 0.6) !important;
+        box-shadow: 0 0 0 0.2rem rgba(197, 159, 96, 0.2) !important;
     }
 
     /* STAT CARD STYLES */
     .stat-card-gold {
-        background: linear-gradient(135deg, rgba(197, 159, 96, 0.12) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
-        border: 1px solid rgba(197, 159, 96, 0.25) !important;
-        border-radius: 20px;
+        background: linear-gradient(180deg, #FFFFFF 0%, #FCF9F3 100%) !important;
+        border: 1px solid rgba(197, 159, 96, 0.35) !important;
+        border-radius: 16px;
         position: relative;
         overflow: hidden;
-        transition: all 0.3s ease;
+        box-shadow: var(--shadow-card);
     }
     .stat-card-green {
-        background: linear-gradient(135deg, rgba(46, 204, 113, 0.12) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
-        border: 1px solid rgba(46, 204, 113, 0.25) !important;
-        border-radius: 20px;
+        background: #FFFFFF !important;
+        border: 1px solid rgba(16, 185, 129, 0.25) !important;
+        border-radius: 16px;
         position: relative;
         overflow: hidden;
-        transition: all 0.3s ease;
+        box-shadow: var(--shadow-card);
     }
     .stat-card-blue {
-        background: linear-gradient(135deg, rgba(52, 152, 219, 0.12) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
-        border: 1px solid rgba(52, 152, 219, 0.25) !important;
-        border-radius: 20px;
+        background: #FFFFFF !important;
+        border: 1px solid rgba(59, 130, 246, 0.25) !important;
+        border-radius: 16px;
         position: relative;
         overflow: hidden;
-        transition: all 0.3s ease;
+        box-shadow: var(--shadow-card);
     }
     .stat-card-red {
-        background: linear-gradient(135deg, rgba(231, 76, 60, 0.12) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
-        border: 1px solid rgba(231, 76, 60, 0.25) !important;
-        border-radius: 20px;
+        background: #FFFFFF !important;
+        border: 1px solid rgba(239, 68, 68, 0.25) !important;
+        border-radius: 16px;
         position: relative;
         overflow: hidden;
-        transition: all 0.3s ease;
+        box-shadow: var(--shadow-card);
     }
 
     .bg-gradient-gold {
-        background: linear-gradient(90deg, #A6824D 0%, #C59F60 100%) !important;
+        background: linear-gradient(135deg, #C59F60 0%, #DFBD7A 100%) !important;
     }
     .bg-gradient-blue {
-        background: linear-gradient(90deg, #0d6efd 0%, #0dcaf0 100%) !important;
+        background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%) !important;
     }
 
-    /* DIFFERENCE CARDS (DYNAMIC THEMES) */
+    /* DIFFERENCE CARDS */
     .diff-neutral {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
-        border: 1px solid rgba(255, 255, 255, 0.15) !important;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
-        transition: all 0.3s ease;
+        background: #F8FAFC !important;
+        border: 1px solid #E2E8F0 !important;
+        box-shadow: var(--shadow-card) !important;
     }
     .diff-sobrante {
-        background: linear-gradient(135deg, rgba(46, 204, 113, 0.18) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
-        border: 2px solid #2ecc71 !important;
-        box-shadow: 0 10px 30px rgba(46, 204, 113, 0.2) !important;
-        transition: all 0.3s ease;
+        background: #ECFDF5 !important;
+        border: 2px solid #10B981 !important;
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.15) !important;
     }
     .diff-faltante {
-        background: linear-gradient(135deg, rgba(231, 76, 60, 0.18) 0%, rgba(17, 17, 17, 0.95) 100%) !important;
-        border: 2px solid #e74c3c !important;
-        box-shadow: 0 10px 30px rgba(231, 76, 60, 0.2) !important;
-        transition: all 0.3s ease;
+        background: #FEF2F2 !important;
+        border: 2px solid #EF4444 !important;
+        box-shadow: 0 10px 25px rgba(239, 68, 68, 0.15) !important;
     }
 
     /* BUTTONS LEGIBILITY */

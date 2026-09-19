@@ -293,7 +293,11 @@ def procesar_venta():
             'success': True, 
             'message': 'Venta registrada e inventario descontado con éxito.',
             'sale_id': nueva_venta.id,
-            'total': str(monto_total)
+            'consecutivo': nueva_venta.consecutivo,
+            'total': str(monto_total),
+            'cliente_nombre': nueva_venta.cliente_nombre or 'Público General',
+            'cliente_telefono': nueva_venta.cliente.telefono if nueva_venta.cliente else None,
+            'fecha_venta': nueva_venta.fecha_venta.strftime('%d/%m/%Y %H:%M')
         }), 201
 
     except ValueError as val_err:

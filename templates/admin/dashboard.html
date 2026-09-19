@@ -2,75 +2,222 @@
 
 {% block content %}
 <style>
-    .text-dtavo-hover { color: var(--dtavo-hover) !important; }
-    .pulse-animation {
-        animation: pulse-red 2s infinite;
-        box-shadow: 0 0 0 0 rgba(239, 93, 137, 0.7);
-    }
-    @keyframes pulse-red {
-        0%   { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 93, 137, 0.7); }
-        70%  { transform: scale(1);    box-shadow: 0 0 0 10px rgba(239, 93, 137, 0); }
-        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 93, 137, 0); }
-    }
-    .variacion-badge {
-        font-size: 0.72rem;
-        border-radius: 20px;
-        padding: 3px 10px;
+    .dashboard-header-badge {
+        background: rgba(197, 159, 96, 0.12);
+        color: #8F6824;
+        border: 1px solid rgba(197, 159, 96, 0.35);
         font-weight: 700;
-        letter-spacing: 0.3px;
+        border-radius: 30px;
+        padding: 5px 14px;
+        font-size: 0.75rem;
     }
-    .variacion-up   { background: rgba(34,197,94,0.12); color: #16a34a; }
-    .variacion-down { background: rgba(239,68,68,0.12);  color: #dc2626; }
-    .variacion-flat { background: rgba(156,163,175,0.15); color: #6b7280; }
-    input[type="month"] {
-        color-scheme: dark;
+
+    /* Floating Filter Toolbar */
+    .filter-toolbar {
+        background: #FFFFFF;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 20px;
+        padding: 1rem 1.4rem;
+        box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.05);
     }
-    .card-stat-label {
+
+    /* Metric Cards */
+    .metric-card {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 20px;
+        padding: 1.35rem 1.4rem;
+        box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    .metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.09);
+        border-color: rgba(197, 159, 96, 0.4);
+    }
+
+    .metric-card-gold {
+        background: linear-gradient(180deg, #FFFFFF 0%, #FDFBF7 100%);
+        border: 1px solid rgba(197, 159, 96, 0.45);
+        box-shadow: 0 6px 22px rgba(197, 159, 96, 0.12);
+    }
+
+    .metric-icon-squircle {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .metric-label {
         font-size: 0.72rem;
         text-transform: uppercase;
-        letter-spacing: 0.8px;
-        font-weight: 600;
+        letter-spacing: 0.07em;
+        font-weight: 800;
+        color: #64748B;
+        margin-bottom: 0.25rem;
     }
-    .mes-badge {
+
+    .metric-amount {
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+        margin-bottom: 0.35rem;
+        color: #0F172A;
+    }
+
+    .metric-subtext {
         font-size: 0.78rem;
-        background: rgba(197,159,96,0.12);
-        color: var(--dtavo-primary);
-        border: 1px solid rgba(197,159,96,0.25);
+        color: #64748B;
+        margin-bottom: 0.85rem;
+        font-weight: 500;
+    }
+
+    /* 2-Column Breakdown Pill Box */
+    .metric-breakdown-box {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 0.6rem 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: auto;
+    }
+
+    .metric-breakdown-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .metric-breakdown-item:first-child {
+        border-right: 1px solid #E2E8F0;
+        padding-right: 6px;
+    }
+    .metric-breakdown-item:last-child {
+        padding-left: 6px;
+    }
+
+    .breakdown-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #94A3B8;
+        letter-spacing: 0.04em;
+        margin-bottom: 2px;
+    }
+
+    .breakdown-value {
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: #1E293B;
+    }
+
+    /* Action buttons inside cards (Reference solid style) */
+    .btn-card-action {
+        background: #0F172A;
+        color: #FFFFFF !important;
+        border: none;
+        border-radius: 12px;
+        padding: 0.55rem 1rem;
+        font-weight: 700;
+        font-size: 0.78rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+        margin-top: 0.75rem;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+    }
+    .btn-card-action:hover {
+        background: #1E293B;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+    }
+
+    .btn-card-gold {
+        background: var(--gold-gradient);
+        color: #1E1B18 !important;
+    }
+    .btn-card-gold:hover {
+        background: linear-gradient(135deg, #B58F50 0%, #D4AF6E 50%, #A07B3E 100%);
+    }
+
+    /* Variations */
+    .badge-trend-up {
+        background: #ECFDF5;
+        color: #059669;
+        border: 1px solid #A7F3D0;
+        font-size: 0.72rem;
+        font-weight: 800;
         border-radius: 20px;
-        padding: 3px 12px;
-        font-weight: 600;
+        padding: 3px 8px;
+    }
+    .badge-trend-down {
+        background: #FEF2F2;
+        color: #DC2626;
+        border: 1px solid #FECACA;
+        font-size: 0.72rem;
+        font-weight: 800;
+        border-radius: 20px;
+        padding: 3px 8px;
     }
 </style>
 
-<!-- CABECERA -->
-<div class="d-flex justify-content-between align-items-center mb-4">
+<!-- ENCABEZADO PRINCIPAL -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
-        <h2 class="fw-bold text-dtavo-main m-0">Dashboard de Control</h2>
-        {% if nicho_nombre %}
-            <p class="text-dtavo-primary fw-bold small mb-0 animate__animated animate__fadeIn">
-                <i class="fa-solid fa-store me-1"></i> Sesión Activa: {{ nicho_nombre }}
-            </p>
-        {% else %}
-            <p class="text-dtavo-sec small mb-0"><i class="fa-solid fa-globe me-1"></i> Vista Global Unificada</p>
-        {% endif %}
+        <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge badge-gold px-2.5 py-1 text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                <i class="fa-solid fa-chart-line me-1"></i> Control Ejecutivo
+            </span>
+            <span class="dashboard-header-badge">
+                <i class="fa-regular fa-calendar-check me-1"></i> {{ periodo_nombre }}
+            </span>
+        </div>
+        <h2 class="fw-extrabold text-dtavo-main m-0" style="letter-spacing: -0.03em;">
+            ¡Hola, {{ current_user.nombre or 'Administrador' }}! 👋
+        </h2>
+        <p class="text-dtavo-sec small m-0 mt-1">
+            {% if nicho_nombre %}
+                Visualizando métricas para el nicho <strong class="text-dtavo-primary">{{ nicho_nombre }}</strong>
+            {% else %}
+                Consolidado global de operaciones y finanzas en tiempo real
+            {% endif %}
+        </p>
     </div>
-    <div class="text-end d-none d-md-block">
-        <span class="mes-badge"><i class="fa-regular fa-calendar me-1"></i>{{ mes_nombre }}</span>
+
+    <!-- Botón Generar Balance Principal -->
+    <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn btn-dtavo shadow-sm d-flex align-items-center gap-2 px-3 py-2" data-bs-toggle="modal" data-bs-target="#modalBalance">
+            <i class="fa-solid fa-file-invoice-dollar fs-6"></i>
+            <span>Generar Balance</span>
+        </button>
     </div>
 </div>
 
-<!-- PANEL DE FILTROS -->
-<div class="card card-custom border-0 shadow-sm p-3 mb-5"
-     style="background: rgba(197,159,96,0.03); border: 1px solid rgba(197,159,96,0.1) !important;">
-    <form action="{{ url_for('admin_bp.dashboard') }}" method="GET" class="row g-3 align-items-end">
-
-        <!-- Filtro: Nicho / Categoría -->
-        <div class="col-md-4">
-            <label class="form-label small fw-bold text-dtavo-main">
+<!-- BARRA FLOTANTE DE FILTROS -->
+<div class="filter-toolbar mb-4">
+    <form action="{{ url_for('admin_bp.dashboard') }}" method="GET" class="row g-2.5 align-items-end">
+        <!-- Selector Nicho -->
+        <div class="col-12 col-md-4 col-lg-3">
+            <label class="form-label small fw-bold text-dtavo-main mb-1" style="font-size: 0.75rem;">
                 <i class="fa-solid fa-store me-1 text-dtavo-primary"></i>Nicho / Categoría
             </label>
-            <select name="categoria_id" class="form-select border-0 shadow-sm">
-                <option value="todas">Todas las categorías (Global)</option>
+            <select name="categoria_id" class="form-select form-select-sm shadow-none">
+                <option value="todas">Todos los Nichos (Global)</option>
                 {% for cat in categorias %}
                     <option value="{{ cat.id }}" {% if filtro_actual|string == cat.id|string %}selected{% endif %}>
                         {{ cat.nombre }}
@@ -79,171 +226,342 @@
             </select>
         </div>
 
-        <!-- Filtro: Mes -->
-        <div class="col-md-3">
-            <label class="form-label small fw-bold text-dtavo-main">
-                <i class="fa-regular fa-calendar me-1 text-dtavo-primary"></i>Mes a consultar
+        <!-- Selector Período (Semana, Quincena, Mes, Histórico) -->
+        <div class="col-12 col-md-5 col-lg-4">
+            <label class="form-label small fw-bold text-dtavo-main mb-1" style="font-size: 0.75rem;">
+                <i class="fa-regular fa-calendar-days me-1 text-dtavo-primary"></i>Período a Consultar
             </label>
-            <select name="mes" id="filtro-mes" class="form-select border-0 shadow-sm fw-bold text-dtavo-main">
-                {% if opciones_meses %}
-                    {% for m in opciones_meses %}
-                        <option value="{{ m.val }}" {% if mes_filtro_str == m.val %}selected{% endif %}>
+            <select name="periodo" class="form-select form-select-sm shadow-none fw-semibold">
+                <optgroup label="⚡ Períodos Rápidos">
+                    <option value="semana" {% if periodo_filtro == 'semana' %}selected{% endif %}>📅 Esta Semana</option>
+                    <option value="quincena" {% if periodo_filtro == 'quincena' %}selected{% endif %}>🌓 Esta Quincena</option>
+                    <option value="mes" {% if periodo_filtro == 'mes' or periodo_filtro == mes_actual_str %}selected{% endif %}>🗓️ Este Mes ({{ mes_actual_nombre }})</option>
+                </optgroup>
+                {% if meses_anteriores %}
+                <optgroup label="📁 Histórico de Meses Anteriores">
+                    {% for m in meses_anteriores %}
+                        <option value="{{ m.val }}" {% if periodo_filtro == m.val %}selected{% endif %}>
                             {{ m.nombre }}
                         </option>
                     {% endfor %}
-                {% else %}
-                    <option value="{{ mes_filtro_str }}" selected>{{ mes_nombre }}</option>
+                </optgroup>
                 {% endif %}
             </select>
         </div>
 
-        <!-- Botón Aplicar -->
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-dtavo w-100 shadow-sm">
-                <i class="fa-solid fa-filter me-2"></i>Aplicar
+        <!-- Botones de Acción -->
+        <div class="col-6 col-md-2 col-lg-2">
+            <button type="submit" class="btn btn-dtavo btn-sm w-100 py-1.5 shadow-sm d-flex align-items-center justify-content-center gap-1.5">
+                <i class="fa-solid fa-filter"></i> Filtrar
             </button>
         </div>
 
-        <!-- Botón Limpiar -->
-        {% if filtro_actual or mes_filtro_str %}
-        <div class="col-md-2">
-            <a href="{{ url_for('admin_bp.dashboard') }}" class="btn btn-link text-dtavo-sec text-decoration-none small">
-                <i class="fa-solid fa-rotate-left me-1"></i>Hoy
+        {% if filtro_actual or periodo_filtro != 'mes' %}
+        <div class="col-6 col-md-2 col-lg-2">
+            <a href="{{ url_for('admin_bp.dashboard') }}" class="btn btn-dtavo-secondary btn-sm w-100 py-1.5 d-flex align-items-center justify-content-center gap-1">
+                <i class="fa-solid fa-rotate-left"></i> Restablecer
             </a>
         </div>
         {% endif %}
-
     </form>
 </div>
 
-<!-- ── TARJETAS DE ESTADÍSTICAS ─────────────────────────────────── -->
-<div class="row g-3 mb-4">
+<!-- ── GRID SUPERIOR: TARJETAS DE MÉTRICAS PRINCIPALES ──────────── -->
+<div class="row g-3 g-lg-4 mb-4">
 
-    <!-- 1. Ventas del Mes Seleccionado -->
-    <div class="col-md-3">
-        <div class="card card-custom h-100 p-4 border-0 shadow-sm">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <i class="fa-solid fa-sack-dollar fs-1" style="color: var(--dtavo-primary);"></i>
-                <!-- Badge variación vs mes anterior -->
-                {% set pct = variacion_pct|float %}
-                {% if pct > 0 %}
-                    <span class="variacion-badge variacion-up">
-                        <i class="fa-solid fa-arrow-trend-up me-1"></i>+{{ "%.1f"|format(pct) }}%
-                    </span>
-                {% elif pct < 0 %}
-                    <span class="variacion-badge variacion-down">
-                        <i class="fa-solid fa-arrow-trend-down me-1"></i>{{ "%.1f"|format(pct) }}%
-                    </span>
-                {% else %}
-                    <span class="variacion-badge variacion-flat">
-                        <i class="fa-solid fa-minus me-1"></i>0%
-                    </span>
-                {% endif %}
+    <!-- 1. INGRESOS (MES) -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="metric-card metric-card-gold">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="metric-icon-squircle" style="background: rgba(197, 159, 96, 0.22); color: #8F6824;">
+                        <i class="fa-solid fa-sack-dollar"></i>
+                    </div>
+                    {% set pct = variacion_pct|float %}
+                    {% if pct > 0 %}
+                        <span class="badge-trend-up">
+                            <i class="fa-solid fa-arrow-trend-up me-1"></i>+{{ "%.1f"|format(pct) }}%
+                        </span>
+                    {% elif pct < 0 %}
+                        <span class="badge-trend-down">
+                            <i class="fa-solid fa-arrow-trend-down me-1"></i>{{ "%.1f"|format(pct) }}%
+                        </span>
+                    {% else %}
+                        <span class="badge text-secondary bg-light border" style="font-size:0.7rem;">0% vs ant.</span>
+                    {% endif %}
+                </div>
+                <div class="metric-label">Ingresos ({{ periodo_tag }})</div>
+                <div class="metric-amount fs-3">${{ (ventas_mes)|cop }}</div>
+                <div class="metric-subtext">
+                    <strong>{{ num_ventas_mes }}</strong> ventas • Ticket prom: <strong>${{ (ticket_promedio)|cop }}</strong>
+                </div>
             </div>
-            <p class="card-stat-label text-dtavo-sec mb-1">Ventas — {{ mes_nombre }}</p>
-            <h3 class="fw-bolder" style="color: var(--dtavo-primary);">${{ (ventas_mes)|cop }}</h3>
-            <p class="text-dtavo-sec small m-0">
-                Mes anterior: <strong>${{ (ventas_mes_ant)|cop }}</strong>
-            </p>
-            <div class="mt-auto pt-4">
-                <a href="{{ url_for('sales_bp.historial') }}" class="btn btn-dtavo-secondary w-100 rounded-pill">
-                    <i class="fa-solid fa-file-invoice-dollar me-2"></i>Ver Ventas
-                </a>
+
+            <!-- Desglose 2 Columnas -->
+            <div class="metric-breakdown-box">
+                <div class="metric-breakdown-item">
+                    <span class="breakdown-label"><i class="fa-solid fa-money-bill-wave text-success me-1"></i>Efectivo</span>
+                    <span class="breakdown-value">${{ (ingresos_efectivo)|cop }}</span>
+                </div>
+                <div class="metric-breakdown-item">
+                    <span class="breakdown-label"><i class="fa-solid fa-building-columns text-primary me-1"></i>Bancos</span>
+                    <span class="breakdown-value">${{ (ingresos_transferencia)|cop }}</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 2. Número de Transacciones -->
-    <div class="col-md-3">
-        <div class="card card-custom h-100 p-4 border-0 shadow-sm">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <i class="fa-solid fa-receipt fs-1" style="color: var(--dtavo-primary);"></i>
+    <!-- 2. MERCANCÍA VENDIDA -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="metric-card">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="metric-icon-squircle" style="background: rgba(59, 130, 246, 0.12); color: #2563EB;">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </div>
+                    <span class="badge bg-light text-primary border border-primary-subtle" style="font-size:0.7rem; font-weight:700;">
+                        {{ referencias_vendidas }} Refs.
+                    </span>
+                </div>
+                <div class="metric-label">Mercancía Vendida</div>
+                <div class="metric-amount fs-3">{{ unidades_vendidas }} <span class="fs-6 fw-bold text-muted">uds.</span></div>
+                <div class="metric-subtext">
+                    Total unidades entregadas a clientes
+                </div>
             </div>
-            <p class="card-stat-label text-dtavo-sec mb-1">Transacciones — {{ mes_nombre }}</p>
-            <h3 class="fw-bolder" style="color: var(--dtavo-primary);">{{ num_ventas_mes }} ventas</h3>
-            <p class="text-dtavo-sec small m-0">
-                Ticket prom: <strong>${{ (ticket_promedio)|cop }}</strong>
-            </p>
+
+            <!-- Desglose 2 Columnas -->
+            <div class="metric-breakdown-box">
+                <div class="metric-breakdown-item">
+                    <span class="breakdown-label"><i class="fa-solid fa-cubes text-info me-1"></i>En Catálogo</span>
+                    <span class="breakdown-value">{{ total_productos }} uds.</span>
+                </div>
+                <div class="metric-breakdown-item">
+                    <span class="breakdown-label"><i class="fa-solid fa-tag text-secondary me-1"></i>Costo COGS</span>
+                    <span class="breakdown-value">${{ (costo_mercancia)|cop }}</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- 3. Catálogo de Productos -->
-    <div class="col-md-3">
-        <div class="card card-custom h-100 p-4 border-0 shadow-sm">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <i class="fa-solid fa-cubes fs-1" style="color: var(--dtavo-primary);"></i>
+    <!-- 3. GASTOS -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="metric-card">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="metric-icon-squircle" style="background: rgba(239, 68, 68, 0.12); color: #DC2626;">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle" style="font-size:0.7rem; font-weight:700;">
+                        Egresos
+                    </span>
+                </div>
+                <div class="metric-label">Gastos ({{ periodo_tag }})</div>
+                <div class="metric-amount fs-3 text-danger">${{ (total_gastos)|cop }}</div>
+                <div class="metric-subtext">
+                    Gastos y costos operativos registrados
+                </div>
             </div>
-            <p class="card-stat-label text-dtavo-sec mb-1">Catálogo de Productos</p>
-            <h3 class="fw-bolder" style="color: var(--dtavo-primary);">{{ total_productos }} uds.</h3>
-            <p class="text-dtavo-sec small m-0">Referencias activas en tienda.</p>
-            <div class="mt-auto pt-4">
-                <a href="/inventory/" class="btn btn-dtavo w-100 rounded-pill">
-                    <i class="fa-solid fa-sliders me-2"></i>Ir al Inventario
-                </a>
+
+            <!-- Desglose 2 Columnas -->
+            <div class="metric-breakdown-box">
+                <div class="metric-breakdown-item">
+                    <span class="breakdown-label"><i class="fa-solid fa-receipt text-warning me-1"></i>Diarios</span>
+                    <span class="breakdown-value">${{ (gastos_diarios)|cop }}</span>
+                </div>
+                <div class="metric-breakdown-item">
+                    <span class="breakdown-label"><i class="fa-solid fa-bolt text-danger me-1"></i>Indirectos</span>
+                    <span class="breakdown-value">${{ (gastos_indirectos)|cop }}</span>
+                </div>
             </div>
+
+            <!-- Botón Ver Gastos -->
+            <a href="{{ url_for('gastos_bp.index') }}" class="btn-card-action">
+                <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Ver Gastos
+            </a>
         </div>
     </div>
 
-    <!-- 4. Alertas de Stock Bajo (Solo Celulares y Accesorios) -->
-    <div class="col-md-3">
-        <div class="card card-custom h-100 p-4 border-0 shadow-sm">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <i class="fa-solid fa-triangle-exclamation fs-1 {{ 'text-dtavo-hover' if productos_bajo_stock > 0 else 'text-dtavo-primary' }}"></i>
+    <!-- 4. UTILIDAD ESTIMADA -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="metric-card" style="border-color: rgba(16, 185, 129, 0.35); background: linear-gradient(180deg, #FFFFFF 0%, rgba(236, 253, 245, 0.3) 100%);">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="metric-icon-squircle" style="background: rgba(16, 185, 129, 0.15); color: #059669;">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    <span class="badge bg-success text-white" style="font-size:0.72rem; font-weight:800;">
+                        Margen {{ "%.1f"|format(margen_pct|float) }}%
+                    </span>
+                </div>
+                <div class="metric-label">Utilidad Estimada</div>
+                <div class="metric-amount fs-3 text-success">${{ (utilidad_estimada)|cop }}</div>
+                <div class="metric-subtext">
+                    Ventas ($) - Costos ($) - Gastos ($)
+                </div>
             </div>
-            <p class="card-stat-label text-dtavo-sec mb-1">Alertas Stock Bajo</p>
-            <h3 class="fw-bolder {{ 'text-dtavo-hover' if productos_bajo_stock > 0 else 'text-dtavo-primary' }}">
-                {{ productos_bajo_stock }} items
-            </h3>
-            <p class="text-dtavo-sec small m-0 mb-3">Celulares y Accesorios bajo su mínimo.</p>
-            <div class="mt-auto pt-2">
-                <a href="/inventory/" class="btn btn-dtavo-secondary w-100 rounded-pill fw-bold">
-                    <i class="fa-solid fa-eye me-2"></i>Ver Inventario
-                </a>
+
+            <!-- Desglose 2 Columnas -->
+            <div class="metric-breakdown-box">
+                <div class="metric-breakdown-item">
+                    <span class="breakdown-label"><i class="fa-solid fa-percent text-success me-1"></i>Margen Bruto</span>
+                    <span class="breakdown-value">${{ (margen_bruto)|cop }}</span>
+                </div>
+                <div class="metric-breakdown-item">
+                    <span class="breakdown-label"><i class="fa-solid fa-calculator text-muted me-1"></i>Bruto %</span>
+                    <span class="breakdown-value">{{ "%.1f"|format(margen_bruto_pct|float) }}%</span>
+                </div>
             </div>
         </div>
     </div>
 
 </div>
 
-<!-- ── TRAZABILIDAD IMEIs (solo modo celular) ────────────────────── -->
-{% if es_modo_celular %}
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card card-custom border-0 shadow-sm p-4 bg-dtavo-card">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+<!-- ── GRID INFERIOR: ALERTAS Y OPERACIONES SECUNDARIAS ─────────── -->
+<div class="row g-3 g-lg-4 mb-4">
+
+    <!-- 1. ALERTAS DE STOCK -->
+    <div class="col-12 col-md-4">
+        <div class="metric-card">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="metric-icon-squircle" style="background: {% if productos_criticos > 0 %}rgba(245, 158, 11, 0.15){% else %}rgba(16, 185, 129, 0.12){% endif %}; color: {% if productos_criticos > 0 %}#D97706{% else %}#059669{% endif %};">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    {% if productos_criticos > 0 %}
+                    <span class="badge bg-warning text-dark fw-bold" style="font-size: 0.7rem;">
+                        <i class="fa-solid fa-bell me-1"></i> {{ productos_criticos }} Urgentes
+                    </span>
+                    {% else %}
+                    <span class="badge bg-success-subtle text-success fw-bold" style="font-size: 0.7rem;">
+                        <i class="fa-solid fa-check me-1"></i> Stock Óptimo
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="metric-label">Alertas de Stock</div>
+                <div class="metric-amount fs-4 {% if productos_criticos > 0 %}text-warning{% endif %}">
+                    {{ productos_criticos }} <span class="fs-6 fw-bold text-muted">productos críticos</span>
+                </div>
+                <p class="metric-subtext m-0">
+                    Artículos con stock igual o inferior a 10 unidades.
+                </p>
+            </div>
+            <a href="/inventory/" class="btn-card-action">
+                <i class="fa-solid fa-sliders me-1"></i> Revisar Urgencias
+            </a>
+        </div>
+    </div>
+
+    <!-- 2. ABONOS A PROVEEDORES -->
+    <div class="col-12 col-md-4">
+        <div class="metric-card">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="metric-icon-squircle" style="background: rgba(14, 165, 233, 0.12); color: #0284C7;">
+                        <i class="fa-solid fa-truck-field"></i>
+                    </div>
+                    <span class="badge bg-info-subtle text-info-emphasis fw-bold" style="font-size: 0.7rem;">
+                        {{ total_proveedores }} Proveedores
+                    </span>
+                </div>
+                <div class="metric-label">Abonos a Proveedores</div>
+                <div class="metric-amount fs-4">
+                    ${{ (abonos_prov_mes)|cop }}
+                </div>
+                <p class="metric-subtext m-0">
+                    Pagos realizados este mes • <strong>{{ facturas_pendientes_prov }}</strong> facturas registradas.
+                </p>
+            </div>
+            <a href="{{ url_for('providers_bp.index') }}" class="btn-card-action">
+                <i class="fa-solid fa-eye me-1"></i> Ver Proveedores
+            </a>
+        </div>
+    </div>
+
+    <!-- 3. APROBACIONES DE PRECIOS / CLAVES DINÁMICAS -->
+    <div class="col-12 col-md-4">
+        <div class="metric-card">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="metric-icon-squircle" style="background: rgba(139, 92, 246, 0.12); color: #7C3AED;">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <span class="badge {% if claves_activas > 0 %}bg-success{% else %}bg-secondary-subtle text-secondary{% endif %} fw-bold" style="font-size: 0.7rem;">
+                        {{ claves_activas }} Activas
+                    </span>
+                </div>
+                <div class="metric-label">Aprobaciones de Precios</div>
+                <div class="metric-amount fs-4">
+                    {{ claves_mes }} <span class="fs-6 fw-bold text-muted">solicitudes</span>
+                </div>
+                <p class="metric-subtext m-0">
+                    Claves dinámicas y autorizaciones de descuento en el mes.
+                </p>
+            </div>
+            <button type="button" class="btn-card-action btn-card-gold" id="btn-generar-clave-dashboard">
+                <i class="fa-solid fa-shield-halved me-1"></i> Generar Clave
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<!-- ── TABLAS DE TRAZABILIDAD Y AUDITORÍA RECIENTE ──────────────── -->
+<div class="row g-4">
+
+    <!-- ÚLTIMAS VENTAS REGISTRADAS -->
+    <div class="{% if es_modo_celular %}col-lg-7{% else %}col-12{% endif %}">
+        <div class="card card-custom p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
                     <h5 class="fw-bold text-dtavo-main m-0">
-                        <i class="fa-solid fa-barcode text-dtavo-primary me-2"></i>Trazabilidad: Últimos 5 IMEIs Vendidos
+                        <i class="fa-solid fa-receipt text-dtavo-primary me-2"></i>Últimas Ventas Registradas
                     </h5>
-                    <p class="text-dtavo-sec small m-0">Movimiento de unidades físicas en tiempo real.</p>
+                    <p class="text-dtavo-sec small m-0 mt-0.5">Auditoría y control de transacciones en caja.</p>
                 </div>
+                <a href="{{ url_for('sales_bp.historial') }}" class="btn btn-sm btn-dtavo-secondary rounded-pill px-3 fw-bold" style="font-size: 0.75rem;">
+                    Ver Todas
+                </a>
             </div>
+
             <div class="table-responsive">
                 <table class="table table-hover table-custom mb-0">
                     <thead>
                         <tr>
-                            <th>Producto</th>
-                            <th class="text-center">IMEI / Serial</th>
-                            <th class="text-end">Precio Venta</th>
+                            <th>Ticket</th>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Método</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-center">Recibo</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for serie, detalle, venta in ultimos_imeis %}
+                        {% for v in ultimas_ventas %}
                         <tr>
-                            <td class="fw-bold text-dtavo-main">{{ serie.producto.nombre }}</td>
-                            <td class="text-center">
-                                <span class="badge bg-dtavo-card text-dtavo-primary border px-3 py-2 fw-bold"
-                                      style="font-size: 0.8rem; letter-spacing: 1px;">
-                                    {{ serie.serial }}
+                            <td class="fw-bold text-dtavo-primary">#{{ v.consecutivo or v.id }}</td>
+                            <td class="small text-dtavo-sec">{{ v.fecha_venta.strftime('%d/%m %H:%M') if v.fecha_venta else '-' }}</td>
+                            <td class="fw-semibold text-dtavo-main text-truncate" style="max-width: 130px;">
+                                {{ v.cliente_nombre or 'Público General' }}
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border px-2 py-1" style="font-size: 0.72rem;">
+                                    {{ v.metodo_pago_display }}
                                 </span>
                             </td>
-                            <td class="text-end fw-bold text-dtavo-hover">${{ (detalle.precio_venta_final)|cop }}</td>
+                            <td class="text-end fw-extrabold text-dtavo-main" style="color: #8F6824 !important;">
+                                ${{ (v.monto_total)|cop }}
+                            </td>
+                            <td class="text-center">
+                                <a href="/sales/recibo/{{ v.id }}" target="_blank" class="btn btn-sm btn-outline-secondary rounded-circle" style="width: 28px; height: 28px; padding:0; display:inline-flex; align-items:center; justify-content:center;" title="Ver Ticket">
+                                    <i class="fa-solid fa-file-lines" style="font-size: 0.75rem;"></i>
+                                </a>
+                            </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="3" class="text-center py-4 text-dtavo-sec">
-                                <i class="fa-solid fa-info-circle me-1"></i>
-                                No hay IMEIs vendidos registrados en este nicho aún.
+                            <td colspan="6" class="text-center py-4 text-dtavo-sec">
+                                No hay ventas recientes registradas.
                             </td>
                         </tr>
                         {% endfor %}
@@ -252,7 +570,175 @@
             </div>
         </div>
     </div>
+
+    <!-- TRAZABILIDAD IMEIs (Modo Celular) -->
+    {% if es_modo_celular %}
+    <div class="col-lg-5">
+        <div class="card card-custom p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="fw-bold text-dtavo-main m-0">
+                        <i class="fa-solid fa-barcode text-dtavo-primary me-2"></i>Últimos IMEIs
+                    </h5>
+                    <p class="text-dtavo-sec small m-0 mt-0.5">Trazabilidad física de celulares.</p>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th>Dispositivo</th>
+                            <th class="text-center">IMEI</th>
+                            <th class="text-end">Precio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for serie, detalle, venta in ultimos_imeis %}
+                        <tr>
+                            <td class="fw-bold text-dtavo-main small">{{ serie.producto.nombre }}</td>
+                            <td class="text-center">
+                                <span class="badge badge-gold px-2.5 py-1 font-monospace fw-bold" style="font-size: 0.78rem;">
+                                    {{ serie.serial }}
+                                </span>
+                            </td>
+                            <td class="text-end fw-bold" style="color: #8F6824 !important;">
+                                ${{ (detalle.precio_venta_final)|cop }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center py-4 text-dtavo-sec small">
+                                No hay seriales vendidos registrados aún.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
 </div>
-{% endif %}
+
+<!-- ── MODAL BALANCE FINANCIERO EJECUTIVO ───────────────────────── -->
+<div class="modal fade" id="modalBalance" tabindex="-1" aria-labelledby="modalBalanceLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header border-bottom p-4 bg-white">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="metric-icon-squircle" style="background: var(--gold-gradient); color: #1E1B18;">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-dtavo-main mb-0" id="modalBalanceLabel">
+                            Estado de Resultados Simplificado
+                        </h5>
+                        <small class="text-dtavo-sec">Período: <strong>{{ mes_nombre }}</strong> • {% if nicho_nombre %}{{ nicho_nombre }}{% else %}Consolidado Global{% endif %}</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body p-4 bg-light">
+                <div class="card border-0 shadow-sm rounded-3 p-3 bg-white mb-3">
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="fw-bold text-dtavo-main"><i class="fa-solid fa-arrow-trend-up text-success me-2"></i>(+) Ingresos Brutos por Ventas</span>
+                        <span class="fw-extrabold text-success fs-5">${{ (ventas_mes)|cop }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-dtavo-sec"><i class="fa-solid fa-boxes-stacked text-secondary me-2"></i>(-) Costo de Mercancía Vendida (COGS)</span>
+                        <span class="fw-bold text-danger">-${{ (costo_mercancia)|cop }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom bg-light px-2 rounded-2">
+                        <span class="fw-bold text-dtavo-main">(=) Margen Bruto Operativo</span>
+                        <span class="fw-extrabold text-primary">${{ (margen_bruto)|cop }} ({{ "%.1f"|format(margen_bruto_pct|float) }}%)</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-dtavo-sec"><i class="fa-solid fa-file-invoice-dollar text-warning me-2"></i>(-) Gastos Operativos (Diarios + Indirectos)</span>
+                        <span class="fw-bold text-danger">-${{ (total_gastos)|cop }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-3 bg-success-subtle px-3 rounded-3 mt-2">
+                        <div>
+                            <span class="fw-extrabold text-success fs-5 d-block">(=) Utilidad Neta Estimada</span>
+                            <small class="text-success-emphasis">Rendimiento neto del negocio en el período</small>
+                        </div>
+                        <span class="fw-extrabold text-success fs-3">${{ (utilidad_estimada)|cop }}</span>
+                    </div>
+                </div>
+
+                <div class="alert alert-info border-0 rounded-3 small m-0 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-circle-info fs-5"></i>
+                    <span>Este balance se calcula en base a las ventas facturadas, costos registrados de inventario y egresos en el módulo de Gastos.</span>
+                </div>
+            </div>
+
+            <div class="modal-footer border-top p-3 bg-white d-flex justify-content-between">
+                <button type="button" class="btn btn-dtavo-secondary rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-dtavo rounded-pill px-4" onclick="window.print();">
+                    <i class="fa-solid fa-print me-1.5"></i> Imprimir Balance
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Mostrar Clave Dinámica Generada -->
+<div class="modal fade" id="modalClaveGenerada" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg rounded-4 text-center p-4">
+            <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px; background: var(--gold-gradient); color: #1E1B18;">
+                <i class="fa-solid fa-key fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-dtavo-main mb-1">Clave de Autorización</h5>
+            <p class="text-dtavo-sec small mb-3">Válida durante 10 minutos para autorizar ventas o descuentos especiales.</p>
+            
+            <div class="p-3 rounded-3 mb-3" style="background: #FDFBF7; border: 2px dashed rgba(197, 159, 96, 0.6);">
+                <span class="fw-extrabold font-monospace text-dtavo-primary" id="dashboard-codigo-clave" style="font-size: 2rem; letter-spacing: 0.2em;">
+                    ------
+                </span>
+            </div>
+
+            <button type="button" class="btn btn-dtavo w-100 rounded-pill fw-bold" data-bs-dismiss="modal">
+                Entendido
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnGenerarClave = document.getElementById('btn-generar-clave-dashboard');
+    if (btnGenerarClave) {
+        btnGenerarClave.addEventListener('click', async function() {
+            btnGenerarClave.disabled = true;
+            btnGenerarClave.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Generando...';
+            try {
+                const response = await fetch('{{ url_for("admin_bp.generar_clave") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() if csrf_token else "" }}'
+                    }
+                });
+                const data = await response.json();
+                if (data.success && data.codigo) {
+                    document.getElementById('dashboard-codigo-clave').innerText = data.codigo;
+                    const modal = new bootstrap.Modal(document.getElementById('modalClaveGenerada'));
+                    modal.show();
+                } else {
+                    alert('No se pudo generar la clave dinámica.');
+                }
+            } catch(e) {
+                console.error(e);
+                alert('Error de conexión al generar la clave.');
+            } finally {
+                btnGenerarClave.disabled = false;
+                btnGenerarClave.innerHTML = '<i class="fa-solid fa-shield-halved me-1"></i> Generar Clave';
+            }
+        });
+    }
+});
+</script>
 
 {% endblock %}

@@ -1,247 +1,334 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div class="mb-4">
-        <h2 class="fw-bold text-dtavo-main m-0">Gestión de Inventario</h2>
+<style>
+/* Tarjetas de Inventario Luxury Gold con Amplio Espaciado y Alta Legibilidad */
+.dtavo-kpi-luxury-card {
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-top: 4px solid #C59F60 !important;
+    border-radius: 18px !important;
+    box-shadow: 0 4px 18px -2px rgba(197, 159, 96, 0.15), 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+    position: relative;
+    padding: 22px 24px !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.dtavo-kpi-luxury-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -4px rgba(197, 159, 96, 0.25), 0 4px 10px rgba(0, 0, 0, 0.06) !important;
+}
+
+.dtavo-kpi-icon-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.dtavo-kpi-icon-badge .gold-sparkle-dot {
+    position: absolute;
+    top: -5px;
+    right: -4px;
+    font-size: 11px;
+    color: #D4AF37;
+    filter: drop-shadow(0 0 3px rgba(212, 175, 55, 0.8));
+    animation: goldPulse 2s infinite ease-in-out;
+}
+
+@keyframes goldPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.3); opacity: 1; }
+}
+
+.dtavo-kpi-number {
+    font-size: 2.1rem !important;
+    font-weight: 800 !important;
+    color: #0F172A !important;
+    letter-spacing: -0.03em !important;
+    line-height: 1.15 !important;
+    font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+}
+</style>
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold text-dtavo-main m-0" style="font-size: 1.75rem; letter-spacing: -0.02em;">Inventario Central</h2>
         <p class="text-dtavo-sec small mb-0"><i class="fa-solid fa-eye me-1"></i> {{ titulo_contexto }}</p>
     </div>
     {% if busqueda_activa %}
-        <div class="ms-3">
-            <span class="badge bg-dtavo-primary rounded-pill px-3 py-2">
+        <div class="ms-0 ms-md-2">
+            <span class="badge bg-dtavo-primary text-dark rounded-pill px-3 py-2 fw-bold">
                 <i class="fa-solid fa-filter me-1"></i> {{ busqueda_activa }}
-                <a href="/inventory" class="text-white ms-2"><i class="fa-solid fa-circle-xmark"></i></a>
+                <a href="/inventory" class="text-dark ms-2"><i class="fa-solid fa-circle-xmark"></i></a>
             </span>
         </div>
     {% endif %}
-    <div class="d-flex gap-2">
-        <a href="{{ url_for('inventory_bp.retomas_index') }}" class="btn btn-outline-warning rounded-pill px-4 fw-bold shadow-sm">
-            <i class="fa-solid fa-mobile-retro me-1"></i> Ver Retomas
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <a href="{{ url_for('inventory_bp.retomas_index') }}" class="btn btn-outline-warning rounded-pill px-3.5 py-2 fw-bold shadow-sm" style="font-size: 0.84rem;">
+            <i class="fa-solid fa-mobile-retro me-1.5"></i> Ver Retomas
         </a>
         {% if current_user.rol != 'vendedor' %}
-        <button type="button" class="btn btn-outline-success rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#importarModal">
-            <i class="fa-solid fa-file-excel me-1"></i> Importar Masivo
+        <button type="button" class="btn btn-outline-success rounded-pill px-3.5 py-2 fw-bold shadow-sm bg-white d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#importarModal" style="border-color: #10B981; color: #059669; font-size: 0.84rem;">
+            <i class="fa-solid fa-file-excel me-1.5 text-success"></i> Importar Masivo
         </button>
         {% endif %}
-        <a href="/inventory/nuevo" class="btn btn-dtavo-secondary rounded-pill px-4 fw-bold shadow-sm">
-            <i class="fa-solid fa-plus me-1"></i> Nuevo Producto
+        <a href="/inventory/nuevo" class="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow-sm d-inline-flex align-items-center gap-1.5" style="background-color: #111827; border-color: #111827; font-size: 0.84rem;">
+            <i class="fa-solid fa-plus"></i> Nuevo Producto
         </a>
     </div>
 </div>
 
 {% if current_user.rol != 'vendedor' %}
-<!-- Valoración de Inventario (Panel Financiero) -->
+<!-- Panel Superior de Métricas de Inventario (Con Amplio Margen y Legibilidad Total) -->
 <div class="row g-3 mb-4">
-    <!-- Tarjeta 1: Valor a Costo -->
-    <div class="col-md-4">
-        <div class="card card-custom border-0 shadow-sm bg-dtavo-card h-100 p-3" style="border-left: 4px solid #C59F60 !important;">
-            <div class="d-flex align-items-center">
-                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 55px; height: 55px; background-color: rgba(197, 159, 96, 0.15);">
-                    <i class="fa-solid fa-coins fs-4" style="color: #C59F60;"></i>
-                </div>
-                <div>
-                    <h6 class="text-dtavo-sec fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Valor a Costo</h6>
-                    <h3 class="fw-bold text-dtavo-main m-0">${{ total_costo|cop }}</h3>
-                    <small class="text-dtavo-sec">Inversión total en bodega</small>
+    <!-- Tarjeta 1: CANTIDAD DE PRODUCTOS -->
+    <div class="col-12 col-md-4">
+        <div class="card dtavo-kpi-luxury-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold text-uppercase d-flex align-items-center gap-2" style="font-size: 0.74rem; letter-spacing: 0.05em; color: #475569 !important;">
+                    <i class="fa-solid fa-boxes-stacked text-warning fs-6"></i> CANTIDAD DE PRODUCTOS
+                </span>
+                <div class="dtavo-kpi-icon-badge" style="background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A;">
+                    <span class="gold-sparkle-dot">✦</span>
+                    <i class="fa-solid fa-box-open fs-5"></i>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <!-- Tarjeta 2: Valor Potencial -->
-    <div class="col-md-4">
-        <div class="card card-custom border-0 shadow-sm bg-dtavo-card h-100 p-3" style="border-left: 4px solid #22c55e !important;">
-            <div class="d-flex align-items-center">
-                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 55px; height: 55px; background-color: rgba(34, 197, 94, 0.15);">
-                    <i class="fa-solid fa-chart-line fs-4" style="color: #22c55e;"></i>
-                </div>
-                <div>
-                    <h6 class="text-dtavo-sec fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Valor Potencial</h6>
-                    <h3 class="fw-bold text-dtavo-main m-0">${{ total_potencial|cop }}</h3>
-                    <small class="text-dtavo-sec">Proyección de ventas</small>
-                </div>
+            <div class="my-2">
+                <span class="dtavo-kpi-number">{{ "{:,}".format(total_unidades) }}</span>
+                <span class="text-secondary fw-semibold ms-1" style="font-size: 1rem;">uds.</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top" style="border-color: #F1F5F9 !important;">
+                <span class="text-dark small fw-medium" style="font-size: 0.82rem;">
+                    <i class="fa-solid fa-tag text-muted me-1.5"></i> <strong id="totalReferenciasCount" class="text-dark">{{ total_items }}</strong> referencias activas
+                </span>
+                <span class="badge rounded-pill px-2.5 py-1.5 fw-bold" style="background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; font-size: 0.72rem;">Stock Físico</span>
             </div>
         </div>
     </div>
 
-    <!-- Tarjeta 3: Unidades en Stock -->
-    <div class="col-md-4">
-        <div class="card card-custom border-0 shadow-sm bg-dtavo-card h-100 p-3" style="border-left: 4px solid #3b82f6 !important;">
-            <div class="d-flex align-items-center">
-                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 55px; height: 55px; background-color: rgba(59, 130, 246, 0.15);">
-                    <i class="fa-solid fa-boxes-stacked fs-4" style="color: #3b82f6;"></i>
+    <!-- Tarjeta 2: VALOR PRODUCTOS A COSTO -->
+    <div class="col-12 col-md-4">
+        <div class="card dtavo-kpi-luxury-card h-100" style="border-top-color: #0284C7 !important;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold text-uppercase d-flex align-items-center gap-2" style="font-size: 0.74rem; letter-spacing: 0.05em; color: #475569 !important;">
+                    <i class="fa-solid fa-file-invoice-dollar text-info fs-6"></i> VALOR PRODUCTOS A COSTO
+                </span>
+                <div class="dtavo-kpi-icon-badge" style="background: #E0F2FE; color: #0369A1; border: 1px solid #BAE6FD;">
+                    <span class="gold-sparkle-dot">✦</span>
+                    <i class="fa-solid fa-receipt fs-5"></i>
                 </div>
-                <div>
-                    <h6 class="text-dtavo-sec fw-bold mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Unidades en Stock</h6>
-                    <h3 class="fw-bold text-dtavo-main m-0">{{ total_unidades }} <span class="fs-6 fw-normal text-muted">uds</span></h3>
-                    <small class="text-dtavo-sec">Ítems físicos disponibles</small>
+            </div>
+            <div class="my-2">
+                <span class="dtavo-kpi-number">${{ total_costo|cop }}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top" style="border-color: #F1F5F9 !important;">
+                <span class="text-dark small fw-medium" style="font-size: 0.82rem;">
+                    <i class="fa-regular fa-file-lines text-muted me-1.5"></i> Inversión en bodega
+                </span>
+                <span class="badge rounded-pill px-2.5 py-1.5 fw-bold" style="background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; font-size: 0.72rem;">Costo Adquisición</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjeta 3: VALOR PRODUCTOS A VENTA -->
+    <div class="col-12 col-md-4">
+        <div class="card dtavo-kpi-luxury-card h-100" style="border-top-color: #10B981 !important;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold text-uppercase d-flex align-items-center gap-2" style="font-size: 0.74rem; letter-spacing: 0.05em; color: #475569 !important;">
+                    <i class="fa-solid fa-arrow-trend-up text-success fs-6"></i> VALOR PRODUCTOS A VENTA
+                </span>
+                <div class="dtavo-kpi-icon-badge" style="background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0;">
+                    <span class="gold-sparkle-dot" style="color: #10B981;">✦</span>
+                    <i class="fa-solid fa-sack-dollar fs-5"></i>
                 </div>
+            </div>
+            <div class="my-2">
+                <span class="dtavo-kpi-number">${{ total_potencial|cop }}</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-3 mt-2 border-top" style="border-color: #F1F5F9 !important;">
+                <span class="text-success fw-bold small" style="font-size: 0.82rem;">
+                    <i class="fa-solid fa-chart-line me-1.5"></i> Margen: +${{ (total_potencial - total_costo)|cop }}
+                </span>
+                <span class="badge rounded-pill px-2.5 py-1.5 fw-bold" style="background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; font-size: 0.72rem;">PVP Sugerido</span>
             </div>
         </div>
     </div>
 </div>
 {% endif %}
 
-<!-- Buscador Rápido y Filtro por Nicho -->
-<div class="card card-custom p-3 mb-4 border-0 shadow-sm bg-dtavo-card">
-    <div class="row align-items-center g-3">
-        <div class="col-md-7 col-lg-7">
-            <div class="input-group input-group-lg shadow-sm rounded-pill overflow-hidden border">
-                <span class="input-group-text bg-dtavo-card border-0 ps-4"><i class="fa-solid fa-magnifying-glass text-dtavo-sec"></i></span>
-                <input type="text" id="inventarioSearch" class="form-control border-0 bg-dtavo-card shadow-none ps-2" placeholder="Busca por SKU, Nombre o IMEI/Serial..." autocomplete="off">
-                <button class="btn btn-light border-0 px-3 text-dtavo-sec" type="button" id="clearSearch" title="Limpiar búsqueda">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
+<!-- Barra de Búsqueda Rápida y Paginación (Multi-página Instantánea) -->
+<div class="d-flex flex-column flex-lg-row justify-content-between align-items-stretch align-items-lg-center gap-3 mb-3">
+    <!-- Buscador Integrado -->
+    <div class="d-flex align-items-center gap-2 flex-grow-1" style="max-width: 660px;">
+        <div class="input-group bg-white rounded-pill border shadow-xs p-1 flex-grow-1 align-items-center" style="border-color: #E5E7EB;">
+            <span class="input-group-text bg-transparent border-0 ps-3 text-secondary">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </span>
+            <input type="text" id="inventarioSearch" class="form-control border-0 bg-transparent shadow-none ps-2" placeholder="Buscar por SKU, Nombre o Subcategoría (ej: S20FE, Silico..." autocomplete="off" style="font-size: 0.88rem;">
+            <button type="button" id="clearSearch" class="btn btn-sm btn-link text-muted text-decoration-none px-2 me-1" title="Limpiar"><i class="fa-solid fa-xmark"></i></button>
+            <button class="btn btn-dark rounded-pill px-4 py-1.5 fw-bold text-uppercase" type="button" onclick="filterTable()" style="background-color: #111827; border-color: #111827; font-size: 0.75rem; letter-spacing: 0.05em;">
+                BUSCAR
+            </button>
         </div>
-        <div class="col-md-5 col-lg-5">
-            <div class="d-flex align-items-center gap-2">
-                <div class="input-group shadow-sm rounded-pill overflow-hidden border flex-grow-1">
-                    <span class="input-group-text bg-dtavo-card border-0 ps-3"><i class="fa-solid fa-filter text-dtavo-primary"></i></span>
-                    <select id="nichoFilterSelect" class="form-select border-0 bg-dtavo-card shadow-none ps-2 fw-bold text-dtavo-main" onchange="cambiarNichoFiltroInventario(this.value)">
-                        <option value="todas" {% if not session.categoria_actual %}selected{% endif %}>🌐 Todos los Nichos (General)</option>
-                        {% if todas_categorias %}
-                            {% for cat in todas_categorias %}
-                                <option value="{{ cat.id }}" {% if session.categoria_actual == cat.id %}selected{% endif %}>
-                                    Nicho: {{ cat.nombre }}
-                                </option>
-                            {% endfor %}
-                        {% endif %}
-                    </select>
-                </div>
-                <small class="text-dtavo-sec fw-bold text-uppercase d-none d-lg-block text-nowrap" style="font-size: 0.72rem;">
-                    <span id="visibleCount" class="text-dtavo-primary">{{ productos|length }}</span> de {{ productos|length }}
-                </small>
-            </div>
+
+        {% if todas_categorias %}
+        <div class="d-none d-sm-block">
+            <select id="nichoFilterSelect" class="form-select rounded-pill border shadow-xs py-2 px-3 fw-semibold text-secondary" style="font-size: 0.82rem; border-color: #E5E7EB;" onchange="cambiarNichoFiltroInventario(this.value)">
+                <option value="todas" {% if not session.categoria_actual %}selected{% endif %}>🌐 Nichos: Todos</option>
+                {% for cat in todas_categorias %}
+                    <option value="{{ cat.id }}" {% if session.categoria_actual == cat.id %}selected{% endif %}>
+                        {{ cat.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
         </div>
+        {% endif %}
+    </div>
+
+    <!-- Indicador de Paginación Superior -->
+    <div id="topPaginationIndicator" class="text-secondary small fw-semibold text-uppercase text-lg-end" style="font-size: 0.74rem; letter-spacing: 0.04em;">
+        MOSTRANDO <strong class="text-primary" id="visibleRange">1-15</strong> DE <strong id="totalMatchingCount">{{ total_items }}</strong> PRODUCTOS · PÁG. <span id="topPageIndicator">1/1</span>
     </div>
 </div>
 
-<div class="card card-custom p-0 overflow-hidden">
+<!-- ==================== VISTA ESCRITORIO: TABLA (Fiel a la Referencia) ==================== -->
+<div class="card bg-white border rounded-4 overflow-hidden d-none d-lg-block mb-4 shadow-xs" style="border-radius: 14px; border-color: #E5E7EB;">
     <div class="table-responsive">
-        <table class="table table-hover table-custom mb-0">
-            <thead class="bg-dtavo-card">
-                <tr>
-                    <th width="120" class="ps-4">SKU</th>
-                    <th>PRODUCTO</th>
-                    <th width="150" class="text-center">STOCK</th>
+        <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+            <thead>
+                <tr style="border-bottom: 2px solid #0284C7; background-color: #FAFAFA;">
+                    <th class="ps-3.5 py-3 text-secondary fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">SKU</th>
+                    <th class="py-3 text-secondary fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">PRODUCTO</th>
+                    <th class="text-center py-3 text-secondary fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">STOCK</th>
                     {% if current_user.rol != 'vendedor' %}
-                    <th width="150" class="text-end">PRECIO COSTO</th>
+                    <th class="text-center py-3 text-secondary fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">PRECIO COSTO</th>
                     {% endif %}
-                    <th width="150" class="text-end">PRECIO MÍNIMO</th>
-                    <th width="150" class="text-end pe-4">PRECIO SUGERIDO</th>
-                    <th width="140" class="text-center">ACCIONES</th>
+                    <th class="text-center py-3 text-secondary fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">PRECIO MÍNIMO</th>
+                    <th class="text-center py-3 text-secondary fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">PRECIO SUGERIDO</th>
+                    <th class="text-end pe-3.5 py-3 text-secondary fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">ACCIONES</th>
                 </tr>
             </thead>
             <tbody>
                 {% for p in productos %}
                 {% set imeis_str = p.series|map(attribute='serial')|join(' ') if p.series else '' %}
-                <tr data-imeis="{{ imeis_str }}" data-nicho="{{ p.categoria_id or '' }}">
-                    <td class="text-dtavo-sec"><small><strong>{{ p.sku }}</strong></small></td>
-                    <td class="fw-semibold text-dtavo-main">
+                {% set attr_str = p.atributos.values()|join(' ') if p.atributos else '' %}
+                {% set var_str = p.variantes|map(attribute='nombre_variante')|join(' ') if p.variantes else '' %}
+                <tr class="inv-desktop-row border-bottom" data-imeis="{{ imeis_str }}" data-nicho="{{ p.categoria_id or '' }}" data-sku="{{ p.sku|lower }}" data-nombre="{{ p.nombre|lower }}" data-extra="{{ (attr_str ~ ' ' ~ var_str)|lower }}" style="border-color: #F3F4F6;">
+                    <td class="ps-3.5 py-3 text-secondary" style="font-size: 0.84rem;">
+                        {{ p.sku }}
+                    </td>
+                    <td class="py-3">
                         <div class="d-flex align-items-center gap-2">
                             {% if p.imagen %}
-                                <a href="{{ url_for('static', filename='uploads/' ~ p.imagen) }}" target="_blank" title="Ver foto a tamaño completo">
-                                    <img src="{{ url_for('static', filename='uploads/' ~ p.imagen) }}" alt="Foto" class="rounded border shadow-xs" style="width: 36px; height: 36px; object-fit: cover;">
+                                <a href="{{ url_for('static', filename='uploads/' ~ p.imagen) }}" target="_blank" title="Ver foto">
+                                    <img src="{{ url_for('static', filename='uploads/' ~ p.imagen) }}" alt="Foto" class="rounded border shadow-xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;">
                                 </a>
                             {% endif %}
                             <div>
-                                <div>{{ p.nombre }}</div>
-                                <div class="mt-1 d-flex align-items-center gap-1 flex-wrap">
-                                    {% if p.imagen %}
-                                        <span class="badge bg-success-subtle text-success border border-success rounded-pill px-2 py-1" style="font-size: 0.65rem;">
-                                            <i class="fa-solid fa-camera me-1"></i>Con Foto
-                                        </span>
-                                    {% else %}
-                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary rounded-pill px-2 py-1" style="font-size: 0.65rem;">
-                                            <i class="fa-solid fa-image-slash me-1"></i>Sin Foto
-                                        </span>
-                                    {% endif %}
-
-                                    {% if p.atributos %}
+                                <span class="fw-bold text-dark d-block" style="font-size: 0.88rem;">{{ p.nombre }}</span>
+                                {% if p.atributos %}
+                                    <div class="d-flex align-items-center gap-1 flex-wrap mt-0.5">
                                         {% for k, v in p.atributos.items() %}
                                             {% if k != 'stock_minimo_alerta' %}
-                                                <span class="badge bg-dtavo-card text-dtavo-sec border fw-normal" style="font-size: 0.65rem;">{{ k }}: {{ v }}</span>
+                                                <span class="badge bg-light text-muted border rounded-pill px-1.5 py-0.5 fw-normal" style="font-size: 0.62rem;">{{ k }}: {{ v }}</span>
                                             {% endif %}
                                         {% endfor %}
-                                    {% endif %}
-                                </div>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td class="text-center py-3">
                         {% if p.es_stock_bajo %}
-                            <span class="badge bg-danger rounded-pill px-3 py-2" title="Alerta de stock bajo en {{ p.categoria.nombre if p.categoria else 'Nicho' }}"><i class="fa-solid fa-triangle-exclamation me-1"></i> {{ p.total_stock }} (Stock Bajo ≤ {{ p.stock_minimo_alerta }})</span>
+                            <span class="badge rounded-pill px-2.5 py-1 text-white fw-bold shadow-xs" style="background-color: #DC2626; font-size: 0.72rem;">
+                                <i class="fa-solid fa-caret-up me-1"></i>{{ p.total_stock }} (Stock Bajo)
+                            </span>
                         {% else %}
-                            <span class="badge border border-dtavo-primary text-dtavo-main rounded-pill px-3 py-2" style="background-color: var(--dtavo-table-header);">{{ p.total_stock }} uds</span>
+                            <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1 fw-normal" style="font-size: 0.74rem;">
+                                {{ p.total_stock }} unidades
+                            </span>
                         {% endif %}
 
                         {% if p.variantes %}
-                            <div class="mt-2 pt-1 border-top">
-                                <div class="d-flex flex-wrap gap-1 mt-1">
-                                    {% for v in p.variantes %}
-                                        <div class="d-flex align-items-center gap-1 py-0 px-2 rounded-pill shadow-xs border" style="background-color: var(--dtavo-card-bg); border-color: var(--dtavo-border) !important; width: fit-content;" title="{{ v.nombre_variante }}">
-                                            <span class="fw-bold text-truncate" style="font-size: 0.65rem; color: var(--dtavo-primary); max-width: 60px;">{{ v.nombre_variante }}</span>
-                                            <span class="badge rounded-pill shadow-sm px-1 py-0" style="background-color: var(--dtavo-hover); color: #FFFFFF; font-size: 0.62rem; min-width: 18px;">{{ v.cantidad_stock }}</span>
-                                        </div>
-                                    {% endfor %}
-                                </div>
+                            <div class="d-flex flex-wrap gap-1 justify-content-center mt-1">
+                                {% for v in p.variantes %}
+                                    <span class="badge bg-white border text-secondary rounded-pill px-1.5 py-0.5" style="font-size: 0.62rem;" title="{{ v.nombre_variante }}">
+                                        {{ v.nombre_variante }}: <strong class="text-primary">{{ v.cantidad_stock }}</strong>
+                                    </span>
+                                {% endfor %}
                             </div>
                         {% endif %}
                     </td>
                     {% if current_user.rol != 'vendedor' %}
-                    <td class="text-end fw-bold" style="color: var(--dtavo-hover);">${{ (p.precio_costo)|cop }}</td>
+                    <td class="text-center py-3 fw-bold" style="color: #0284C7; font-size: 0.88rem;">
+                        ${{ (p.precio_costo)|cop }}
+                    </td>
                     {% endif %}
-                    <td class="text-end text-dtavo-sec fw-bold">${{ (p.precio_minimo)|cop }}</td>
-                    <td class="text-end fw-bold text-dtavo-main pe-4">
+                    <td class="text-center py-3 text-secondary" style="font-size: 0.88rem;">
+                        ${{ (p.precio_minimo)|cop }}
+                    </td>
+                    <td class="text-center py-3 fw-bold text-dark" style="font-size: 0.88rem;">
                         {% if p.rango_precios %}
                             {% if p.rango_precios is number %}
                                 ${{ (p.rango_precios)|cop }}
                             {% else %}
-                                <div class="small text-dtavo-sec fw-normal" style="line-height:1;">Desde</div>
-                                ${{ (p.rango_precios[0])|cop }}<br>
-                                <div class="small text-dtavo-sec fw-normal mt-1" style="line-height:1;">hasta</div>
-                                ${{ (p.rango_precios[1])|cop }}
+                                ${{ (p.rango_precios[0])|cop }} - ${{ (p.rango_precios[1])|cop }}
                             {% endif %}
                         {% else %}
                             ${{ (p.precio_sugerido)|cop }}
                         {% endif %}
                     </td>
-                    <td class="text-center">
-                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill me-1" title="Agregar al Carrito de Inventario" data-id="{{ p.id }}" data-nombre="{{ p.nombre }}" data-precio="{{ p.precio_sugerido or 0 }}" data-sku="{{ p.sku }}" data-stock="{{ p.total_stock }}" data-imagen="{{ p.imagen or '' }}" onclick="agregarAlCarritoInventario(this.dataset.id, this.dataset.nombre, this.dataset.precio, this.dataset.sku, this.dataset.stock, this.dataset.imagen)">
-                            <i class="fa-solid fa-cart-plus"></i>
-                        </button>
-                        {% if p.es_serializado %}
-                        <button type="button" class="btn btn-sm btn-outline-warning rounded-pill me-1" title="Gestionar Seriales (IMEI)" data-id="{{ p.id }}" data-nombre="{{ p.nombre }}" onclick="abrirModalSeriales(this.dataset.id, this.dataset.nombre)">
-                            <i class="fa-solid fa-barcode"></i>
-                        </button>
-                        {% endif %}
-                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill hover-primary me-1" title="Gestionar Variantes" data-bs-toggle="modal" data-bs-target="#variantesModal{{ p.id }}">
-                            <i class="fa-solid fa-layer-group"></i>
-                        </button>
-                        <a href="{{ url_for('inventory_bp.ver_producto', id=p.id) }}" class="btn btn-sm btn-outline-info rounded-pill hover-primary me-1" title="Ver Detalle">
-                            <i class="fa-solid fa-eye"></i>
-                        </a>
-                        <!-- Enlace dinámico con ID insertado (Jinja2 url_for) -->
-                        <a href="{{ url_for('inventory_bp.editar_producto', id=p.id) }}" class="btn btn-sm text-secondary hover-primary me-1" title="Editar">
-                            <i class="fa-solid fa-pen"></i>
-                        </a>
-                        {% if current_user.rol != 'vendedor' %}
-                        <form method="POST" action="{{ url_for('inventory_bp.eliminar_producto', id=p.id) }}" class="d-inline" onsubmit="return confirm('ATENCIÓN: ¿Está seguro de que desea ELIMINAR PERMANENTEMENTE este producto del sistema en la Nube? Esto no se puede deshacer.');">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button type="submit" class="btn btn-sm text-danger hover-danger" title="Eliminar Producto">
-                                <i class="fa-solid fa-trash-can"></i>
+                    <td class="text-end pe-3.5 py-3">
+                        <div class="d-flex align-items-center justify-content-end gap-1.5 flex-nowrap">
+                            <!-- Botón Subcategorías -->
+                            <button type="button" class="btn btn-sm rounded-pill px-2.5 py-1 fw-medium border d-inline-flex align-items-center gap-1.5" style="border-color: #38BDF8; color: #0284C7; background-color: #F0F9FF; font-size: 0.75rem;" data-bs-toggle="modal" data-bs-target="#variantesModal{{ p.id }}">
+                                <i class="fa-solid fa-sitemap" style="font-size: 0.68rem;"></i>
+                                <span>Subcategorías</span>
                             </button>
-                        </form>
-                        {% endif %}
+
+                            {% if p.es_serializado %}
+                            <button type="button" class="btn btn-sm btn-outline-warning rounded-circle p-0" style="width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Gestionar Seriales (IMEI)" data-id="{{ p.id }}" data-nombre="{{ p.nombre }}" onclick="abrirModalSeriales(this.dataset.id, this.dataset.nombre)">
+                                <i class="fa-solid fa-barcode" style="font-size: 0.72rem;"></i>
+                            </button>
+                            {% endif %}
+
+                            <!-- Ver Detalle -->
+                            <a href="{{ url_for('inventory_bp.ver_producto', id=p.id) }}" class="btn btn-sm text-primary p-1" title="Ver Detalle">
+                                <i class="fa-regular fa-eye fs-6"></i>
+                            </a>
+
+                            <!-- Editar -->
+                            <a href="{{ url_for('inventory_bp.editar_producto', id=p.id) }}" class="btn btn-sm text-secondary p-1" title="Editar Producto">
+                                <i class="fa-solid fa-pen fs-6"></i>
+                            </a>
+
+                            <!-- Eliminar -->
+                            {% if current_user.rol != 'vendedor' %}
+                            <form method="POST" action="{{ url_for('inventory_bp.eliminar_producto', id=p.id) }}" class="d-inline m-0" onsubmit="return confirm('¿Eliminar este producto?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-sm text-danger p-1" title="Eliminar Producto">
+                                    <i class="fa-regular fa-trash-can fs-6"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            <!-- Carrito / Vender -->
+                            <button type="button" class="btn btn-sm text-success p-1" title="Vender / Agregar al Carrito" data-id="{{ p.id }}" data-nombre="{{ p.nombre }}" data-precio="{{ p.precio_sugerido or 0 }}" data-sku="{{ p.sku }}" data-stock="{{ p.total_stock }}" data-imagen="{{ p.imagen or '' }}" onclick="agregarAlCarritoInventario(this.dataset.id, this.dataset.nombre, this.dataset.precio, this.dataset.sku, this.dataset.stock, this.dataset.imagen)">
+                                <i class="fa-solid fa-cart-plus fs-6"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="6" class="text-center py-5 text-dtavo-sec">
-                        <!-- Icono en Rosa Pastel -->
-                        <i class="fa-solid fa-box-open fs-1 mb-3 text-dtavo-primary"></i>
-                        <p class="mb-0">El inventario está vacío.</p>
+                    <td colspan="7" class="text-center py-5 text-secondary">
+                        <i class="fa-solid fa-box-open fs-2 mb-2 text-primary opacity-50 d-block"></i>
+                        El inventario está vacío.
                     </td>
                 </tr>
                 {% endfor %}
@@ -250,35 +337,123 @@
     </div>
 </div>
 
-<!-- Controles de Paginación (30 productos por página) -->
-{% if total_pages and total_pages > 1 %}
-<div class="card border-0 shadow-sm mt-3 p-3 bg-dtavo-card">
+<!-- ==================== VISTA MÓVIL / TABLET: TARJETAS TÁCTILES (d-block d-lg-none) ==================== -->
+<div class="d-block d-lg-none mb-4" id="invMobileContainer">
+    <div class="d-flex flex-column gap-2.5">
+        {% for p in productos %}
+        {% set imeis_str = p.series|map(attribute='serial')|join(' ') if p.series else '' %}
+        {% set attr_str = p.atributos.values()|join(' ') if p.atributos else '' %}
+        {% set var_str = p.variantes|map(attribute='nombre_variante')|join(' ') if p.variantes else '' %}
+        <div class="card bg-white border rounded-3 p-3 inv-mobile-card shadow-xs" data-imeis="{{ imeis_str }}" data-nicho="{{ p.categoria_id or '' }}" data-sku="{{ p.sku|lower }}" data-nombre="{{ p.nombre|lower }}" data-extra="{{ (attr_str ~ ' ' ~ var_str)|lower }}" style="border-color: #E5E7EB;">
+            <!-- Fila 1: SKU y Stock Badge -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-secondary font-monospace fw-semibold" style="font-size: 0.75rem;">
+                    {{ p.sku }}
+                </span>
+                {% if p.es_stock_bajo %}
+                    <span class="badge rounded-pill px-2.5 py-1 text-white fw-bold" style="background-color: #DC2626; font-size: 0.7rem;">
+                        <i class="fa-solid fa-caret-up me-1"></i>{{ p.total_stock }} (Stock Bajo)
+                    </span>
+                {% else %}
+                    <span class="badge bg-light text-dark border rounded-pill px-2 py-0.5 fw-normal" style="font-size: 0.72rem;">
+                        {{ p.total_stock }} unidades
+                    </span>
+                {% endif %}
+            </div>
+
+            <!-- Fila 2: Nombre del producto y foto -->
+            <div class="d-flex align-items-start gap-2.5 mb-2.5">
+                {% if p.imagen %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ p.imagen) }}" alt="Foto" class="rounded border shadow-xs flex-shrink-0" style="width: 40px; height: 40px; object-fit: cover;">
+                {% endif %}
+                <div class="flex-grow-1 overflow-hidden">
+                    <h6 class="fw-bold text-dark mb-0" style="font-size: 0.92rem; line-height: 1.25;">{{ p.nombre }}</h6>
+                    {% if p.atributos %}
+                        <div class="d-flex align-items-center gap-1 flex-wrap mt-1">
+                            {% for k, v in p.atributos.items() %}
+                                {% if k != 'stock_minimo_alerta' %}
+                                    <span class="badge bg-light text-secondary border rounded-pill px-1.5 py-0.5 fw-normal" style="font-size: 0.62rem;">{{ k }}: {{ v }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Fila 3: Micro Tira de Precios -->
+            <div class="d-flex justify-content-between p-2 rounded-2 bg-light border mb-2 text-center" style="font-size: 0.75rem; border-color: #F3F4F6 !important;">
+                {% if current_user.rol != 'vendedor' %}
+                <div class="flex-fill border-end pe-1">
+                    <span class="text-secondary d-block" style="font-size: 0.62rem; text-transform: uppercase;">Precio Costo</span>
+                    <strong style="color: #0284C7;">${{ (p.precio_costo)|cop }}</strong>
+                </div>
+                {% endif %}
+                <div class="flex-fill border-end px-1">
+                    <span class="text-secondary d-block" style="font-size: 0.62rem; text-transform: uppercase;">Precio Mínimo</span>
+                    <strong class="text-secondary">${{ (p.precio_minimo)|cop }}</strong>
+                </div>
+                <div class="flex-fill ps-1">
+                    <span class="text-secondary d-block" style="font-size: 0.62rem; text-transform: uppercase;">Precio Sugerido</span>
+                    <strong class="text-dark fw-bold">${{ (p.precio_sugerido)|cop }}</strong>
+                </div>
+            </div>
+
+            <!-- Fila 4: Acciones -->
+            <div class="d-flex align-items-center justify-content-between gap-1 pt-2 border-top" style="border-color: #F3F4F6 !important;">
+                <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold border d-inline-flex align-items-center gap-1.5" style="border-color: #38BDF8; color: #0284C7; background-color: #F0F9FF; font-size: 0.75rem;" data-bs-toggle="modal" data-bs-target="#variantesModal{{ p.id }}">
+                    <i class="fa-solid fa-sitemap" style="font-size: 0.68rem;"></i>
+                    <span>Subcategorías</span>
+                </button>
+
+                <div class="d-flex align-items-center gap-1">
+                    {% if p.es_serializado %}
+                    <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-2 py-1 fw-bold" style="font-size: 0.72rem;" title="IMEIs" data-id="{{ p.id }}" data-nombre="{{ p.nombre }}" onclick="abrirModalSeriales(this.dataset.id, this.dataset.nombre)">
+                        <i class="fa-solid fa-barcode"></i>
+                    </button>
+                    {% endif %}
+
+                    <a href="{{ url_for('inventory_bp.ver_producto', id=p.id) }}" class="btn btn-sm text-primary p-1" title="Ver Detalle">
+                        <i class="fa-regular fa-eye fs-6"></i>
+                    </a>
+
+                    <a href="{{ url_for('inventory_bp.editar_producto', id=p.id) }}" class="btn btn-sm text-secondary p-1" title="Editar">
+                        <i class="fa-solid fa-pen fs-6"></i>
+                    </a>
+
+                    <button type="button" class="btn btn-sm text-success p-1" title="Vender" data-id="{{ p.id }}" data-nombre="{{ p.nombre }}" data-precio="{{ p.precio_sugerido or 0 }}" data-sku="{{ p.sku }}" data-stock="{{ p.total_stock }}" data-imagen="{{ p.imagen or '' }}" onclick="agregarAlCarritoInventario(this.dataset.id, this.dataset.nombre, this.dataset.precio, this.dataset.sku, this.dataset.stock, this.dataset.imagen)">
+                        <i class="fa-solid fa-cart-plus fs-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card bg-white border rounded-3 p-4 text-center text-secondary">
+            <i class="fa-solid fa-box-open fs-2 mb-2 text-primary opacity-50 d-block"></i>
+            El inventario está vacío.
+        </div>
+        {% endfor %}
+
+        <!-- Mensaje de no resultados móvil -->
+        <div id="noResultsMobile" class="card bg-white border rounded-3 p-4 text-center text-secondary d-none">
+            <i class="fa-solid fa-magnifying-glass-minus fs-2 mb-2 opacity-25 d-block"></i>
+            No se encontraron productos que coincidan con la búsqueda.
+        </div>
+    </div>
+</div>
+
+<!-- ==================== CONTROLES DE PAGINACIÓN DINÁMICA (Multi-Página Instantánea) ==================== -->
+<div id="inventoryPaginationContainer" class="card border-0 shadow-sm mt-3 p-3 bg-dtavo-card">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-        <div class="small text-dtavo-sec">
-            Mostrando <strong>{{ (page - 1) * per_page + 1 }}</strong> a <strong>{% if (page * per_page) < total_items %}{{ page * per_page }}{% else %}{{ total_items }}{% endif %}</strong> de <strong>{{ total_items }}</strong> productos
+        <div class="small text-dtavo-sec" id="paginationRangeText">
+            Mostrando <strong>1</strong> a <strong>15</strong> de <strong>{{ total_items }}</strong> productos
         </div>
         <nav aria-label="Navegación de inventario">
-            <ul class="pagination pagination-sm m-0 gap-1">
-                <li class="page-item {% if page <= 1 %}disabled{% endif %}">
-                    <a class="page-link rounded-pill bg-dtavo-card border text-dtavo-main px-3" href="{{ url_for('inventory_bp.index', page=page-1) }}"><i class="fa-solid fa-chevron-left me-1"></i>Anterior</a>
-                </li>
-                {% for p_num in range(1, total_pages + 1) %}
-                    {% if p_num == 1 or p_num == total_pages or (p_num >= page - 2 and p_num <= page + 2) %}
-                        <li class="page-item {% if p_num == page %}active{% endif %}">
-                            <a class="page-link rounded-circle {% if p_num == page %}bg-dtavo-primary text-dark fw-bold border-0{% else %}bg-dtavo-card text-dtavo-main border{% endif %}" href="{{ url_for('inventory_bp.index', page=p_num) }}" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">{{ p_num }}</a>
-                        </li>
-                    {% elif p_num == page - 3 or p_num == page + 3 %}
-                        <li class="page-item disabled"><span class="page-link rounded-circle bg-dtavo-card border-0 text-dtavo-sec" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">...</span></li>
-                    {% endif %}
-                {% endfor %}
-                <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
-                    <a class="page-link rounded-pill bg-dtavo-card border text-dtavo-main px-3" href="{{ url_for('inventory_bp.index', page=page+1) }}">Siguiente<i class="fa-solid fa-chevron-right ms-1"></i></a>
-                </li>
+            <ul class="pagination pagination-sm m-0 gap-1" id="paginationList">
+                <!-- JS inyecta los botones de páginas dinámicamente -->
             </ul>
         </nav>
     </div>
 </div>
-{% endif %}
 
 <!-- Modales de Variantes generados fuera de la tabla para evitar cortes de interfaz -->
 {% for p in productos %}
@@ -462,72 +637,187 @@
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('inventarioSearch');
     const clearBtn = document.getElementById('clearSearch');
-    const tableRows = document.querySelectorAll('tbody tr:not(.no-results)');
-    const visibleCount = document.getElementById('visibleCount');
-    const tbody = document.querySelector('tbody');
+    const desktopRows = Array.from(document.querySelectorAll('.inv-desktop-row'));
+    const mobileCards = Array.from(document.querySelectorAll('.inv-mobile-card'));
+    const tbody = document.querySelector('table tbody');
+    const noResultsMobile = document.getElementById('noResultsMobile');
 
-    // Crear fila de "No hay resultados" si no existe
-    const noResultsRow = document.createElement('tr');
-    noResultsRow.className = 'no-results d-none';
-    noResultsRow.innerHTML = `<td colspan="7" class="text-center py-5 text-dtavo-sec">
-        <i class="fa-solid fa-magnifying-glass-minus fs-1 mb-3 opacity-25"></i>
-        <p class="mb-0">No se encontraron productos que coincidan con tu búsqueda.</p>
-    </td>`;
-    tbody.appendChild(noResultsRow);
+    // Crear fila de "No hay resultados" si no existe en la tabla de escritorio
+    let noResultsRow = tbody ? tbody.querySelector('.no-results') : null;
+    if (tbody && !noResultsRow) {
+        noResultsRow = document.createElement('tr');
+        noResultsRow.className = 'no-results d-none';
+        noResultsRow.innerHTML = `<td colspan="7" class="text-center py-5 text-dtavo-sec">
+            <i class="fa-solid fa-magnifying-glass-minus fs-1 mb-3 opacity-25"></i>
+            <p class="mb-0">No se encontraron productos que coincidan con tu búsqueda.</p>
+        </td>`;
+        tbody.appendChild(noResultsRow);
+    }
 
-    const nichoSelect = document.getElementById('nichoFilterSelect');
+    const ITEMS_PER_PAGE = 15;
+    let currentPage = 1;
+    let matchingDesktopRows = Array.from(desktopRows);
+    let matchingMobileCards = Array.from(mobileCards);
 
-    function filterTable() {
-        const query = searchInput.value.toLowerCase().trim();
-        const selectedNicho = nichoSelect ? nichoSelect.value : 'todas';
-        let matches = 0;
+    function renderPagination() {
+        const totalMatches = matchingDesktopRows.length;
+        const totalPages = Math.ceil(totalMatches / ITEMS_PER_PAGE) || 1;
 
-        tableRows.forEach(row => {
-            if (row.classList.contains('no-results')) return;
-            const sku = row.cells[0] ? row.cells[0].textContent.toLowerCase() : '';
-            const nombre = row.cells[1] ? row.cells[1].textContent.toLowerCase() : '';
-            const imeis = (row.dataset.imeis || '').toLowerCase();
-            const rowNicho = row.dataset.nicho || '';
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
 
-            const matchesQuery = query === '' || sku.includes(query) || nombre.includes(query) || imeis.includes(query);
-            const matchesNicho = selectedNicho === 'todas' || selectedNicho === '' || rowNicho === selectedNicho;
+        const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIdx = startIdx + ITEMS_PER_PAGE;
 
-            if (matchesQuery && matchesNicho) {
+        // Mostrar / Ocultar filas de escritorio
+        desktopRows.forEach(row => row.classList.add('d-none'));
+        matchingDesktopRows.forEach((row, index) => {
+            if (index >= startIdx && index < endIdx) {
                 row.classList.remove('d-none');
-                matches++;
-            } else {
-                row.classList.add('d-none');
             }
         });
 
-        if (visibleCount) visibleCount.textContent = matches;
+        // Mostrar / Ocultar tarjetas móviles
+        mobileCards.forEach(card => card.classList.add('d-none'));
+        matchingMobileCards.forEach((card, index) => {
+            if (index >= startIdx && index < endIdx) {
+                card.classList.remove('d-none');
+            }
+        });
 
-        if (matches === 0 && (query !== '' || selectedNicho !== 'todas')) {
-            noResultsRow.classList.remove('d-none');
+        // Mensaje cuando no hay resultados
+        if (totalMatches === 0) {
+            if (noResultsRow) noResultsRow.classList.remove('d-none');
+            if (noResultsMobile) noResultsMobile.classList.remove('d-none');
         } else {
-            noResultsRow.classList.add('d-none');
+            if (noResultsRow) noResultsRow.classList.add('d-none');
+            if (noResultsMobile) noResultsMobile.classList.add('d-none');
+        }
+
+        // Actualizar textos de rango e indicadores
+        const startItemNum = totalMatches > 0 ? startIdx + 1 : 0;
+        const endItemNum = Math.min(endIdx, totalMatches);
+
+        const visibleRangeEl = document.getElementById('visibleRange');
+        if (visibleRangeEl) visibleRangeEl.textContent = `${startItemNum}-${endItemNum}`;
+
+        const totalMatchingCountEl = document.getElementById('totalMatchingCount');
+        if (totalMatchingCountEl) totalMatchingCountEl.textContent = totalMatches;
+
+        const topPageIndicator = document.getElementById('topPageIndicator');
+        if (topPageIndicator) topPageIndicator.textContent = `${currentPage}/${totalPages}`;
+
+        const rangeTextEl = document.getElementById('paginationRangeText');
+        if (rangeTextEl) {
+            rangeTextEl.innerHTML = `Mostrando <strong>${startItemNum}</strong> a <strong>${endItemNum}</strong> de <strong>${totalMatches}</strong> productos`;
+        }
+
+        // Renderizar lista de botones de paginación
+        const paginationList = document.getElementById('paginationList');
+        const paginationContainer = document.getElementById('inventoryPaginationContainer');
+        
+        if (paginationContainer) {
+            if (totalPages <= 1 && totalMatches > 0) {
+                paginationContainer.classList.add('d-none');
+            } else {
+                paginationContainer.classList.remove('d-none');
+            }
+        }
+
+        if (paginationList) {
+            paginationList.innerHTML = '';
+
+            // Botón Anterior
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage <= 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<a class="page-link rounded-pill bg-dtavo-card border text-dtavo-main px-3" href="javascript:void(0)"><i class="fa-solid fa-chevron-left me-1"></i>Anterior</a>`;
+            if (currentPage > 1) {
+                prevLi.querySelector('a').addEventListener('click', () => {
+                    currentPage--;
+                    renderPagination();
+                    window.scrollTo({ top: 300, behavior: 'smooth' });
+                });
+            }
+            paginationList.appendChild(prevLi);
+
+            // Números de página
+            for (let p = 1; p <= totalPages; p++) {
+                if (p === 1 || p === totalPages || (p >= currentPage - 2 && p <= currentPage + 2)) {
+                    const pageLi = document.createElement('li');
+                    pageLi.className = `page-item ${p === currentPage ? 'active' : ''}`;
+                    const activeStyle = p === currentPage ? 'background-color: var(--dtavo-primary) !important; color: #1A1A1A !important; font-weight: bold; border: 0 !important;' : 'background-color: var(--dtavo-card); color: var(--dtavo-main); border: 1px solid var(--dtavo-border);';
+                    pageLi.innerHTML = `<a class="page-link rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; ${activeStyle}" href="javascript:void(0)">${p}</a>`;
+                    
+                    const pageNum = p;
+                    pageLi.querySelector('a').addEventListener('click', () => {
+                        currentPage = pageNum;
+                        renderPagination();
+                        window.scrollTo({ top: 300, behavior: 'smooth' });
+                    });
+                    paginationList.appendChild(pageLi);
+                } else if (p === currentPage - 3 || p === currentPage + 3) {
+                    const dotsLi = document.createElement('li');
+                    dotsLi.className = 'page-item disabled';
+                    dotsLi.innerHTML = `<span class="page-link rounded-circle bg-dtavo-card border-0 text-dtavo-sec d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">...</span>`;
+                    paginationList.appendChild(dotsLi);
+                }
+            }
+
+            // Botón Siguiente
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage >= totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<a class="page-link rounded-pill bg-dtavo-card border text-dtavo-main px-3" href="javascript:void(0)">Siguiente<i class="fa-solid fa-chevron-right ms-1"></i></a>`;
+            if (currentPage < totalPages) {
+                nextLi.querySelector('a').addEventListener('click', () => {
+                    currentPage++;
+                    renderPagination();
+                    window.scrollTo({ top: 300, behavior: 'smooth' });
+                });
+            }
+            paginationList.appendChild(nextLi);
         }
     }
 
-function cambiarNichoFiltroInventario(val) {
-    if (val === 'todas') {
-        window.location.href = "{{ url_for('salir_nicho') }}";
-    } else {
-        window.location.href = "/seleccionar_nicho/" + val;
-    }
-}
+    function filterTable() {
+        const query = searchInput.value.toLowerCase().trim();
+        currentPage = 1;
 
-    if (nichoSelect) {
-        nichoSelect.addEventListener('change', filterTable);
+        matchingDesktopRows = [];
+        matchingMobileCards = [];
+
+        desktopRows.forEach((row, i) => {
+            const sku = (row.dataset.sku || '').toLowerCase();
+            const nombre = (row.dataset.nombre || '').toLowerCase();
+            const imeis = (row.dataset.imeis || '').toLowerCase();
+            const extra = (row.dataset.extra || '').toLowerCase();
+
+            const matchesQuery = query === '' || sku.includes(query) || nombre.includes(query) || imeis.includes(query) || extra.includes(query);
+
+            if (matchesQuery) {
+                matchingDesktopRows.push(row);
+                if (mobileCards[i]) {
+                    matchingMobileCards.push(mobileCards[i]);
+                }
+            }
+        });
+
+        renderPagination();
     }
+
+    // Inicializar paginación en carga
+    renderPagination();
+
+    window.filterTable = filterTable;
 
     searchInput.addEventListener('input', filterTable);
 
-    clearBtn.addEventListener('click', () => {
-        searchInput.value = '';
-        filterTable();
-        searchInput.focus();
-    });
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            filterTable();
+            searchInput.focus();
+        });
+    }
 
     // Formatear automáticamente inputs de dinero con comas
     function formatMoneyInput(input) {
@@ -564,6 +854,15 @@ function cambiarNichoFiltroInventario(val) {
         renderInvCart();
     }
 });
+
+// --- Cambio de Nicho ---
+function cambiarNichoFiltroInventario(val) {
+    if (val === 'todas') {
+        window.location.href = "{{ url_for('salir_nicho') }}";
+    } else {
+        window.location.href = "/seleccionar_nicho/" + val;
+    }
+}
 
 // --- Lógica de Gestión de Seriales ---
 let currentProductId = null;

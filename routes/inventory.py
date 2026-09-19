@@ -88,23 +88,17 @@ def index():
             total_costo += (stock_actual * float(p.precio_costo))
             total_potencial += (stock_actual * float(p.precio_sugerido))
 
-    # Paginación de 30 ítems por página
     total_items = len(all_productos)
+    per_page = 15
     total_pages = math.ceil(total_items / per_page) if total_items > 0 else 1
-    if page < 1: page = 1
-    if page > total_pages: page = total_pages
-
-    start_idx = (page - 1) * per_page
-    end_idx = start_idx + per_page
-    productos_pagina = all_productos[start_idx:end_idx]
             
     return render_template('inventory/index.html', 
-                           productos=productos_pagina, 
+                           productos=all_productos, 
                            total_unidades=total_unidades, 
                            total_costo=total_costo, 
                            total_potencial=total_potencial,
                            titulo_contexto=titulo_contexto,
-                           page=page,
+                           page=1,
                            total_pages=total_pages,
                            total_items=total_items,
                            per_page=per_page)
